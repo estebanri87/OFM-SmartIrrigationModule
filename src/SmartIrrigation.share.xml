@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openknx xmlns:op="https://github.com/OpenKNX/OpenKNXproducer" Prefix="SIR">
+    <op:verify ApplicationVersion="1" ModuleVersion="1" />
+</openknx>

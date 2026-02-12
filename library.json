@@ -1,0 +1,14 @@
+{
+    "name": "OFM-SmartIrrigationModule",
+    "version": "0.1.0",
+    "description": "OpenKNX Smart Irrigation Module",
+    "homepage": "https://openknx.de",
+    "authors": {
+        "name": "OpenKNX",
+        "email": "info@openknx.de",
+        "url": "https://openknx.de",
+        "maintainer": true
+    },
+    "license": "AGPL-3.0-only",
+    "dependencies": {}
+}

@@ -1,0 +1,7 @@
+{
+    "name": "ofm-smartirrigationmodule",
+    "version": "0.1.0",
+    "private": true,
+    "description": "OpenKNX OFM Smart Irrigation Module",
+    "license": "AGPL-3.0-only"
+}
