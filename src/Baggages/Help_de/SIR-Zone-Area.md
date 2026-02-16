@@ -1,3 +1,4 @@
-### Flaeche
+﻿### Flaeche
 
-Groesse der zu bewaessernden Flaeche in m2.
+Groesse der zu bewaessernden Flaeche in Quadratmetern.
+

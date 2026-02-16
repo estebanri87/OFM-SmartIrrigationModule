@@ -1,3 +1,4 @@
-### Durchfluss System
+﻿### Durchfluss System
 
-Durchflussrate des Bewaesserungssystems in l/min.
+Wasserdurchfluss des Bewaesserungssystems (Tropfschlauch, Sprinkler, etc.).
+

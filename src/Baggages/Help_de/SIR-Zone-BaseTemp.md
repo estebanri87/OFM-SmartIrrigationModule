@@ -1,3 +1,4 @@
-### Basistemperatur
+﻿### Basistemperatur
 
-Ab dieser Temperatur ist Bewaesserung freigegeben.
+Ab dieser Temperatur wird Bewaesserung freigegeben. Bei Hitze wird Wassermenge dynamisch erhoeht.
+

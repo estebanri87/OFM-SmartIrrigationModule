@@ -1,3 +1,4 @@
-### Windrichtung (Sensor)
+﻿### Windrichtung (Sensor)
 
 Optional. Zusaetzliche Eingabe fuer erweiterte Berechnung.
+

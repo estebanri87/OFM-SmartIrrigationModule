@@ -1,3 +1,4 @@
-### Max. Laufzeit pro Zyklus
+﻿### Max. Laufzeit pro Zyklus
 
 Maximale Bewaesserungsdauer je Zyklus in Minuten.
+

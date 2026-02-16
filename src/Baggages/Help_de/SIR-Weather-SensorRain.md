@@ -1,3 +1,4 @@
-### Regen (Sensor)
+﻿### Regen (Sensor)
 
-MUSS-Sensor. Regen sperrt die Bewaesserung und erzeugt Sperrzeiten.
+MUSS-Sensor. Dieser Sensor ist fuer optimale Funktion erforderlich. Bei Ausfall wird Fallback-Modus verwendet.
+

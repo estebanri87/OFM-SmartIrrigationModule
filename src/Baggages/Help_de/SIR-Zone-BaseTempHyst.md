@@ -1,3 +1,4 @@
-### Basistemperatur-Hysterese
+﻿### Basistemperatur-Hysterese
 
-Verhindert staendiges Neuberechnen bei Temperaturschwankungen.
+Verhindert staendige Neuberechnung bei Temperaturschwankungen. Evaluation erfolgt einmal taeglich.
+

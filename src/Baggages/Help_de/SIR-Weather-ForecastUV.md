@@ -1,3 +1,4 @@
-### UV-Index (Prognose)
+﻿### UV-Index (Prognose)
 
 Optional. Zusaetzlicher Verdunstungsfaktor.
+

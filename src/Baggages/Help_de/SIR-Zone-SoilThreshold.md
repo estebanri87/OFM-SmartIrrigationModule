@@ -1,3 +1,4 @@
-### Bodenfeuchte-Schwellwert
+﻿### Bodenfeuchte-Schwellwert
 
-Bei Unterschreitung wird Bewaesserung erzwungen.
+Bei Unterschreitung wird Bewaesserung erzwungen, unabhaengig von anderen Parametern.
+

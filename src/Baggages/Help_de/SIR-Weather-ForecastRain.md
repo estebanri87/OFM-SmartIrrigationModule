@@ -1,3 +1,4 @@
-### Regen (Prognose)
+﻿### Regen (Prognose)
 
-MUSS-Parameter fuer Prognosebetrieb.
+MUSS-Parameter. Dieser Parameter ist fuer optimale Funktion erforderlich. Bei Ausfall wird Fallback-Modus verwendet.
+

@@ -1,3 +1,4 @@
-### Max. Zyklen pro Woche
+﻿### Max. Zyklen pro Woche
 
-Maximale Anzahl Bewaesserungsdurchgaenge pro Woche.
+Maximale Bewaesserungsdurchgaenge pro Woche. Bei Wert 1 und hohem Bedarf wird Fehler ausgegeben.
+

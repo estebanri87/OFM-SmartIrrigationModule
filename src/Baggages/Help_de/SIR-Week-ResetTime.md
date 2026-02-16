@@ -1,3 +1,4 @@
-### Reset-Zeit
+﻿### Reset-Zeit
 
-Zeitpunkt fuer den taeglichen Wochenreset (HH:MM). Empfohlen 00:00.
+Zeitpunkt, zu dem die Wochenzaehler zurueckgesetzt werden. Empfohlen: Mitternacht (00:00).
+

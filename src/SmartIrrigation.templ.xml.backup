@@ -1,0 +1,290 @@
+<?xml version="1.0" encoding="utf-8"?>
+<?xml-model href="../../../../Organization/knxprod-support/knx_project_14/knx-editor.xsd" type="application/xml" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<KNX xmlns:op="http://github.com/OpenKNX/OpenKNXproducer" xmlns="http://knx.org/xml/project/14" CreatedBy="KNX MT" ToolVersion="5.1.255.16695">
+  <ManufacturerData>
+    <Manufacturer>
+      <ApplicationPrograms>
+        <ApplicationProgram>
+          <Static>
+            <Parameters>
+              <!-- Zone Name (außerhalb Union wie in anderen Modulen) -->
+              <Parameter Id="%AID%_P-%TT%%CC%001" Name="SIR_Z%C%Name" ParameterType="%AID%_PT-Text50Byte" Text="Bezeichnung" Value="Zone %C%" />
+              <Union SizeInBit="8">
+                <Memory CodeSegment="%MID%" Offset="0" BitOffset="0" />
+                <Parameter Id="%AID%_UP-%TT%%CC%000" Name="SIR_Z%C%Enabled" ParameterType="%AID%_PT-OnOffYesNo" Offset="0" BitOffset="0" Text="Zone aktiviert" Value="0" op:hashHint="%AID%_UP-%TT%%CC%000" />
+              </Union>
+              <Union SizeInBit="32">
+                <Memory CodeSegment="%MID%" Offset="1" BitOffset="0" />
+                <Parameter Id="%AID%_UP-%TT%%CC%002" Name="SIR_Z%C%Area" ParameterType="%AID%_PT-Area" Offset="0" BitOffset="0" Text="Flaeche Z%C% (m2)" Value="10" op:hashHint="%AID%_UP-%TT%%CC%002" />
+              </Union>
+              <Union SizeInBit="32">
+                <Memory CodeSegment="%MID%" Offset="5" BitOffset="0" />
+                <Parameter Id="%AID%_UP-%TT%%CC%003" Name="SIR_Z%C%Flow" ParameterType="%AID%_PT-FlowRate" Offset="0" BitOffset="0" Text="Durchfluss Z%C% (l/min)" Value="10" op:hashHint="%AID%_UP-%TT%%CC%003" />
+              </Union>
+              <Union SizeInBit="8">
+                <Memory CodeSegment="%MID%" Offset="9" BitOffset="0" />
+                <Parameter Id="%AID%_UP-%TT%%CC%004" Name="SIR_Z%C%PlantType" ParameterType="%AID%_PT-PlantType" Offset="0" BitOffset="0" Text="Pflanzentyp Z%C%" Value="0" op:hashHint="%AID%_UP-%TT%%CC%004" />
+              </Union>
+              <Union SizeInBit="8">
+                <Memory CodeSegment="%MID%" Offset="10" BitOffset="0" />
+                <Parameter Id="%AID%_UP-%TT%%CC%005" Name="SIR_Z%C%ETFactor" ParameterType="%AID%_PT-ETFactor" Offset="0" BitOffset="0" Text="ET-Faktor Z%C% (Kc, %)" Value="100" op:hashHint="%AID%_UP-%TT%%CC%005" />
+              </Union>
+              <Union SizeInBit="8">
+                <Memory CodeSegment="%MID%" Offset="11" BitOffset="0" />
+                <Parameter Id="%AID%_UP-%TT%%CC%006" Name="SIR_Z%C%Interception" ParameterType="%AID%_PT-Interception" Offset="0" BitOffset="0" Text="Interzeptionsfaktor Z%C% (%)" Value="10" op:hashHint="%AID%_UP-%TT%%CC%006" />
+              </Union>
+              <Union SizeInBit="8">
+                <Memory CodeSegment="%MID%" Offset="12" BitOffset="0" />
+                <Parameter Id="%AID%_UP-%TT%%CC%007" Name="SIR_Z%C%MinWeek" ParameterType="%AID%_PT-MinWeek" Offset="0" BitOffset="0" Text="Min. Menge Z%C% (l/m2/Woche)" Value="10" op:hashHint="%AID%_UP-%TT%%CC%007" />
+              </Union>
+              <Union SizeInBit="8">
+                <Memory CodeSegment="%MID%" Offset="13" BitOffset="0" />
+                <Parameter Id="%AID%_UP-%TT%%CC%008" Name="SIR_Z%C%MaxWeek" ParameterType="%AID%_PT-MaxWeek" Offset="0" BitOffset="0" Text="Max. Menge Z%C% (l/m2/Woche)" Value="30" op:hashHint="%AID%_UP-%TT%%CC%008" />
+              </Union>
+              <Union SizeInBit="8">
+                <Memory CodeSegment="%MID%" Offset="14" BitOffset="0" />
+                <Parameter Id="%AID%_UP-%TT%%CC%009" Name="SIR_Z%C%BaseTemp" ParameterType="%AID%_PT-BaseTemp" Offset="0" BitOffset="0" Text="Basistemperatur Z%C% (C)" Value="15" op:hashHint="%AID%_UP-%TT%%CC%009" />
+              </Union>
+              <Union SizeInBit="8">
+                <Memory CodeSegment="%MID%" Offset="15" BitOffset="0" />
+                <Parameter Id="%AID%_UP-%TT%%CC%010" Name="SIR_Z%C%BaseTempHyst" ParameterType="%AID%_PT-BaseTempHyst" Offset="0" BitOffset="0" Text="Hysterese Z%C% (K)" Value="2" op:hashHint="%AID%_UP-%TT%%CC%010" />
+              </Union>
+              <Union SizeInBit="8">
+                <Memory CodeSegment="%MID%" Offset="16" BitOffset="0" />
+                <Parameter Id="%AID%_UP-%TT%%CC%011" Name="SIR_Z%C%MaxCycles" ParameterType="%AID%_PT-MaxCycles" Offset="0" BitOffset="0" Text="Max. Zyklen Z%C% (pro Woche)" Value="7" op:hashHint="%AID%_UP-%TT%%CC%011" />
+              </Union>
+              <Union SizeInBit="8">
+                <Memory CodeSegment="%MID%" Offset="17" BitOffset="0" />
+                <Parameter Id="%AID%_UP-%TT%%CC%012" Name="SIR_Z%C%MinPerCycle" ParameterType="%AID%_PT-MinPerCycle" Offset="0" BitOffset="0" Text="Min. pro Zyklus Z%C% (l/m2)" Value="5" op:hashHint="%AID%_UP-%TT%%CC%012" />
+              </Union>
+              <Union SizeInBit="8">
+                <Memory CodeSegment="%MID%" Offset="18" BitOffset="0" />
+                <Parameter Id="%AID%_UP-%TT%%CC%013" Name="SIR_Z%C%TW1Active" ParameterType="%AID%_PT-OnOffYesNo" Offset="0" BitOffset="0" Text="Zeitfenster 1 Z%C% aktiv" Value="1" op:hashHint="%AID%_UP-%TT%%CC%013" />
+              </Union>
+              <Union SizeInBit="16">
+                <Memory CodeSegment="%MID%" Offset="19" BitOffset="0" />
+                <Parameter Id="%AID%_UP-%TT%%CC%014" Name="SIR_Z%C%TW1Start" ParameterType="%AID%_PT-TimeOfDay" Offset="0" BitOffset="0" Text="Zeitfenster 1 Z%C% Start" Value="360" op:hashHint="%AID%_UP-%TT%%CC%014" />
+              </Union>
+              <Union SizeInBit="16">
+                <Memory CodeSegment="%MID%" Offset="21" BitOffset="0" />
+                <Parameter Id="%AID%_UP-%TT%%CC%015" Name="SIR_Z%C%TW1End" ParameterType="%AID%_PT-TimeOfDay" Offset="0" BitOffset="0" Text="Zeitfenster 1 Z%C% Ende" Value="600" op:hashHint="%AID%_UP-%TT%%CC%015" />
+              </Union>
+              <Union SizeInBit="8">
+                <Memory CodeSegment="%MID%" Offset="23" BitOffset="0" />
+                <Parameter Id="%AID%_UP-%TT%%CC%016" Name="SIR_Z%C%TW2Active" ParameterType="%AID%_PT-OnOffYesNo" Offset="0" BitOffset="0" Text="Zeitfenster 2 Z%C% aktiv" Value="0" op:hashHint="%AID%_UP-%TT%%CC%016" />
+              </Union>
+              <Union SizeInBit="16">
+                <Memory CodeSegment="%MID%" Offset="24" BitOffset="0" />
+                <Parameter Id="%AID%_UP-%TT%%CC%017" Name="SIR_Z%C%TW2Start" ParameterType="%AID%_PT-TimeOfDay" Offset="0" BitOffset="0" Text="Zeitfenster 2 Z%C% Start" Value="1080" op:hashHint="%AID%_UP-%TT%%CC%017" />
+              </Union>
+              <Union SizeInBit="16">
+                <Memory CodeSegment="%MID%" Offset="26" BitOffset="0" />
+                <Parameter Id="%AID%_UP-%TT%%CC%018" Name="SIR_Z%C%TW2End" ParameterType="%AID%_PT-TimeOfDay" Offset="0" BitOffset="0" Text="Zeitfenster 2 Z%C% Ende" Value="1320" op:hashHint="%AID%_UP-%TT%%CC%018" />
+              </Union>
+              <Union SizeInBit="8">
+                <Memory CodeSegment="%MID%" Offset="28" BitOffset="0" />
+                <Parameter Id="%AID%_UP-%TT%%CC%019" Name="SIR_Z%C%TimeType" ParameterType="%AID%_PT-TimeWindowType" Offset="0" BitOffset="0" Text="Zeitfenster-Typ Z%C%" Value="0" op:hashHint="%AID%_UP-%TT%%CC%019" />
+              </Union>
+              <Union SizeInBit="8">
+                <Memory CodeSegment="%MID%" Offset="29" BitOffset="0" />
+                <Parameter Id="%AID%_UP-%TT%%CC%020" Name="SIR_Z%C%AbsMax" ParameterType="%AID%_PT-AbsMax" Offset="0" BitOffset="0" Text="Abs. Max Z%C% (l/m2/Woche)" Value="50" op:hashHint="%AID%_UP-%TT%%CC%020" />
+              </Union>
+              <Union SizeInBit="16">
+                <Memory CodeSegment="%MID%" Offset="30" BitOffset="0" />
+                <Parameter Id="%AID%_UP-%TT%%CC%021" Name="SIR_Z%C%MaxRuntime" ParameterType="%AID%_PT-MaxRuntime" Offset="0" BitOffset="0" Text="Max. Laufzeit Z%C% (min)" Value="60" op:hashHint="%AID%_UP-%TT%%CC%021" />
+              </Union>
+              <Union SizeInBit="8">
+                <Memory CodeSegment="%MID%" Offset="32" BitOffset="0" />
+                <Parameter Id="%AID%_UP-%TT%%CC%022" Name="SIR_Z%C%SoilThreshold" ParameterType="%AID%_PT-SoilThreshold" Offset="0" BitOffset="0" Text="Bodenfeuchte Z%C% (%)" Value="20" op:hashHint="%AID%_UP-%TT%%CC%022" />
+              </Union>
+              <Union SizeInBit="32">
+                <Memory CodeSegment="%MID%" Offset="33" BitOffset="0" />
+                <Parameter Id="%AID%_UP-%TT%%CC%023" Name="SIR_Z%C%RainDelayFactor" ParameterType="%AID%_PT-RainDelayFactor" Offset="0" BitOffset="0" Text="Regen-Faktor Z%C% (h/mm)" Value="2" op:hashHint="%AID%_UP-%TT%%CC%023" />
+              </Union>
+              <Union SizeInBit="16">
+                <Memory CodeSegment="%MID%" Offset="37" BitOffset="0" />
+                <Parameter Id="%AID%_UP-%TT%%CC%024" Name="SIR_Z%C%ManualRuntime" ParameterType="%AID%_PT-ManualRuntime" Offset="0" BitOffset="0" Text="Manuell Laufzeit Z%C% (min)" Value="15" op:hashHint="%AID%_UP-%TT%%CC%024" />
+              </Union>
+            </Parameters>
+            <ParameterRefs>
+              <ParameterRef Id="%AID%_P-%TT%%CC%001_R-%TT%%CC%00101" RefId="%AID%_P-%TT%%CC%001" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%000_R-%TT%%CC%00001" RefId="%AID%_UP-%TT%%CC%000" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%002_R-%TT%%CC%00201" RefId="%AID%_UP-%TT%%CC%002" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%003_R-%TT%%CC%00301" RefId="%AID%_UP-%TT%%CC%003" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%004_R-%TT%%CC%00401" RefId="%AID%_UP-%TT%%CC%004" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%005_R-%TT%%CC%00501" RefId="%AID%_UP-%TT%%CC%005" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%006_R-%TT%%CC%00601" RefId="%AID%_UP-%TT%%CC%006" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%007_R-%TT%%CC%00701" RefId="%AID%_UP-%TT%%CC%007" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%008_R-%TT%%CC%00801" RefId="%AID%_UP-%TT%%CC%008" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%009_R-%TT%%CC%00901" RefId="%AID%_UP-%TT%%CC%009" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%010_R-%TT%%CC%01001" RefId="%AID%_UP-%TT%%CC%010" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%011_R-%TT%%CC%01101" RefId="%AID%_UP-%TT%%CC%011" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%012_R-%TT%%CC%01201" RefId="%AID%_UP-%TT%%CC%012" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%013_R-%TT%%CC%01301" RefId="%AID%_UP-%TT%%CC%013" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%014_R-%TT%%CC%01401" RefId="%AID%_UP-%TT%%CC%014" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%015_R-%TT%%CC%01501" RefId="%AID%_UP-%TT%%CC%015" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%016_R-%TT%%CC%01601" RefId="%AID%_UP-%TT%%CC%016" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%017_R-%TT%%CC%01701" RefId="%AID%_UP-%TT%%CC%017" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%018_R-%TT%%CC%01801" RefId="%AID%_UP-%TT%%CC%018" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%019_R-%TT%%CC%01901" RefId="%AID%_UP-%TT%%CC%019" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%020_R-%TT%%CC%02001" RefId="%AID%_UP-%TT%%CC%020" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%021_R-%TT%%CC%02101" RefId="%AID%_UP-%TT%%CC%021" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%022_R-%TT%%CC%02201" RefId="%AID%_UP-%TT%%CC%022" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%023_R-%TT%%CC%02301" RefId="%AID%_UP-%TT%%CC%023" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%024_R-%TT%%CC%02401" RefId="%AID%_UP-%TT%%CC%024" />
+            </ParameterRefs>
+            <ParameterCalculations>
+              <ParameterCalculation Id="%AID%_PC-%TT%%CC%0001" Language="JavaScript" Name="SIR_PlantDefaults%CC%" LRTransformationFunc="SIR_SetPlantDefaults" RLTransformationFunc="SIR_NoOp" op:hashHint="%AID%_PC-%TT%%CC%0001">
+                <LParameters>
+                  <ParameterRefRef RefId="%AID%_UP-%TT%%CC%004_R-%TT%%CC%00401" AliasName="PlantType" />
+                </LParameters>
+                <RParameters>
+                  <ParameterRefRef RefId="%AID%_UP-%TT%%CC%005_R-%TT%%CC%00501" AliasName="ETFactor" />
+                  <ParameterRefRef RefId="%AID%_UP-%TT%%CC%006_R-%TT%%CC%00601" AliasName="Interception" />
+                </RParameters>
+              </ParameterCalculation>
+              <ParameterCalculation Id="%AID%_PC-%TT%%CC%0002" Language="JavaScript" Name="SIR_EnsureMaxWeek%CC%" LRTransformationFunc="SIR_EnsureMaxWeek" RLTransformationFunc="SIR_NoOp" op:hashHint="%AID%_PC-%TT%%CC%0002">
+                <LParameters>
+                  <ParameterRefRef RefId="%AID%_UP-%TT%%CC%007_R-%TT%%CC%00701" AliasName="MinWeek" />
+                  <ParameterRefRef RefId="%AID%_UP-%TT%%CC%008_R-%TT%%CC%00801" AliasName="MaxWeek" />
+                </LParameters>
+                <RParameters>
+                  <ParameterRefRef RefId="%AID%_UP-%TT%%CC%008_R-%TT%%CC%00801" AliasName="MaxWeek" />
+                </RParameters>
+              </ParameterCalculation>
+              <ParameterCalculation Id="%AID%_PC-%TT%%CC%0003" Language="JavaScript" Name="SIR_EnsureTW1%CC%" LRTransformationFunc="SIR_EnsureTimeWindowEnd" RLTransformationFunc="SIR_NoOp" op:hashHint="%AID%_PC-%TT%%CC%0003">
+                <LParameters>
+                  <ParameterRefRef RefId="%AID%_UP-%TT%%CC%014_R-%TT%%CC%01401" AliasName="Start" />
+                  <ParameterRefRef RefId="%AID%_UP-%TT%%CC%015_R-%TT%%CC%01501" AliasName="End" />
+                </LParameters>
+                <RParameters>
+                  <ParameterRefRef RefId="%AID%_UP-%TT%%CC%015_R-%TT%%CC%01501" AliasName="End" />
+                </RParameters>
+              </ParameterCalculation>
+              <ParameterCalculation Id="%AID%_PC-%TT%%CC%0004" Language="JavaScript" Name="SIR_EnsureTW2%CC%" LRTransformationFunc="SIR_EnsureTimeWindowEnd" RLTransformationFunc="SIR_NoOp" op:hashHint="%AID%_PC-%TT%%CC%0004">
+                <LParameters>
+                  <ParameterRefRef RefId="%AID%_UP-%TT%%CC%017_R-%TT%%CC%01701" AliasName="Start" />
+                  <ParameterRefRef RefId="%AID%_UP-%TT%%CC%018_R-%TT%%CC%01801" AliasName="End" />
+                </LParameters>
+                <RParameters>
+                  <ParameterRefRef RefId="%AID%_UP-%TT%%CC%018_R-%TT%%CC%01801" AliasName="End" />
+                </RParameters>
+              </ParameterCalculation>
+            </ParameterCalculations>
+            <ComObjectTable>
+              <ComObject Id="%AID%_O-%TT%%CC%100" Number="%K0%" Name="CH%C%ZoneOnOff" Text="Zone %C% Ein/Aus" ObjectSize="1 Bit" DatapointType="DPST-1-1" ReadFlag="Disabled" WriteFlag="Enabled" CommunicationFlag="Enabled" TransmitFlag="Disabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" op:hashHint="%AID%_O-%TT%%CC%100" />
+              <ComObject Id="%AID%_O-%TT%%CC%101" Number="%K1%" Name="CH%C%ZoneStatus" Text="Zone %C% Status" ObjectSize="1 Bit" DatapointType="DPST-1-1" ReadFlag="Enabled" WriteFlag="Disabled" CommunicationFlag="Enabled" TransmitFlag="Enabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" op:hashHint="%AID%_O-%TT%%CC%101" />
+              <ComObject Id="%AID%_O-%TT%%CC%102" Number="%K2%" Name="CH%C%ZoneState" Text="Zone %C% Zustand" ObjectSize="1 Byte" DatapointType="DPST-5-10" ReadFlag="Enabled" WriteFlag="Disabled" CommunicationFlag="Enabled" TransmitFlag="Enabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" op:hashHint="%AID%_O-%TT%%CC%102" />
+              <ComObject Id="%AID%_O-%TT%%CC%103" Number="%K3%" Name="CH%C%ZoneValve" Text="Zone %C% Ventil" ObjectSize="1 Bit" DatapointType="DPST-1-1" ReadFlag="Enabled" WriteFlag="Disabled" CommunicationFlag="Enabled" TransmitFlag="Enabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" op:hashHint="%AID%_O-%TT%%CC%103" />
+              <ComObject Id="%AID%_O-%TT%%CC%104" Number="%K4%" Name="CH%C%ZoneRemaining" Text="Zone %C% Restlaufzeit" ObjectSize="2 Bytes" DatapointType="DPST-7-7" ReadFlag="Enabled" WriteFlag="Disabled" CommunicationFlag="Enabled" TransmitFlag="Enabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" op:hashHint="%AID%_O-%TT%%CC%104" />
+              <ComObject Id="%AID%_O-%TT%%CC%105" Number="%K5%" Name="CH%C%ZoneWeekAmount" Text="Zone %C% Wochenmenge aktuell" ObjectSize="2 Bytes" DatapointType="DPST-9-26" ReadFlag="Enabled" WriteFlag="Disabled" CommunicationFlag="Enabled" TransmitFlag="Enabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" op:hashHint="%AID%_O-%TT%%CC%105" />
+              <ComObject Id="%AID%_O-%TT%%CC%106" Number="%K6%" Name="CH%C%ZoneWeekAmountPrev" Text="Zone %C% Wochenmenge vorherige" ObjectSize="2 Bytes" DatapointType="DPST-9-26" ReadFlag="Enabled" WriteFlag="Disabled" CommunicationFlag="Enabled" TransmitFlag="Enabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" op:hashHint="%AID%_O-%TT%%CC%106" />
+              <ComObject Id="%AID%_O-%TT%%CC%107" Number="%K7%" Name="CH%C%ZoneLastTime" Text="Zone %C% Letzte Bewaesserung Zeit" ObjectSize="8 Bytes" DatapointType="DPST-19-1" ReadFlag="Enabled" WriteFlag="Disabled" CommunicationFlag="Enabled" TransmitFlag="Enabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" op:hashHint="%AID%_O-%TT%%CC%107" />
+              <ComObject Id="%AID%_O-%TT%%CC%108" Number="%K8%" Name="CH%C%ZoneLastAmount" Text="Zone %C% Letzte Bewaesserung Menge" ObjectSize="2 Bytes" DatapointType="DPST-9-26" ReadFlag="Enabled" WriteFlag="Disabled" CommunicationFlag="Enabled" TransmitFlag="Enabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" op:hashHint="%AID%_O-%TT%%CC%108" />
+              <ComObject Id="%AID%_O-%TT%%CC%109" Number="%K9%" Name="CH%C%ZoneNextTime" Text="Zone %C% Naechste Bewaesserung Zeit" ObjectSize="8 Bytes" DatapointType="DPST-19-1" ReadFlag="Enabled" WriteFlag="Disabled" CommunicationFlag="Enabled" TransmitFlag="Enabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" op:hashHint="%AID%_O-%TT%%CC%109" />
+              <ComObject Id="%AID%_O-%TT%%CC%110" Number="%K10%" Name="CH%C%ZoneNextAmount" Text="Zone %C% Naechste Bewaesserung Menge" ObjectSize="2 Bytes" DatapointType="DPST-9-26" ReadFlag="Enabled" WriteFlag="Disabled" CommunicationFlag="Enabled" TransmitFlag="Enabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" op:hashHint="%AID%_O-%TT%%CC%110" />
+              <ComObject Id="%AID%_O-%TT%%CC%111" Number="%K11%" Name="CH%C%ZoneError" Text="Zone %C% Fehler" ObjectSize="1 Bit" DatapointType="DPST-1-5" ReadFlag="Enabled" WriteFlag="Disabled" CommunicationFlag="Enabled" TransmitFlag="Enabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" op:hashHint="%AID%_O-%TT%%CC%111" />
+              <ComObject Id="%AID%_O-%TT%%CC%112" Number="%K12%" Name="CH%C%ZoneErrorCode" Text="Zone %C% Fehlercode" ObjectSize="1 Byte" DatapointType="DPST-5-10" ReadFlag="Enabled" WriteFlag="Disabled" CommunicationFlag="Enabled" TransmitFlag="Enabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" op:hashHint="%AID%_O-%TT%%CC%112" />
+              <ComObject Id="%AID%_O-%TT%%CC%113" Number="%K13%" Name="CH%C%ZonePause" Text="Zone %C% Pause" ObjectSize="1 Bit" DatapointType="DPST-1-1" ReadFlag="Disabled" WriteFlag="Enabled" CommunicationFlag="Enabled" TransmitFlag="Disabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" op:hashHint="%AID%_O-%TT%%CC%113" />
+              <ComObject Id="%AID%_O-%TT%%CC%114" Number="%K14%" Name="CH%C%ZoneResetWeek" Text="Zone %C% Wochenzaehler reset" ObjectSize="1 Bit" DatapointType="DPST-1-17" ReadFlag="Disabled" WriteFlag="Enabled" CommunicationFlag="Enabled" TransmitFlag="Disabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" op:hashHint="%AID%_O-%TT%%CC%114" />
+            </ComObjectTable>
+            <ComObjectRefs>
+              <ComObjectRef Id="%AID%_O-%TT%%CC%100_R-%TT%%CC%10001" RefId="%AID%_O-%TT%%CC%100" FunctionText="Zone %C% Ein/Aus" Text="Zone %C% Ein/Aus" Priority="Low" ObjectSize="1 Bit" DatapointType="DPST-1-1" op:hashHint="%AID%_O-%TT%%CC%100_R-%TT%%CC%10001" />
+              <ComObjectRef Id="%AID%_O-%TT%%CC%101_R-%TT%%CC%10101" RefId="%AID%_O-%TT%%CC%101" FunctionText="Zone %C% Status" Text="Zone %C% Status" Priority="Low" ObjectSize="1 Bit" DatapointType="DPST-1-1" op:hashHint="%AID%_O-%TT%%CC%101_R-%TT%%CC%10101" />
+              <ComObjectRef Id="%AID%_O-%TT%%CC%102_R-%TT%%CC%10201" RefId="%AID%_O-%TT%%CC%102" FunctionText="Zone %C% Zustand" Text="Zone %C% Zustand" Priority="Low" ObjectSize="1 Byte" DatapointType="DPST-5-10" op:hashHint="%AID%_O-%TT%%CC%102_R-%TT%%CC%10201" />
+              <ComObjectRef Id="%AID%_O-%TT%%CC%103_R-%TT%%CC%10301" RefId="%AID%_O-%TT%%CC%103" FunctionText="Zone %C% Ventil" Text="Zone %C% Ventil" Priority="Low" ObjectSize="1 Bit" DatapointType="DPST-1-1" op:hashHint="%AID%_O-%TT%%CC%103_R-%TT%%CC%10301" />
+              <ComObjectRef Id="%AID%_O-%TT%%CC%104_R-%TT%%CC%10401" RefId="%AID%_O-%TT%%CC%104" FunctionText="Zone %C% Restlaufzeit" Text="Zone %C% Restlaufzeit" Priority="Low" ObjectSize="2 Bytes" DatapointType="DPST-7-7" op:hashHint="%AID%_O-%TT%%CC%104_R-%TT%%CC%10401" />
+              <ComObjectRef Id="%AID%_O-%TT%%CC%105_R-%TT%%CC%10501" RefId="%AID%_O-%TT%%CC%105" FunctionText="Zone %C% Wochenmenge aktuell" Text="Zone %C% Wochenmenge aktuell" Priority="Low" ObjectSize="2 Bytes" DatapointType="DPST-9-26" op:hashHint="%AID%_O-%TT%%CC%105_R-%TT%%CC%10501" />
+              <ComObjectRef Id="%AID%_O-%TT%%CC%106_R-%TT%%CC%10601" RefId="%AID%_O-%TT%%CC%106" FunctionText="Zone %C% Wochenmenge vorherige" Text="Zone %C% Wochenmenge vorherige" Priority="Low" ObjectSize="2 Bytes" DatapointType="DPST-9-26" op:hashHint="%AID%_O-%TT%%CC%106_R-%TT%%CC%10601" />
+              <ComObjectRef Id="%AID%_O-%TT%%CC%107_R-%TT%%CC%10701" RefId="%AID%_O-%TT%%CC%107" FunctionText="Zone %C% Letzte Bewaesserung Zeit" Text="Zone %C% Letzte Bewaesserung Zeit" Priority="Low" ObjectSize="8 Bytes" DatapointType="DPST-19-1" op:hashHint="%AID%_O-%TT%%CC%107_R-%TT%%CC%10701" />
+              <ComObjectRef Id="%AID%_O-%TT%%CC%108_R-%TT%%CC%10801" RefId="%AID%_O-%TT%%CC%108" FunctionText="Zone %C% Letzte Bewaesserung Menge" Text="Zone %C% Letzte Bewaesserung Menge" Priority="Low" ObjectSize="2 Bytes" DatapointType="DPST-9-26" op:hashHint="%AID%_O-%TT%%CC%108_R-%TT%%CC%10801" />
+              <ComObjectRef Id="%AID%_O-%TT%%CC%109_R-%TT%%CC%10901" RefId="%AID%_O-%TT%%CC%109" FunctionText="Zone %C% Naechste Bewaesserung Zeit" Text="Zone %C% Naechste Bewaesserung Zeit" Priority="Low" ObjectSize="8 Bytes" DatapointType="DPST-19-1" op:hashHint="%AID%_O-%TT%%CC%109_R-%TT%%CC%10901" />
+              <ComObjectRef Id="%AID%_O-%TT%%CC%110_R-%TT%%CC%11001" RefId="%AID%_O-%TT%%CC%110" FunctionText="Zone %C% Naechste Bewaesserung Menge" Text="Zone %C% Naechste Bewaesserung Menge" Priority="Low" ObjectSize="2 Bytes" DatapointType="DPST-9-26" op:hashHint="%AID%_O-%TT%%CC%110_R-%TT%%CC%11001" />
+              <ComObjectRef Id="%AID%_O-%TT%%CC%111_R-%TT%%CC%11101" RefId="%AID%_O-%TT%%CC%111" FunctionText="Zone %C% Fehler" Text="Zone %C% Fehler" Priority="Low" ObjectSize="1 Bit" DatapointType="DPST-1-5" op:hashHint="%AID%_O-%TT%%CC%111_R-%TT%%CC%11101" />
+              <ComObjectRef Id="%AID%_O-%TT%%CC%112_R-%TT%%CC%11201" RefId="%AID%_O-%TT%%CC%112" FunctionText="Zone %C% Fehlercode" Text="Zone %C% Fehlercode" Priority="Low" ObjectSize="1 Byte" DatapointType="DPST-5-10" op:hashHint="%AID%_O-%TT%%CC%112_R-%TT%%CC%11201" />
+              <ComObjectRef Id="%AID%_O-%TT%%CC%113_R-%TT%%CC%11301" RefId="%AID%_O-%TT%%CC%113" FunctionText="Zone %C% Pause" Text="Zone %C% Pause" Priority="Low" ObjectSize="1 Bit" DatapointType="DPST-1-1" op:hashHint="%AID%_O-%TT%%CC%113_R-%TT%%CC%11301" />
+              <ComObjectRef Id="%AID%_O-%TT%%CC%114_R-%TT%%CC%11401" RefId="%AID%_O-%TT%%CC%114" FunctionText="Zone %C% Wochenzaehler reset" Text="Zone %C% Wochenzaehler reset" Priority="Low" ObjectSize="1 Bit" DatapointType="DPST-1-17" op:hashHint="%AID%_O-%TT%%CC%114_R-%TT%%CC%11401" />
+            </ComObjectRefs>
+          </Static>
+          <Dynamic>
+            <Channel Id="%AID%_CH-%TT%%CC%" Name="SIR_Zone%C%" Number="%C%" Text="Zone %C%" Icon="waves">
+              <ParameterBlock Id="%AID%_PB-%TT%%CC%001" Name="SIR_ZoneBase" Text="Zone %C%" Icon="waves" ShowInComObjectTree="true">
+                <ParameterSeparator Id="%AID%_PS-%TT%%CC%001" Text="Basis-Konfiguration" UIHint="Headline" />
+                <ParameterRefRef RefId="%AID%_UP-%TT%%CC%000_R-%TT%%CC%00001" HelpContext="SIR-Zone-Enabled" />
+                <choose ParamRefId="%AID%_UP-%TT%%CC%000_R-%TT%%CC%00001">
+                  <when test="1">
+                    <ParameterRefRef RefId="%AID%_UP-%TT%%CC%001_R-%TT%%CC%00101" HelpContext="SIR-Zone-Name" />
+                    <ParameterRefRef RefId="%AID%_UP-%TT%%CC%002_R-%TT%%CC%00201" HelpContext="SIR-Zone-Area" />
+                    <ParameterRefRef RefId="%AID%_UP-%TT%%CC%003_R-%TT%%CC%00301" HelpContext="SIR-Zone-Flow" />
+
+                    <ParameterSeparator Id="%AID%_PS-%TT%%CC%002" Text="Pflanzentyp &amp; Faktoren" UIHint="Headline" />
+                    <ParameterRefRef RefId="%AID%_UP-%TT%%CC%004_R-%TT%%CC%00401" HelpContext="SIR-Zone-PlantType" />
+                    <choose ParamRefId="%AID%_UP-%TT%%CC%004_R-%TT%%CC%00401">
+                      <when test="10">
+                        <ParameterRefRef RefId="%AID%_UP-%TT%%CC%005_R-%TT%%CC%00501" HelpContext="SIR-Zone-ETFactor" />
+                        <ParameterRefRef RefId="%AID%_UP-%TT%%CC%006_R-%TT%%CC%00601" HelpContext="SIR-Zone-Interception" />
+                      </when>
+                      <when default="true">
+                        <ParameterSeparator Id="%AID%_PS-%TT%%CC%003" Text="ET-Faktor und Interzeptionsfaktor werden automatisch gesetzt." UIHint="Information" />
+                        <ParameterRefRef RefId="%AID%_UP-%TT%%CC%005_R-%TT%%CC%00501" HelpContext="SIR-Zone-ETFactor" Access="Read" />
+                        <ParameterRefRef RefId="%AID%_UP-%TT%%CC%006_R-%TT%%CC%00601" HelpContext="SIR-Zone-Interception" Access="Read" />
+                      </when>
+                    </choose>
+
+                    <ParameterSeparator Id="%AID%_PS-%TT%%CC%004" Text="Wassermenge &amp; Frequenz" UIHint="Headline" />
+                    <ParameterRefRef RefId="%AID%_UP-%TT%%CC%007_R-%TT%%CC%00701" HelpContext="SIR-Zone-MinWeek" />
+                    <ParameterRefRef RefId="%AID%_UP-%TT%%CC%008_R-%TT%%CC%00801" HelpContext="SIR-Zone-MaxWeek" />
+                    <ParameterSeparator Id="%AID%_PS-%TT%%CC%005" Text="Max. Menge pro Woche muss groesser oder gleich Min. Menge pro Woche sein." UIHint="Information" />
+                    <ParameterRefRef RefId="%AID%_UP-%TT%%CC%009_R-%TT%%CC%00901" HelpContext="SIR-Zone-BaseTemp" />
+
+                    <ParameterSeparator Id="%AID%_PS-%TT%%CC%006" Text="Zeitfenster" UIHint="Headline" />
+                    <ParameterRefRef RefId="%AID%_UP-%TT%%CC%013_R-%TT%%CC%01301" HelpContext="SIR-Zone-TW1Active" />
+                    <choose ParamRefId="%AID%_UP-%TT%%CC%013_R-%TT%%CC%01301">
+                      <when test="1">
+                        <ParameterRefRef RefId="%AID%_UP-%TT%%CC%014_R-%TT%%CC%01401" HelpContext="SIR-Zone-TW1Start" IndentLevel="1" />
+                        <ParameterRefRef RefId="%AID%_UP-%TT%%CC%015_R-%TT%%CC%01501" HelpContext="SIR-Zone-TW1End" IndentLevel="1" />
+                        <ParameterSeparator Id="%AID%_PS-%TT%%CC%007" Text="Zeitfenster 1: Ende muss nach Start liegen." UIHint="Information" IndentLevel="1" />
+                      </when>
+                    </choose>
+                    <ParameterRefRef RefId="%AID%_UP-%TT%%CC%016_R-%TT%%CC%01601" HelpContext="SIR-Zone-TW2Active" />
+                    <choose ParamRefId="%AID%_UP-%TT%%CC%016_R-%TT%%CC%01601">
+                      <when test="1">
+                        <ParameterRefRef RefId="%AID%_UP-%TT%%CC%017_R-%TT%%CC%01701" HelpContext="SIR-Zone-TW2Start" IndentLevel="1" />
+                        <ParameterRefRef RefId="%AID%_UP-%TT%%CC%018_R-%TT%%CC%01801" HelpContext="SIR-Zone-TW2End" IndentLevel="1" />
+                        <ParameterSeparator Id="%AID%_PS-%TT%%CC%008" Text="Zeitfenster 2: Ende muss nach Start liegen." UIHint="Information" IndentLevel="1" />
+                      </when>
+                    </choose>
+                    <ParameterRefRef RefId="%AID%_UP-%TT%%CC%019_R-%TT%%CC%01901" HelpContext="SIR-Zone-TimeType" />
+                    <choose ParamRefId="%AID%_UP-%TT%%CC%019_R-%TT%%CC%01901">
+                      <when test="0">
+                        <ParameterSeparator Id="%AID%_PS-%TT%%CC%009" Text="Bewaesserung startet flexibel innerhalb des Zeitfensters (empfohlen)." UIHint="Information" />
+                      </when>
+                      <when test="1">
+                        <ParameterSeparator Id="%AID%_PS-%TT%%CC%010" Text="Bewaesserung startet exakt zur Startzeit. Bei Konflikt wird Fehler ausgegeben." UIHint="Information" />
+                      </when>
+                    </choose>
+
+                    <choose ParamRefId="%AID%_UP-%TT%00023_R-%TT%0002301">
+                      <when test="1">
+                        <ParameterSeparator Id="%AID%_PS-%TT%%CC%011" Text="Erweiterte Einstellungen" UIHint="Headline" />
+                        <ParameterRefRef RefId="%AID%_UP-%TT%%CC%010_R-%TT%%CC%01001" HelpContext="SIR-Zone-BaseTempHyst" />
+                        <ParameterRefRef RefId="%AID%_UP-%TT%%CC%011_R-%TT%%CC%01101" HelpContext="SIR-Zone-MaxCycles" />
+                        <ParameterRefRef RefId="%AID%_UP-%TT%%CC%012_R-%TT%%CC%01201" HelpContext="SIR-Zone-MinPerCycle" />
+                        <ParameterRefRef RefId="%AID%_UP-%TT%%CC%020_R-%TT%%CC%02001" HelpContext="SIR-Zone-AbsMax" />
+                        <ParameterRefRef RefId="%AID%_UP-%TT%%CC%021_R-%TT%%CC%02101" HelpContext="SIR-Zone-MaxRuntime" />
+                        <ParameterRefRef RefId="%AID%_UP-%TT%%CC%022_R-%TT%%CC%02201" HelpContext="SIR-Zone-SoilThreshold" />
+                        <ParameterRefRef RefId="%AID%_UP-%TT%%CC%023_R-%TT%%CC%02301" HelpContext="SIR-Zone-RainDelayFactor" />
+                        <ParameterRefRef RefId="%AID%_UP-%TT%%CC%024_R-%TT%%CC%02401" HelpContext="SIR-Zone-ManualRuntime" />
+                      </when>
+                    </choose>
+                  </when>
+                </choose>
+              </ParameterBlock>
+            </Channel>
+          </Dynamic>
+        </ApplicationProgram>
+      </ApplicationPrograms>
+    </Manufacturer>
+  </ManufacturerData>
+</KNX>
+

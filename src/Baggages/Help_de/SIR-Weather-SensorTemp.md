@@ -1,3 +1,4 @@
-### Temperatur (Sensor)
+﻿### Temperatur (Sensor)
 
-MUSS-Sensor. Wird fuer ET0 verwendet. Bei Ausfall wird Fallback genutzt.
+MUSS-Sensor. Dieser Sensor ist fuer optimale Funktion erforderlich. Bei Ausfall wird Fallback-Modus verwendet.
+
