@@ -135,6 +135,7 @@ namespace SmartIrrigation
         bool allowWhenNoWindow = true;
         bool realSensorsEnabled = false;
         bool forecastEnabled = false;
+        int8_t minTempC = 0;
         uint8_t month = 1;
     };
 
@@ -181,7 +182,7 @@ namespace SmartIrrigation
     class SensorTimeoutTracker
     {
       public:
-        explicit SensorTimeoutTracker(uint8_t maxInvalid = 3);
+                SensorTimeoutTracker(uint8_t maxInvalid = 3);
         bool update(bool valid);
         void reset();
         bool failed() const;

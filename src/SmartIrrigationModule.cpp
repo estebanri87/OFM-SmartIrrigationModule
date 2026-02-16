@@ -13,7 +13,9 @@ namespace
     constexpr uint16_t kKoSingleOffset = 995;
     constexpr uint8_t kKoSingleCount = 53;
     constexpr uint16_t kKoZoneBase = 1100;
-    constexpr uint8_t kKoZoneBlockSize = 15;
+    constexpr uint8_t kKoZoneBlockSize = 16;
+    constexpr uint32_t kSensorTimeoutWindowMs = 300000;
+    constexpr uint8_t kSensorTimeoutMaxWindows = 3;
 
     enum SingleKoNumber : uint16_t
     {
@@ -76,7 +78,8 @@ namespace
         kZoneKoError = 11,
         kZoneKoErrorCode = 12,
         kZoneKoPause = 13,
-        kZoneKoResetWeek = 14
+        kZoneKoResetWeek = 14,
+        kZoneKoCycles = 15
     };
 
     enum ZoneState : uint8_t
@@ -263,17 +266,25 @@ const std::string SmartIrrigationModule::name()
 
 const std::string SmartIrrigationModule::version()
 {
-    return MODULE_SmartIrrigation_Version;
+    return MODULE_SmartIrrigationModule_Version;
 }
 
 void SmartIrrigationModule::init()
 {
+    loadWeightsFromParams();
+    std::fill(sensorLastValidMs_.begin(), sensorLastValidMs_.end(), 0);
+    weatherUpdateLastSec_ = 0;
+    lastDecisionMs_ = 0;
+    rainLock_.remainingHours = 0.0f;
+    rainLock_.lastUpdateMs = millis();
+    rainLock_.active = false;
+    rainLock_.lastSentHours = 0;
+    rainLock_.lastSentActive = false;
 }
 
 void SmartIrrigationModule::setup(bool configured)
 {
     (void)configured;
-
     loadWeightsFromParams();
 }
 
@@ -297,6 +308,7 @@ void SmartIrrigationModule::loop(bool configured)
     const bool manualMode = knx.getGroupObject(singleKoNumber(kKoManualMode)).value(DPT_Switch);
     knx.getGroupObject(singleKoNumber(kKoManualModeStatus)).value(manualMode, DPT_Switch);
     const bool manualProgram = ParamSIR_SIR_Program == 6;
+    const bool timeProgram = ParamSIR_SIR_Program == 2;
     const bool manualActive = manualMode || manualProgram;
 
     bool timeValid = openknx.time.isValid();
@@ -316,25 +328,50 @@ void SmartIrrigationModule::loop(bool configured)
     uint8_t bestDiagZone = 0;
     float bestDemand = -1.0f;
 
-    bool sensorOk = realSensorsEnabled;
+    bool sensorOk = !realSensorsEnabled;
     if (realSensorsEnabled)
     {
-        sensorOk &= !sensorHealth_[static_cast<size_t>(SmartIrrigation::SensorId::Temperature)].failed();
-        sensorOk &= !sensorHealth_[static_cast<size_t>(SmartIrrigation::SensorId::Rain)].failed();
-        sensorOk &= !sensorHealth_[static_cast<size_t>(SmartIrrigation::SensorId::RainAmount)].failed();
+        auto sensorTimedOut = [&](SmartIrrigation::SensorId id) {
+            const size_t sensorIndex = static_cast<size_t>(id);
+            const uint32_t lastValidMs = sensorLastValidMs_[sensorIndex];
+            if (lastValidMs == 0 || nowMs < lastValidMs)
+            {
+                return false;
+            }
+            const uint32_t elapsedMs = nowMs - lastValidMs;
+            const uint32_t timeoutWindows = elapsedMs / kSensorTimeoutWindowMs;
+            return timeoutWindows >= kSensorTimeoutMaxWindows;
+        };
+
+        const bool tempOk = shouldTreatAsValid(realSensorsEnabled,
+                                               weatherCache_.real.hasTemperature,
+                                               sensorHealth_[static_cast<size_t>(SmartIrrigation::SensorId::Temperature)].failed() ||
+                                                   sensorTimedOut(SmartIrrigation::SensorId::Temperature));
+        const bool rainOk = shouldTreatAsValid(realSensorsEnabled,
+                                               weatherCache_.real.hasRain,
+                                               sensorHealth_[static_cast<size_t>(SmartIrrigation::SensorId::Rain)].failed() ||
+                                                   sensorTimedOut(SmartIrrigation::SensorId::Rain));
+        sensorOk = tempOk && rainOk;
     }
     updateSensorStatusKo(sensorOk);
 
+    const float minTempLimitC = static_cast<float>(ParamSIR_SIR_MinTemp);
+    const bool hasAmbientTemperature = weatherCache_.real.hasTemperature || weatherCache_.forecast.hasTempCurrent;
+    const float ambientTemperatureC = weatherCache_.real.hasTemperature
+                                          ? weatherCache_.real.temperatureC
+                                          : weatherCache_.forecast.tempCurrentC;
+    const bool minTempStartBlocked = hasAmbientTemperature && ambientTemperatureC < minTempLimitC;
+
     if (emergencyStop)
     {
-        stopAllZones(nowSec, timeValid);
-        knx.getGroupObject(singleKoNumber(kKoActiveZones)).value(0, DPT_Value_1_Ucount);
+        stopAllZones(zoneCount, nowSec, timeValid);
+        knx.getGroupObject(singleKoNumber(kKoActiveZones)).value(static_cast<uint8_t>(0), DPT_Value_1_Ucount);
         knx.getGroupObject(singleKoNumber(kKoSystemStatus)).value(false, DPT_Switch);
         knx.getGroupObject(singleKoNumber(kKoSystemError)).value(!sensorOk, DPT_Switch);
         return;
     }
 
-    updateActiveZoneCountdown(nowSec, timeValid);
+    updateActiveZoneCountdown(zoneCount, nowSec, timeValid);
 
     struct QueueEntry
     {
@@ -350,6 +387,7 @@ void SmartIrrigationModule::loop(bool configured)
     std::array<bool, kMaxZones> pauseRequested{};
     std::array<QueueEntry, kMaxZones> queue{};
     uint8_t queueCount = 0;
+    bool fallbackActiveAny = false;
 
     for (uint8_t zoneIndex = 0; zoneIndex < zoneCount; ++zoneIndex)
     {
@@ -357,6 +395,7 @@ void SmartIrrigationModule::loop(bool configured)
 
         const bool zoneOnOff = knx.getGroupObject(zoneKoNumber(zoneIndex, kZoneKoOnOff)).value(DPT_Switch);
         const bool zonePause = knx.getGroupObject(zoneKoNumber(zoneIndex, kZoneKoPause)).value(DPT_Switch);
+        const bool zoneResetWeek = knx.getGroupObject(zoneKoNumber(zoneIndex, kZoneKoResetWeek)).value(DPT_Switch);
         const bool manualRequest = manualActive && zoneOnOff;
         manualRequested[zoneIndex] = manualRequest;
         pauseRequested[zoneIndex] = zonePause;
@@ -366,6 +405,22 @@ void SmartIrrigationModule::loop(bool configured)
         settingsCache[zoneIndex] = settings;
 
         ZoneRuntime &runtimeState = zoneRuntime_[zoneIndex];
+
+        if (zoneResetWeek)
+        {
+            runtimeState.weekAmountPrev = runtimeState.weekAmount;
+            runtimeState.weekAmount = 0.0f;
+            runtimeState.cycles = 0;
+
+            knx.getGroupObject(zoneKoNumber(zoneIndex, kZoneKoWeekAmountPrev)).value(runtimeState.weekAmountPrev,
+                                                                                    DPT_Rain_Amount);
+            knx.getGroupObject(zoneKoNumber(zoneIndex, kZoneKoWeekAmount)).value(runtimeState.weekAmount,
+                                                                                DPT_Rain_Amount);
+            knx.getGroupObject(zoneKoNumber(zoneIndex, kZoneKoCycles)).value(runtimeState.cycles,
+                                                                            DPT_Value_1_Ucount);
+            knx.getGroupObject(zoneKoNumber(zoneIndex, kZoneKoResetWeek)).value(false, DPT_Switch);
+            saveRuntimeToFlash(true);
+        }
 
         if (runtimeState.state == kZoneStateActive && runtimeState.manualRun && (!manualActive || !manualRequest))
         {
@@ -417,11 +472,12 @@ void SmartIrrigationModule::loop(bool configured)
         SmartIrrigation::DecisionContext context{};
         context.systemOn = systemOn;
         context.emergencyStop = emergencyStop;
-        context.rainLockActive = rainLock_.active;
+        context.rainLockActive = timeProgram ? false : rainLock_.active;
         context.nowMinutes = nowMinutes;
         context.allowWhenNoWindow = true;
-        context.realSensorsEnabled = realSensorsEnabled && sensorOk;
-        context.forecastEnabled = forecastEnabled;
+        context.realSensorsEnabled = timeProgram ? false : (realSensorsEnabled && sensorOk);
+        context.forecastEnabled = timeProgram ? false : forecastEnabled;
+        context.minTempC = ParamSIR_SIR_MinTemp;
         context.month = month;
 
         SmartIrrigation::ZoneRuntimeState runtime{};
@@ -435,6 +491,7 @@ void SmartIrrigationModule::loop(bool configured)
                                                                                  forecastWeights_,
                                                                                  mixWeights_);
         decisions[zoneIndex] = result;
+        fallbackActiveAny = fallbackActiveAny || result.fallbackActive;
 
         runtimeState.errorActive = result.errorCode != 0;
         runtimeState.errorCode = result.errorCode;
@@ -457,7 +514,16 @@ void SmartIrrigationModule::loop(bool configured)
             }
             else if (manualRequested[zoneIndex] && runtimeState.state != kZoneStateActive)
             {
-                if (settings.absMaxWeek > 0 && runtimeState.weekAmount >= settings.absMaxWeek)
+                if (minTempStartBlocked)
+                {
+                    runtimeState.state = kZoneStateInactive;
+                    runtimeState.remainingMinutes = 0;
+                    runtimeState.plannedRuntimeSec = 0;
+                    runtimeState.startTimeSec = 0;
+                    runtimeState.nextTimeSec = 0;
+                    runtimeState.nextAmount = 0.0f;
+                }
+                else if (settings.absMaxWeek > 0 && runtimeState.weekAmount >= settings.absMaxWeek)
                 {
                     runtimeState.errorActive = true;
                     runtimeState.errorCode = 6;
@@ -499,7 +565,16 @@ void SmartIrrigationModule::loop(bool configured)
         }
         else if (runtimeState.state != kZoneStateActive)
         {
-            if (result.action == SmartIrrigation::DecisionAction::Start)
+            if (timeProgram && minTempStartBlocked)
+            {
+                runtimeState.state = kZoneStateInactive;
+                runtimeState.remainingMinutes = 0;
+                runtimeState.plannedRuntimeSec = 0;
+                runtimeState.startTimeSec = 0;
+                runtimeState.nextTimeSec = 0;
+                runtimeState.nextAmount = 0.0f;
+            }
+            else if (result.action == SmartIrrigation::DecisionAction::Start)
             {
                 runtimeState.state = kZoneStateWaiting;
                 runtimeState.remainingMinutes = 0;
@@ -674,6 +749,11 @@ void SmartIrrigationModule::loop(bool configured)
     knx.getGroupObject(singleKoNumber(kKoActiveZones)).value(activeZones, DPT_Value_1_Ucount);
     knx.getGroupObject(singleKoNumber(kKoSystemStatus)).value(systemOn && !emergencyStop, DPT_Switch);
     knx.getGroupObject(singleKoNumber(kKoSystemError)).value(!sensorOk, DPT_Switch);
+    knx.getGroupObject(singleKoNumber(kKoDiagFallback)).value(fallbackActiveAny, DPT_Switch);
+
+    const bool forecastStatus = forecastEnabled && weatherCache_.forecast.hasTempCurrent &&
+                                weatherCache_.forecast.hasRainCurrent;
+    knx.getGroupObject(singleKoNumber(kKoForecastStatus)).value(forecastStatus, DPT_Switch);
 
     updateDiagOutputs(bestDiag, bestDiagZone);
 }
@@ -738,12 +818,33 @@ void SmartIrrigationModule::readFlash(const uint8_t *data, const uint16_t size)
 
 void SmartIrrigationModule::loadWeightsFromParams()
 {
-    forecastWeights_.high = ParamSIR_SIR_WeightHigh;
-    forecastWeights_.mid = ParamSIR_SIR_WeightMid;
-    forecastWeights_.low = ParamSIR_SIR_WeightLow;
+    switch (ParamSIR_SIR_StrategyPreset)
+    {
+        case 1: // Konservativ
+            forecastWeights_.high = 0.40f;
+            forecastWeights_.mid = 0.40f;
+            forecastWeights_.low = 0.20f;
+            mixWeights_.real = 0.50f;
+            mixWeights_.forecast = 0.50f;
+            break;
 
-    mixWeights_.real = ParamSIR_SIR_WeightReal;
-    mixWeights_.forecast = ParamSIR_SIR_WeightForecast;
+        case 2: // Aggressiv
+            forecastWeights_.high = 0.75f;
+            forecastWeights_.mid = 0.20f;
+            forecastWeights_.low = 0.05f;
+            mixWeights_.real = 0.85f;
+            mixWeights_.forecast = 0.15f;
+            break;
+
+        case 0: // Ausgewogen
+        default:
+            forecastWeights_.high = 0.60f;
+            forecastWeights_.mid = 0.30f;
+            forecastWeights_.low = 0.10f;
+            mixWeights_.real = 0.70f;
+            mixWeights_.forecast = 0.30f;
+            break;
+    }
 
     const bool forecastOk = SmartIrrigation::normalizeForecastWeights(forecastWeights_);
     const bool mixOk = SmartIrrigation::normalizeMixWeights(mixWeights_);
@@ -779,6 +880,7 @@ void SmartIrrigationModule::processInputKo(GroupObject &ko)
             if (valid)
             {
                 weatherCache_.real.temperatureC = value;
+                sensorLastValidMs_[static_cast<size_t>(SmartIrrigation::SensorId::Temperature)] = millis();
             }
             sensorHealth_[static_cast<size_t>(SmartIrrigation::SensorId::Temperature)].update(valid);
             break;
@@ -788,6 +890,7 @@ void SmartIrrigationModule::processInputKo(GroupObject &ko)
             const bool value = ko.value(DPT_Switch);
             weatherCache_.real.hasRain = true;
             weatherCache_.real.rainActive = value;
+            sensorLastValidMs_[static_cast<size_t>(SmartIrrigation::SensorId::Rain)] = millis();
             sensorHealth_[static_cast<size_t>(SmartIrrigation::SensorId::Rain)].update(true);
             if (value && weatherCache_.real.hasRainAmount)
             {
@@ -803,11 +906,33 @@ void SmartIrrigationModule::processInputKo(GroupObject &ko)
             if (valid)
             {
                 weatherCache_.real.rainAmountMm = value;
+                sensorLastValidMs_[static_cast<size_t>(SmartIrrigation::SensorId::RainAmount)] = millis();
             }
             sensorHealth_[static_cast<size_t>(SmartIrrigation::SensorId::RainAmount)].update(valid);
             if (valid && weatherCache_.real.rainActive)
             {
                 updateRainLockFromEvent(value, maxRainDelayFactor());
+            }
+            break;
+        }
+        case kKoWeatherUpdateTrigger:
+        {
+            const bool trigger = ko.value(DPT_Switch);
+            if (!trigger)
+            {
+                break;
+            }
+
+            const bool realAvailable = weatherCache_.real.hasTemperature && weatherCache_.real.hasRain;
+            const bool forecastAvailable = weatherCache_.forecast.hasTempCurrent && weatherCache_.forecast.hasRainCurrent;
+            const bool updateOk = realAvailable || forecastAvailable;
+            knx.getGroupObject(singleKoNumber(kKoWeatherUpdateStatus)).value(updateOk, DPT_Switch);
+
+            if (openknx.time.isValid())
+            {
+                auto currentTime = openknx.time.getLocalTime();
+                weatherUpdateLastSec_ = static_cast<uint32_t>(currentTime.toTime_t());
+                writeDateTimeKo(singleKoNumber(kKoWeatherUpdateLast), weatherUpdateLastSec_, true);
             }
             break;
         }
@@ -838,13 +963,9 @@ void SmartIrrigationModule::processInputKo(GroupObject &ko)
         case kKoSensorWindDirection:
         {
             const uint8_t value = ko.value(DPT_Angle);
-            const bool valid = value <= 360;
-            weatherCache_.real.hasWindDirection = valid;
-            if (valid)
-            {
-                weatherCache_.real.windDirectionDeg = value;
-            }
-            sensorHealth_[static_cast<size_t>(SmartIrrigation::SensorId::WindDirection)].update(valid);
+            weatherCache_.real.hasWindDirection = true;
+            weatherCache_.real.windDirectionDeg = static_cast<float>(value) * (360.0f / 255.0f);
+            sensorHealth_[static_cast<size_t>(SmartIrrigation::SensorId::WindDirection)].update(true);
             break;
         }
         case kKoSensorSoilMoisture:
@@ -968,12 +1089,8 @@ void SmartIrrigationModule::processInputKo(GroupObject &ko)
         case kKoForecastWindDirection:
         {
             const uint8_t value = ko.value(DPT_Angle);
-            const bool valid = value <= 360;
-            weatherCache_.forecast.hasWindDirection = valid;
-            if (valid)
-            {
-                weatherCache_.forecast.windDirectionDeg = value;
-            }
+            weatherCache_.forecast.hasWindDirection = true;
+            weatherCache_.forecast.windDirectionDeg = static_cast<float>(value) * (360.0f / 255.0f);
             break;
         }
         case kKoForecastUvIndex:
@@ -995,29 +1112,40 @@ SmartIrrigation::ZoneSettings SmartIrrigationModule::loadZoneSettings(uint8_t zo
     (void)_channelIndex;
 
     SmartIrrigation::ZoneSettings settings{};
-    settings.enabled = ParamSIR_ZEnabled;
-    settings.areaM2 = ParamSIR_ZArea;
-    settings.flowLpm = ParamSIR_ZFlow;
-    settings.etFactorPercent = ParamSIR_ZETFactor;
-    settings.interceptionPercent = ParamSIR_ZInterception;
-    settings.minWeek = ParamSIR_ZMinWeek;
-    settings.maxWeek = ParamSIR_ZMaxWeek;
-    settings.absMaxWeek = ParamSIR_ZAbsMax;
-    settings.maxCycles = ParamSIR_ZMaxCycles;
-    settings.minPerCycle = ParamSIR_ZMinPerCycle;
+    settings.enabled = ParamSIR_SIR_ZEnabled;
+    settings.areaM2 = ParamSIR_SIR_ZArea;
+    if (ParamSIR_SIR_Mode == 0)
+    {
+        settings.flowLpm = ParamSIR_SIR_SystemFlow;
+    }
+    else
+    {
+        settings.flowLpm = ParamSIR_SIR_ZFlow;
+        if (settings.flowLpm <= 0.0f)
+        {
+            settings.flowLpm = ParamSIR_SIR_SystemFlow;
+        }
+    }
+    settings.etFactorPercent = ParamSIR_SIR_ZETFactor;
+    settings.interceptionPercent = ParamSIR_SIR_ZInterception;
+    settings.minWeek = ParamSIR_SIR_ZMinWeek;
+    settings.maxWeek = ParamSIR_SIR_ZMaxWeek;
+    settings.absMaxWeek = ParamSIR_SIR_ZAbsMax;
+    settings.maxCycles = ParamSIR_SIR_ZMaxCycles;
+    settings.minPerCycle = ParamSIR_SIR_ZMinPerCycle;
     settings.manualRuntimeMinutes = ParamSIR_SIR_ZManualRuntime;
-    settings.baseTempC = ParamSIR_ZBaseTemp;
-    settings.baseTempHyst = ParamSIR_ZBaseTempHyst;
-    settings.soilThresholdPercent = ParamSIR_ZSoilThreshold;
-    settings.rainDelayFactor = ParamSIR_ZRainDelayFactor;
-    settings.maxRuntimeMinutes = ParamSIR_ZMaxRuntime;
-    settings.window1.active = ParamSIR_ZTW1Active;
-    settings.window1.startMinutes = ParamSIR_ZTW1Start;
-    settings.window1.endMinutes = ParamSIR_ZTW1End;
-    settings.window2.active = ParamSIR_ZTW2Active;
-    settings.window2.startMinutes = ParamSIR_ZTW2Start;
-    settings.window2.endMinutes = ParamSIR_ZTW2End;
-    settings.windowType = ParamSIR_ZTimeType == 0
+    settings.baseTempC = ParamSIR_SIR_ZBaseTemp;
+    settings.baseTempHyst = ParamSIR_SIR_ZBaseTempHyst;
+    settings.soilThresholdPercent = ParamSIR_SIR_ZSoilThreshold;
+    settings.rainDelayFactor = ParamSIR_SIR_ZRainDelayFactor;
+    settings.maxRuntimeMinutes = ParamSIR_SIR_ZMaxRuntime;
+    settings.window1.active = ParamSIR_SIR_ZTW1Active;
+    settings.window1.startMinutes = knx.paramWord(SIR_ParamCalcIndex(SIR_SIR_ZTW1Start));
+    settings.window1.endMinutes = knx.paramWord(SIR_ParamCalcIndex(SIR_SIR_ZTW1End));
+    settings.window2.active = ParamSIR_SIR_ZTW2Active;
+    settings.window2.startMinutes = knx.paramWord(SIR_ParamCalcIndex(SIR_SIR_ZTW2Start));
+    settings.window2.endMinutes = knx.paramWord(SIR_ParamCalcIndex(SIR_SIR_ZTW2End));
+    settings.windowType = ParamSIR_SIR_ZTimeType == 0
                               ? SmartIrrigation::TimeWindowType::Flexible
                               : SmartIrrigation::TimeWindowType::Fixed;
 
@@ -1044,6 +1172,7 @@ void SmartIrrigationModule::updateZoneOutputs(uint8_t zoneIndex,
     const uint16_t koNextAmount = zoneKoNumber(zoneIndex, kZoneKoNextAmount);
     const uint16_t koError = zoneKoNumber(zoneIndex, kZoneKoError);
     const uint16_t koErrorCode = zoneKoNumber(zoneIndex, kZoneKoErrorCode);
+    const uint16_t koCycles = zoneKoNumber(zoneIndex, kZoneKoCycles);
 
     const bool isActive = runtime.state == kZoneStateActive;
     knx.getGroupObject(koStatus).value(isActive, DPT_Switch);
@@ -1054,6 +1183,7 @@ void SmartIrrigationModule::updateZoneOutputs(uint8_t zoneIndex,
 
     knx.getGroupObject(koWeekAmount).value(runtime.weekAmount, DPT_Rain_Amount);
     knx.getGroupObject(koWeekAmountPrev).value(runtime.weekAmountPrev, DPT_Rain_Amount);
+    knx.getGroupObject(koCycles).value(runtime.cycles, DPT_Value_1_Ucount);
     knx.getGroupObject(koLastAmount).value(runtime.lastAmount, DPT_Rain_Amount);
     knx.getGroupObject(koNextAmount).value(runtime.nextAmount, DPT_Rain_Amount);
 
@@ -1204,8 +1334,9 @@ bool SmartIrrigationModule::stopZone(uint8_t zoneIndex,
     knx.getGroupObject(zoneKoNumber(zoneIndex, kZoneKoValve)).value(false, DPT_Switch);
     knx.getGroupObject(zoneKoNumber(zoneIndex, kZoneKoStatus)).value(false, DPT_Switch);
     knx.getGroupObject(zoneKoNumber(zoneIndex, kZoneKoState)).value(kZoneStateInactive, DPT_Value_1_Ucount);
-    knx.getGroupObject(zoneKoNumber(zoneIndex, kZoneKoRemaining)).value(0, DPT_TimePeriodHrs);
+    knx.getGroupObject(zoneKoNumber(zoneIndex, kZoneKoRemaining)).value(static_cast<uint16_t>(0), DPT_TimePeriodHrs);
     knx.getGroupObject(zoneKoNumber(zoneIndex, kZoneKoWeekAmount)).value(runtime.weekAmount, DPT_Rain_Amount);
+    knx.getGroupObject(zoneKoNumber(zoneIndex, kZoneKoCycles)).value(runtime.cycles, DPT_Value_1_Ucount);
     knx.getGroupObject(zoneKoNumber(zoneIndex, kZoneKoLastAmount)).value(runtime.lastAmount, DPT_Rain_Amount);
     if (runtime.lastTimeSec > 0)
     {
@@ -1223,10 +1354,11 @@ bool SmartIrrigationModule::stopZone(uint8_t zoneIndex,
     return true;
 }
 
-uint8_t SmartIrrigationModule::stopAllZones(uint32_t nowSec, bool timeValid)
+uint8_t SmartIrrigationModule::stopAllZones(uint8_t zoneCount, uint32_t nowSec, bool timeValid)
 {
     uint8_t stopped = 0;
-    for (uint8_t zoneIndex = 0; zoneIndex < kMaxZones; ++zoneIndex)
+    const uint8_t boundedZoneCount = std::min<uint8_t>(zoneCount, kMaxZones);
+    for (uint8_t zoneIndex = 0; zoneIndex < boundedZoneCount; ++zoneIndex)
     {
         SmartIrrigation::ZoneSettings settings = loadZoneSettings(zoneIndex);
         if (zoneRuntime_[zoneIndex].state == kZoneStateActive)
@@ -1242,10 +1374,11 @@ uint8_t SmartIrrigationModule::stopAllZones(uint32_t nowSec, bool timeValid)
     return stopped;
 }
 
-void SmartIrrigationModule::updateActiveZoneCountdown(uint32_t nowSec, bool timeValid)
+void SmartIrrigationModule::updateActiveZoneCountdown(uint8_t zoneCount, uint32_t nowSec, bool timeValid)
 {
     (void)timeValid;
-    for (uint8_t zoneIndex = 0; zoneIndex < kMaxZones; ++zoneIndex)
+    const uint8_t boundedZoneCount = std::min<uint8_t>(zoneCount, kMaxZones);
+    for (uint8_t zoneIndex = 0; zoneIndex < boundedZoneCount; ++zoneIndex)
     {
         ZoneRuntime &runtime = zoneRuntime_[zoneIndex];
         if (runtime.state != kZoneStateActive)
@@ -1309,6 +1442,7 @@ void SmartIrrigationModule::applyWeeklyReset(uint8_t zoneCount,
         knx.getGroupObject(zoneKoNumber(zoneIndex, kZoneKoWeekAmountPrev)).value(runtime.weekAmountPrev,
                                                                                 DPT_Rain_Amount);
         knx.getGroupObject(zoneKoNumber(zoneIndex, kZoneKoWeekAmount)).value(runtime.weekAmount, DPT_Rain_Amount);
+        knx.getGroupObject(zoneKoNumber(zoneIndex, kZoneKoCycles)).value(runtime.cycles, DPT_Value_1_Ucount);
     }
 
     saveRuntimeToFlash(true);
@@ -1333,7 +1467,6 @@ void SmartIrrigationModule::updateDiagOutputs(const SmartIrrigation::DecisionRes
     knx.getGroupObject(singleKoNumber(kKoDiagWaterDemand)).value(result.waterDemand, DPT_Rain_Amount);
     knx.getGroupObject(singleKoNumber(kKoDiagDecisionMode)).value(static_cast<uint8_t>(result.mode), DPT_Value_1_Ucount);
     knx.getGroupObject(singleKoNumber(kKoDiagSequenceStatus)).value(static_cast<uint8_t>(result.action), DPT_Value_1_Ucount);
-    knx.getGroupObject(singleKoNumber(kKoDiagFallback)).value(result.fallbackActive, DPT_Switch);
 }
 
 void SmartIrrigationModule::updateSensorStatusKo(bool sensorOk)
@@ -1409,7 +1542,7 @@ float SmartIrrigationModule::maxRainDelayFactor()
     {
         uint8_t _channelIndex = zoneIndex;
         (void)_channelIndex;
-        const float factor = ParamSIR_ZRainDelayFactor;
+        const float factor = ParamSIR_SIR_ZRainDelayFactor;
         if (factor > maxFactor)
         {
             maxFactor = factor;

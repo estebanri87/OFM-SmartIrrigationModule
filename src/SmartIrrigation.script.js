@@ -1,36 +1,6 @@
 function SIR_NoOp(input, output, context) {
 }
 
-function SIR_ClampMaxConcurrent(input, output, context) {
-    if (input.MaxConcurrent > input.ZoneCount) {
-        output.MaxConcurrent = input.ZoneCount;
-    }
-}
-
-function SIR_NormalizeForecastWeights(input, output, context) {
-    var sum = input.WeightHigh + input.WeightMid + input.WeightLow;
-    if (sum <= 0) {
-        output.WeightHigh = 0.6;
-        output.WeightMid = 0.3;
-        output.WeightLow = 0.1;
-        return;
-    }
-    output.WeightHigh = input.WeightHigh / sum;
-    output.WeightMid = input.WeightMid / sum;
-    output.WeightLow = input.WeightLow / sum;
-}
-
-function SIR_NormalizeMixWeights(input, output, context) {
-    var sum = input.WeightReal + input.WeightForecast;
-    if (sum <= 0) {
-        output.WeightReal = 0.7;
-        output.WeightForecast = 0.3;
-        return;
-    }
-    output.WeightReal = input.WeightReal / sum;
-    output.WeightForecast = input.WeightForecast / sum;
-}
-
 function SIR_EnsureMaxWeek(input, output, context) {
     if (input.MaxWeek < input.MinWeek) {
         output.MaxWeek = input.MinWeek;
@@ -38,7 +8,7 @@ function SIR_EnsureMaxWeek(input, output, context) {
 }
 
 function SIR_EnsureTimeWindowEnd(input, output, context) {
-    if (input.End <= input.Start) {
+    if (input.End == input.Start) {
         var next = input.Start + 1;
         output.End = next > 1439 ? 1439 : next;
     }

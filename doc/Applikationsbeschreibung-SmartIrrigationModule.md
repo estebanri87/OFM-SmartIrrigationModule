@@ -22,7 +22,7 @@ Dieses Dokument beschreibt die ETS-Parameter des OFM-SmartIrrigationModule.
 
 **Strategie:** Im "Smart Core"-Modus sind erweiterte Parameter ausgeblendet; im "Smart Pro"-Modus sind alle Parameter sichtbar.
 
-**Zonen (Basis):** Alle Zonen-Parameter sind nur editierbar, wenn "Zone aktiviert" = Ja. "Flaeche" und "Durchfluss System" sind numerische Felder mit Dezimalstellen.
+**Zonen (Basis):** Alle Zonen-Parameter sind nur editierbar, wenn "Zone aktiviert" = Ja. "Flaeche" und (im Smart-Pro-Modus) "Durchfluss je Zone" sind numerische Felder mit Dezimalstellen.
 
 **Pflanzentyp & Faktoren:** Bei vordefinierten Pflanzentypen werden ET-Faktor und Interzeptionsfaktor automatisch gesetzt und sind read-only; bei "Benutzerdefiniert" sind beide editierbar.
 
@@ -43,6 +43,11 @@ Legt die Anzahl aktiver Bewaesserungszonen fest (1-10).
 ### **Max. gleichzeitige Zonen**
 
 Maximale Anzahl Zonen, die gleichzeitig bewaessert werden duerfen.
+
+<!-- DOC HelpContext="System-Flow" -->
+### **Systemdurchfluss**
+
+Globaler Durchfluss des Gesamtsystems in l/min. Wird im Smart-Core-Modus fuer alle Zonen verwendet.
 
 ## Woche
 
@@ -157,7 +162,8 @@ Intervall fuer die Aktualisierung der Wetterprognose in Minuten.
 <!-- DOC HelpContext="Strategy-Mode" -->
 ### **Bewaesserungs-Modus**
 
-Smart Core: einfache Bedienung. Smart Pro: erweiterte Parameter sichtbar.
+Smart Core: einfache Bedienung mit globalem Systemdurchfluss.
+Smart Pro: zusaetzliche Zonen-Parameter sichtbar (z. B. Durchfluss je Zone).
 
 <!-- DOC HelpContext="Strategy-Mode-Core" -->
 #### **Smart Core**
@@ -169,35 +175,19 @@ Einfache Bedienung mit Standardparametern. Empfohlen fuer Einsteiger.
 
 Erweiterte Einstellungen fuer maximale Kontrolle. Fuer erfahrene Anwender.
 
+<!-- DOC HelpContext="Strategy-Preset" -->
+### **Strategie-Preset**
+
+Vordefinierte Smart-Pro-Profile fuer eine einfache Einstellung ohne manuelle Einzelgewichte.
+
+- **Ausgewogen**: Empfohlener Standard fuer die meisten Anlagen.
+- **Konservativ**: Zurueckhaltende Bewaesserung mit hoeherer Prognose-Beruecksichtigung.
+- **Aggressiv**: Fruehere/staerkere Bewaesserung mit hoeherer Istwert-Beruecksichtigung.
+
 <!-- DOC HelpContext="Strategy-Program" -->
 ### **Programm-Auswahl**
 
 Zeit + Wetter, nur Zeit oder Manuell.
-
-<!-- DOC HelpContext="Strategy-WeightHigh" -->
-### **Gewicht hoch**
-
-Gewichtung fuer aktuelle Werte. Summe der Gewichte wird auf 1 normiert.
-
-<!-- DOC HelpContext="Strategy-WeightMid" -->
-### **Gewicht mittel**
-
-Gewichtung fuer +48h Prognose. Summe der Gewichte wird auf 1 normiert.
-
-<!-- DOC HelpContext="Strategy-WeightLow" -->
-### **Gewicht niedrig**
-
-Gewichtung fuer +7d Prognose. Summe der Gewichte wird auf 1 normiert.
-
-<!-- DOC HelpContext="Strategy-WeightReal" -->
-### **Gewicht real**
-
-Gewichtung fuer reale Sensoren (kombinierter Modus). Summe wird normiert.
-
-<!-- DOC HelpContext="Strategy-WeightForecast" -->
-### **Gewicht Prognose**
-
-Gewichtung fuer Prognose (kombinierter Modus). Summe wird normiert.
 
 ## Zonen
 
@@ -219,9 +209,9 @@ Benutzerdefinierter Name der Zone, z. B. "Rasen Vorgarten".
 Groesse der zu bewaessernden Flaeche in Quadratmetern.
 
 <!-- DOC HelpContext="Zone-Flow" -->
-### **Durchfluss System**
+### **Durchfluss je Zone (Smart Pro)**
 
-Wasserdurchfluss des Bewaesserungssystems (Tropfschlauch, Sprinkler, etc.).
+Wird nur im Smart-Pro-Modus angezeigt und fuer die jeweilige Zone verwendet.
 
 <!-- DOC HelpContext="Zone-PlantType" -->
 ### **Pflanzentyp**

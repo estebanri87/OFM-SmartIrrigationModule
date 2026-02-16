@@ -62,8 +62,10 @@ class SmartIrrigationModule : public OpenKNX::Module
     std::array<SmartIrrigation::SensorTimeoutTracker,
                static_cast<size_t>(SmartIrrigation::SensorId::Count)>
         sensorHealth_{};
+    std::array<uint32_t, static_cast<size_t>(SmartIrrigation::SensorId::Count)> sensorLastValidMs_{};
     SmartIrrigation::WeatherInputs weatherCache_{};
     RainLockState rainLock_{};
+    uint32_t weatherUpdateLastSec_ = 0;
     uint32_t lastDecisionMs_ = 0;
     uint16_t lastResetYear_ = 0;
     uint8_t lastResetMonth_ = 0;
@@ -91,8 +93,8 @@ class SmartIrrigationModule : public OpenKNX::Module
             const SmartIrrigation::ZoneSettings &settings,
             uint32_t nowSec,
             bool timeValid);
-    uint8_t stopAllZones(uint32_t nowSec, bool timeValid);
-    void updateActiveZoneCountdown(uint32_t nowSec, bool timeValid);
+    uint8_t stopAllZones(uint8_t zoneCount, uint32_t nowSec, bool timeValid);
+    void updateActiveZoneCountdown(uint8_t zoneCount, uint32_t nowSec, bool timeValid);
     void applyWeeklyReset(uint8_t zoneCount,
       uint16_t nowMinutes,
       uint8_t dayOfWeek,

@@ -1,4 +1,4 @@
-﻿### Durchfluss System
+﻿### Durchfluss je Zone (Smart Pro)
 
-Wasserdurchfluss des Bewaesserungssystems (Tropfschlauch, Sprinkler, etc.).
+Wird nur im Smart-Pro-Modus angezeigt und fuer die jeweilige Zone verwendet.
 

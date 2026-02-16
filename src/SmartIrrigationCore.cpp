@@ -72,12 +72,12 @@ namespace SmartIrrigation
 
         bool hasRealMustSensors(const RealWeatherInputs &inputs)
         {
-            return inputs.hasTemperature && inputs.hasRain && inputs.hasRainAmount;
+            return inputs.hasTemperature && inputs.hasRain;
         }
 
         bool hasForecastMustSensors(const ForecastWeatherInputs &inputs)
         {
-            return inputs.hasTempCurrent && inputs.hasRainCurrent && inputs.hasRainAmountCurrent;
+            return inputs.hasTempCurrent && inputs.hasRainCurrent;
         }
     }
 
@@ -343,6 +343,11 @@ namespace SmartIrrigation
 
         if (hasTemperature)
         {
+            if (temperatureC < static_cast<float>(context.minTempC))
+            {
+                return result;
+            }
+
             const float baseLimit = static_cast<float>(zone.baseTempC) - zone.baseTempHyst;
             if (temperatureC <= baseLimit)
             {
@@ -353,13 +358,8 @@ namespace SmartIrrigation
         {
             return result;
         }
-
-        if (soilOverride)
+        else if (context.realSensorsEnabled || context.forecastEnabled)
         {
-            result.action = DecisionAction::Start;
-            result.mode = mode;
-            result.fallbackActive = fallbackActive;
-            result.waterDemand = zone.minPerCycle > 0 ? zone.minPerCycle : 0.0f;
             return result;
         }
 
@@ -464,6 +464,15 @@ namespace SmartIrrigation
             waterDemand = zone.maxWeek - runtime.weekAmount;
         }
 
+        if (soilOverride)
+        {
+            waterDemand = zone.minPerCycle > 0 ? static_cast<float>(zone.minPerCycle) : waterDemand;
+            if (waterDemand <= 0.0f)
+            {
+                return result;
+            }
+        }
+
         if (waterDemand < zone.minPerCycle)
         {
             return result;
@@ -486,7 +495,20 @@ namespace SmartIrrigation
         result.timeWindowConflict = windowCheck.conflict;
         if (!windowCheck.allowed)
         {
+            if (soilOverride)
+            {
+                result.errorCode = 10;
+            }
             result.action = DecisionAction::WaitTimeWindow;
+            return result;
+        }
+
+        if (soilOverride)
+        {
+            result.action = DecisionAction::Start;
+            result.mode = mode;
+            result.fallbackActive = fallbackActive;
+            result.waterDemand = zone.minPerCycle > 0 ? zone.minPerCycle : 0.0f;
             return result;
         }
 
@@ -510,7 +532,7 @@ namespace SmartIrrigation
         }
 
         auto isWindowValid = [](const TimeWindow &window) {
-            return !window.active || window.endMinutes > window.startMinutes;
+            return !window.active || window.endMinutes != window.startMinutes;
         };
 
         if (!isWindowValid(window1) || !isWindowValid(window2))
@@ -528,7 +550,9 @@ namespace SmartIrrigation
 
             if (type == TimeWindowType::Fixed)
             {
-                if (nowMinutes == window.startMinutes)
+                const int diff = std::abs(static_cast<int>(nowMinutes) - static_cast<int>(window.startMinutes));
+                const int circularDiff = std::min(diff, 1440 - diff);
+                if (circularDiff <= 1)
                 {
                     result.fixedMatch = true;
                     return true;
@@ -536,7 +560,12 @@ namespace SmartIrrigation
                 return false;
             }
 
-            return nowMinutes >= window.startMinutes && nowMinutes <= window.endMinutes;
+            if (window.endMinutes > window.startMinutes)
+            {
+                return nowMinutes >= window.startMinutes && nowMinutes <= window.endMinutes;
+            }
+
+            return nowMinutes >= window.startMinutes || nowMinutes <= window.endMinutes;
         };
 
         result.allowed = checkWindow(window1) || checkWindow(window2);

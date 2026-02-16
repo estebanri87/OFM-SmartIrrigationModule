@@ -44,6 +44,13 @@
                             <ParameterType Id="%AID%_PT-Weight" Name="Weight" ValidationErrorRef="%AID%_M-%TT%00104">
                                 <TypeFloat Encoding="IEEE-754 Single" minInclusive="0" maxInclusive="1" />
                             </ParameterType>
+                            <ParameterType Id="%AID%_PT-StrategyPreset" Name="StrategyPreset">
+                                <TypeRestriction Base="Value" SizeInBit="8">
+                                    <Enumeration Text="Ausgewogen" Value="0" Id="%ENID%" />
+                                    <Enumeration Text="Konservativ" Value="1" Id="%ENID%" />
+                                    <Enumeration Text="Aggressiv" Value="2" Id="%ENID%" />
+                                </TypeRestriction>
+                            </ParameterType>
                             <ParameterType Id="%AID%_PT-Text50Byte" Name="Text50Byte">
                                 <TypeText SizeInBit="400" />
                             </ParameterType>
@@ -57,12 +64,12 @@
                                 <TypeRestriction Base="Value" SizeInBit="8">
                                     <Enumeration Text="Rasen" Value="0" Id="%ENID%" />
                                     <Enumeration Text="Rasen (Schatten)" Value="1" Id="%ENID%" />
-                                    <Enumeration Text="Gemuese (niedrig wachsend)" Value="2" Id="%ENID%" />
-                                    <Enumeration Text="Gemuese (hoch/dicht)" Value="3" Id="%ENID%" />
+                                    <Enumeration Text="Gemüse (niedrig wachsend)" Value="2" Id="%ENID%" />
+                                    <Enumeration Text="Gemüse (hoch/dicht)" Value="3" Id="%ENID%" />
                                     <Enumeration Text="Blumenbeet" Value="4" Id="%ENID%" />
                                     <Enumeration Text="Hecke" Value="5" Id="%ENID%" />
-                                    <Enumeration Text="Buesche" Value="6" Id="%ENID%" />
-                                    <Enumeration Text="Kuebelpflanze" Value="7" Id="%ENID%" />
+                                    <Enumeration Text="Büsche" Value="6" Id="%ENID%" />
+                                    <Enumeration Text="Kübelpflanze" Value="7" Id="%ENID%" />
                                     <Enumeration Text="Baum (jung)" Value="8" Id="%ENID%" />
                                     <Enumeration Text="Baum (etabliert)" Value="9" Id="%ENID%" />
                                     <Enumeration Text="Benutzerdefiniert" Value="10" Id="%ENID%" />
@@ -133,13 +140,13 @@
                             </Union>
                             <Union Id="%AID%_U-%TT%00005" SizeInBit="8">
                                 <Memory CodeSegment="%MID%" Offset="5" BitOffset="0" />
-                                <Parameter Id="%AID%_UP-%TT%00005" Name="SIR_SensorEnable" ParameterType="%AID%_PT-OnOffYesNo" Offset="0" BitOffset="0" Text="Sensorwerte aktivieren" Value="0" />
+                                <Parameter Id="%AID%_UP-%TT%00005" Name="SIR_SensorEnable" ParameterType="%AID%_PT-OnOffYesNo" Offset="0" BitOffset="0" Text="Sensorwerte aktivieren" Value="1" />
                             </Union>
                             <Union Id="%AID%_U-%TT%00006" SizeInBit="8">
                                 <Memory CodeSegment="%MID%" Offset="6" BitOffset="0" />
                                 <Parameter Id="%AID%_UP-%TT%00006" Name="SIR_SensorTemp" ParameterType="%AID%_PT-CheckBox" Offset="0" BitOffset="0" Text="Temperatur *" Value="0" />
                                 <Parameter Id="%AID%_UP-%TT%00007" Name="SIR_SensorRain" ParameterType="%AID%_PT-CheckBox" Offset="0" BitOffset="1" Text="Regen *" Value="0" />
-                                <Parameter Id="%AID%_UP-%TT%00008" Name="SIR_SensorRainAmount" ParameterType="%AID%_PT-CheckBox" Offset="0" BitOffset="2" Text="Regenmenge *" Value="0" />
+                                <Parameter Id="%AID%_UP-%TT%00008" Name="SIR_SensorRainAmount" ParameterType="%AID%_PT-CheckBox" Offset="0" BitOffset="2" Text="Regenmenge" Value="0" />
                                 <Parameter Id="%AID%_UP-%TT%00009" Name="SIR_SensorHumidity" ParameterType="%AID%_PT-CheckBox" Offset="0" BitOffset="3" Text="Luftfeuchte" Value="0" />
                                 <Parameter Id="%AID%_UP-%TT%00010" Name="SIR_SensorWind" ParameterType="%AID%_PT-CheckBox" Offset="0" BitOffset="4" Text="Wind" Value="0" />
                                 <Parameter Id="%AID%_UP-%TT%00011" Name="SIR_SensorWindDir" ParameterType="%AID%_PT-CheckBox" Offset="0" BitOffset="5" Text="Windrichtung" Value="0" />
@@ -153,7 +160,7 @@
                                 <Memory CodeSegment="%MID%" Offset="8" BitOffset="0" />
                                 <Parameter Id="%AID%_UP-%TT%00014" Name="SIR_ForecastTemp" ParameterType="%AID%_PT-CheckBox" Offset="0" BitOffset="0" Text="Tagestemperatur *" Value="1" />
                                 <Parameter Id="%AID%_UP-%TT%00015" Name="SIR_ForecastRain" ParameterType="%AID%_PT-CheckBox" Offset="0" BitOffset="1" Text="Regen *" Value="1" />
-                                <Parameter Id="%AID%_UP-%TT%00016" Name="SIR_ForecastRainAmount" ParameterType="%AID%_PT-CheckBox" Offset="0" BitOffset="2" Text="Regenmenge *" Value="1" />
+                                <Parameter Id="%AID%_UP-%TT%00016" Name="SIR_ForecastRainAmount" ParameterType="%AID%_PT-CheckBox" Offset="0" BitOffset="2" Text="Regenmenge" Value="1" />
                                 <Parameter Id="%AID%_UP-%TT%00017" Name="SIR_ForecastHumidity" ParameterType="%AID%_PT-CheckBox" Offset="0" BitOffset="3" Text="Luftfeuchte" Value="0" />
                                 <Parameter Id="%AID%_UP-%TT%00018" Name="SIR_ForecastWind" ParameterType="%AID%_PT-CheckBox" Offset="0" BitOffset="4" Text="Wind" Value="0" />
                                 <Parameter Id="%AID%_UP-%TT%00019" Name="SIR_ForecastWindDir" ParameterType="%AID%_PT-CheckBox" Offset="0" BitOffset="5" Text="Windrichtung" Value="0" />
@@ -161,7 +168,7 @@
                             </Union>
                             <Union Id="%AID%_U-%TT%00021" SizeInBit="8">
                                 <Memory CodeSegment="%MID%" Offset="9" BitOffset="0" />
-                                <Parameter Id="%AID%_UP-%TT%00021" Name="SIR_MinTemp" ParameterType="%AID%_PT-TempMin" Offset="0" BitOffset="0" Text="Min. Temperatur Freigabe (C)" Value="5" />
+                                <Parameter Id="%AID%_UP-%TT%00021" Name="SIR_MinTemp" ParameterType="%AID%_PT-TempMin" Offset="0" BitOffset="0" Text="Min. Temperatur Freigabe (°C)" Value="5" />
                             </Union>
                             <Union Id="%AID%_U-%TT%00022" SizeInBit="16">
                                 <Memory CodeSegment="%MID%" Offset="10" BitOffset="0" />
@@ -169,7 +176,7 @@
                             </Union>
                             <Union Id="%AID%_U-%TT%00023" SizeInBit="8">
                                 <Memory CodeSegment="%MID%" Offset="12" BitOffset="0" />
-                                <Parameter Id="%AID%_UP-%TT%00023" Name="SIR_Mode" ParameterType="%AID%_PT-Mode" Offset="0" BitOffset="0" Text="Bewasserungs-Modus" Value="0" />
+                                <Parameter Id="%AID%_UP-%TT%00023" Name="SIR_Mode" ParameterType="%AID%_PT-Mode" Offset="0" BitOffset="0" Text="Bewässerungs-Modus" Value="0" />
                             </Union>
                             <Union Id="%AID%_U-%TT%00024" SizeInBit="8">
                                 <Memory CodeSegment="%MID%" Offset="13" BitOffset="0" />
@@ -177,23 +184,31 @@
                             </Union>
                             <Union Id="%AID%_U-%TT%00025" SizeInBit="32">
                                 <Memory CodeSegment="%MID%" Offset="14" BitOffset="0" />
-                                <Parameter Id="%AID%_UP-%TT%00025" Name="SIR_WeightHigh" ParameterType="%AID%_PT-Weight" Offset="0" BitOffset="0" Text="Gewicht hoch" Value="0.6" />
+                                <Parameter Id="%AID%_UP-%TT%00025" Name="SIR_WeightHigh" ParameterType="%AID%_PT-Weight" Offset="0" BitOffset="0" Text="Priorität Trockenstress hoch" Value="0.6" />
                             </Union>
                             <Union Id="%AID%_U-%TT%00026" SizeInBit="32">
                                 <Memory CodeSegment="%MID%" Offset="18" BitOffset="0" />
-                                <Parameter Id="%AID%_UP-%TT%00026" Name="SIR_WeightMid" ParameterType="%AID%_PT-Weight" Offset="0" BitOffset="0" Text="Gewicht mittel" Value="0.3" />
+                                <Parameter Id="%AID%_UP-%TT%00026" Name="SIR_WeightMid" ParameterType="%AID%_PT-Weight" Offset="0" BitOffset="0" Text="Priorität Trockenstress mittel" Value="0.3" />
                             </Union>
                             <Union Id="%AID%_U-%TT%00027" SizeInBit="32">
                                 <Memory CodeSegment="%MID%" Offset="22" BitOffset="0" />
-                                <Parameter Id="%AID%_UP-%TT%00027" Name="SIR_WeightLow" ParameterType="%AID%_PT-Weight" Offset="0" BitOffset="0" Text="Gewicht niedrig" Value="0.1" />
+                                <Parameter Id="%AID%_UP-%TT%00027" Name="SIR_WeightLow" ParameterType="%AID%_PT-Weight" Offset="0" BitOffset="0" Text="Priorität Trockenstress niedrig" Value="0.1" />
                             </Union>
                             <Union Id="%AID%_U-%TT%00028" SizeInBit="32">
                                 <Memory CodeSegment="%MID%" Offset="26" BitOffset="0" />
-                                <Parameter Id="%AID%_UP-%TT%00028" Name="SIR_WeightReal" ParameterType="%AID%_PT-Weight" Offset="0" BitOffset="0" Text="Gewicht real" Value="0.7" />
+                                <Parameter Id="%AID%_UP-%TT%00028" Name="SIR_WeightReal" ParameterType="%AID%_PT-Weight" Offset="0" BitOffset="0" Text="Anteil Ist-Wetterdaten" Value="0.7" />
                             </Union>
                             <Union Id="%AID%_U-%TT%00029" SizeInBit="32">
                                 <Memory CodeSegment="%MID%" Offset="30" BitOffset="0" />
-                                <Parameter Id="%AID%_UP-%TT%00029" Name="SIR_WeightForecast" ParameterType="%AID%_PT-Weight" Offset="0" BitOffset="0" Text="Gewicht Prognose" Value="0.3" />
+                                <Parameter Id="%AID%_UP-%TT%00029" Name="SIR_WeightForecast" ParameterType="%AID%_PT-Weight" Offset="0" BitOffset="0" Text="Anteil Prognosedaten" Value="0.3" />
+                            </Union>
+                            <Union Id="%AID%_U-%TT%00030" SizeInBit="8">
+                                <Memory CodeSegment="%MID%" Offset="34" BitOffset="0" />
+                                <Parameter Id="%AID%_UP-%TT%00030" Name="SIR_StrategyPreset" ParameterType="%AID%_PT-StrategyPreset" Offset="0" BitOffset="0" Text="Strategie-Preset" Value="0" />
+                            </Union>
+                            <Union Id="%AID%_U-%TT%00031" SizeInBit="32">
+                                <Memory CodeSegment="%MID%" Offset="35" BitOffset="0" />
+                                <Parameter Id="%AID%_UP-%TT%00031" Name="SIR_SystemFlow" ParameterType="%AID%_PT-FlowRate" Offset="0" BitOffset="0" Text="Systemdurchfluss (l/min)" Value="10" />
                             </Union>
                         </Parameters>
                         <ParameterRefs>
@@ -226,6 +241,8 @@
                             <ParameterRef Id="%AID%_UP-%TT%00027_R-%TT%0002701" RefId="%AID%_UP-%TT%00027" />
                             <ParameterRef Id="%AID%_UP-%TT%00028_R-%TT%0002801" RefId="%AID%_UP-%TT%00028" />
                             <ParameterRef Id="%AID%_UP-%TT%00029_R-%TT%0002901" RefId="%AID%_UP-%TT%00029" />
+                            <ParameterRef Id="%AID%_UP-%TT%00030_R-%TT%0003001" RefId="%AID%_UP-%TT%00030" />
+                            <ParameterRef Id="%AID%_UP-%TT%00031_R-%TT%0003101" RefId="%AID%_UP-%TT%00031" />
                         </ParameterRefs>
                         <!-- temporary workaround for ETS signer collision -->
                         <Messages>
@@ -233,8 +250,8 @@
                             <Message Id="%AID%_M-%TT%00101" Name="TimeOfDayRange" Text="Zeit muss zwischen 00:00 und 23:59 liegen." />
                             <Message Id="%AID%_M-%TT%00102" Name="TempRange" Text="Temperatur muss zwischen -20 und 50 liegen." />
                             <Message Id="%AID%_M-%TT%00103" Name="ForecastUpdateRange" Text="Prognose-Update muss zwischen 5 und 1440 Minuten liegen." />
-                            <Message Id="%AID%_M-%TT%00104" Name="WeightRange" Text="Gewichtung muss zwischen 0 und 1 liegen." />
-                            <Message Id="%AID%_M-%TT%00105" Name="AreaRange" Text="Flaeche muss zwischen 0,1 und 10000 liegen." />
+                            <Message Id="%AID%_M-%TT%00104" Name="WeightRange" Text="Jeder Wert muss zwischen 0,0 und 1,0 liegen." />
+                            <Message Id="%AID%_M-%TT%00105" Name="AreaRange" Text="Fläche muss zwischen 0,1 und 10000 liegen." />
                             <Message Id="%AID%_M-%TT%00106" Name="FlowRange" Text="Durchfluss muss zwischen 0,1 und 100 liegen." />
                             <Message Id="%AID%_M-%TT%00107" Name="ETRange" Text="ET-Faktor muss zwischen 0 und 200 liegen." />
                             <Message Id="%AID%_M-%TT%00108" Name="InterceptionRange" Text="Interzeptionsfaktor muss zwischen 0 und 100 liegen." />
@@ -246,7 +263,7 @@
                             <Message Id="%AID%_M-%TT%00114" Name="AbsMaxRange" Text="Absolutes Wochen-Maximum muss zwischen 0 und 200 liegen." />
                             <Message Id="%AID%_M-%TT%00115" Name="RuntimeRange" Text="Laufzeit muss zwischen 1 und 180 Minuten liegen." />
                             <Message Id="%AID%_M-%TT%00116" Name="SoilRange" Text="Bodenfeuchte-Schwellwert muss zwischen 0 und 100 liegen." />
-                            <Message Id="%AID%_M-%TT%00117" Name="RainDelayRange" Text="Regen-Verzoegerungs-Faktor muss zwischen 0 und 10 liegen." />
+                            <Message Id="%AID%_M-%TT%00117" Name="RainDelayRange" Text="Regen-Verzögerungs-Faktor muss zwischen 0 und 10 liegen." />
                         </Messages>
                         <Script>
                             <op:include href="SmartIrrigation.script.js" type="script" />
@@ -296,7 +313,7 @@
                             <ComObject Id="%AID%_O-%TT%00300" Number="300" Name="DiagMode" Text="Diagnose Modus" ObjectSize="1 Bit" DatapointType="DPST-1-1" ReadFlag="Disabled" WriteFlag="Enabled" CommunicationFlag="Enabled" TransmitFlag="Disabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" />
                             <ComObject Id="%AID%_O-%TT%00301" Number="301" Name="DiagET0" Text="Berechnete ET0" ObjectSize="2 Bytes" DatapointType="DPST-9-26" ReadFlag="Enabled" WriteFlag="Disabled" CommunicationFlag="Enabled" TransmitFlag="Enabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" />
                             <ComObject Id="%AID%_O-%TT%00302" Number="302" Name="DiagEffectiveRain" Text="Effektiver Niederschlag" ObjectSize="2 Bytes" DatapointType="DPST-9-26" ReadFlag="Enabled" WriteFlag="Disabled" CommunicationFlag="Enabled" TransmitFlag="Enabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" />
-                            <ComObject Id="%AID%_O-%TT%00303" Number="303" Name="DiagWaterDemand" Text="Bewaesserungsbedarf" ObjectSize="2 Bytes" DatapointType="DPST-9-26" ReadFlag="Enabled" WriteFlag="Disabled" CommunicationFlag="Enabled" TransmitFlag="Enabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" />
+                            <ComObject Id="%AID%_O-%TT%00303" Number="303" Name="DiagWaterDemand" Text="Bewässerungsbedarf" ObjectSize="2 Bytes" DatapointType="DPST-9-26" ReadFlag="Enabled" WriteFlag="Disabled" CommunicationFlag="Enabled" TransmitFlag="Enabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" />
                             <ComObject Id="%AID%_O-%TT%00304" Number="304" Name="DiagDecisionMode" Text="Entscheidungs-Modus" ObjectSize="1 Byte" DatapointType="DPST-5-10" ReadFlag="Enabled" WriteFlag="Disabled" CommunicationFlag="Enabled" TransmitFlag="Enabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" />
                             <ComObject Id="%AID%_O-%TT%00305" Number="305" Name="DiagSequenceStatus" Text="Sequenz-Status" ObjectSize="1 Byte" DatapointType="DPST-5-10" ReadFlag="Enabled" WriteFlag="Disabled" CommunicationFlag="Enabled" TransmitFlag="Enabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" />
                             <ComObject Id="%AID%_O-%TT%00306" Number="306" Name="DiagFallback" Text="Fallback-Modus aktiv" ObjectSize="1 Bit" DatapointType="DPST-1-1" ReadFlag="Enabled" WriteFlag="Disabled" CommunicationFlag="Enabled" TransmitFlag="Enabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" />
@@ -343,92 +360,166 @@
                             <ComObjectRef Id="%AID%_O-%TT%00300_R-%TT%0030001" RefId="%AID%_O-%TT%00300" FunctionText="Diagnose Modus" Text="Diagnose Modus" Priority="Low" ObjectSize="1 Bit" DatapointType="DPST-1-1" />
                             <ComObjectRef Id="%AID%_O-%TT%00301_R-%TT%0030101" RefId="%AID%_O-%TT%00301" FunctionText="Berechnete ET0" Text="Berechnete ET0" Priority="Low" ObjectSize="2 Bytes" DatapointType="DPST-9-26" />
                             <ComObjectRef Id="%AID%_O-%TT%00302_R-%TT%0030201" RefId="%AID%_O-%TT%00302" FunctionText="Effektiver Niederschlag" Text="Effektiver Niederschlag" Priority="Low" ObjectSize="2 Bytes" DatapointType="DPST-9-26" />
-                            <ComObjectRef Id="%AID%_O-%TT%00303_R-%TT%0030301" RefId="%AID%_O-%TT%00303" FunctionText="Bewaesserungsbedarf" Text="Bewaesserungsbedarf" Priority="Low" ObjectSize="2 Bytes" DatapointType="DPST-9-26" />
+                            <ComObjectRef Id="%AID%_O-%TT%00303_R-%TT%0030301" RefId="%AID%_O-%TT%00303" FunctionText="Bewässerungsbedarf" Text="Bewässerungsbedarf" Priority="Low" ObjectSize="2 Bytes" DatapointType="DPST-9-26" />
                             <ComObjectRef Id="%AID%_O-%TT%00304_R-%TT%0030401" RefId="%AID%_O-%TT%00304" FunctionText="Entscheidungs-Modus" Text="Entscheidungs-Modus" Priority="Low" ObjectSize="1 Byte" DatapointType="DPST-5-10" />
                             <ComObjectRef Id="%AID%_O-%TT%00305_R-%TT%0030501" RefId="%AID%_O-%TT%00305" FunctionText="Sequenz-Status" Text="Sequenz-Status" Priority="Low" ObjectSize="1 Byte" DatapointType="DPST-5-10" />
                             <ComObjectRef Id="%AID%_O-%TT%00306_R-%TT%0030601" RefId="%AID%_O-%TT%00306" FunctionText="Fallback-Modus aktiv" Text="Fallback-Modus aktiv" Priority="Low" ObjectSize="1 Bit" DatapointType="DPST-1-1" />
                         </ComObjectRefs>
                     </Static>
                     <Dynamic>
-                        <Channel Name="MainChannel%TT%" Text="Smarte Bewaesserung" Number="%PREFIX%" Id="%AID%_CH-%TT%" Icon="waves">
-                            <ParameterBlock Id="%AID%_PB-%TT%00001" Name="SIR_System" Text="1.1 System-Konfiguration" Icon="waves" ShowInComObjectTree="true">
+                        <Channel Name="MainChannel%TT%" Text="Smarte Bewässerung" Number="%PREFIX%" Id="%AID%_CH-%TT%" Icon="sprinkler-variant-custom">
+                            <ParameterBlock Id="%AID%_PB-%TT%00001" Name="SIR_BaseSettings" Text="Basiseinstellungen" Icon="waves" ShowInComObjectTree="true">
+                                <ParameterSeparator Id="%AID%_PS-%TT%00009" Text="System-Konfiguration" UIHint="Headline" />
                                 <ParameterRefRef RefId="%AID%_UP-%TT%00001_R-%TT%0000101" HelpContext="SIR-System-ZoneCount" />
                                 <ParameterRefRef RefId="%AID%_UP-%TT%00002_R-%TT%0000201" HelpContext="SIR-System-MaxConcurrent" />
-                                <ParameterSeparator Id="%AID%_PS-%TT%00001" Text="Max. gleichzeitige Zonen darf nicht groesser sein als Anzahl Zonen." UIHint="Information" />
-                            </ParameterBlock>
-                            <ParameterBlock Id="%AID%_PB-%TT%00002" Name="SIR_Week" Text="1.2 Wochenverwaltung" Icon="table-clock" ShowInComObjectTree="true">
+                                <ParameterSeparator Id="%AID%_PS-%TT%00001" Text="Max. gleichzeitige Zonen darf nicht größer sein als Anzahl Zonen." UIHint="Information" />
+
+                                <ParameterSeparator Id="%AID%_PS-%TT%00010" Text="Wochenverwaltung" UIHint="Headline" />
                                 <ParameterRefRef RefId="%AID%_UP-%TT%00003_R-%TT%0000301" HelpContext="SIR-Week-Start" />
                                 <ParameterRefRef RefId="%AID%_UP-%TT%00004_R-%TT%0000401" HelpContext="SIR-Week-ResetTime" />
-                            </ParameterBlock>
-                            <ParameterBlock Id="%AID%_PB-%TT%00003" Name="SIR_Weather" Text="1.3 Wetter-Einstellungen" Icon="white-balance-sunny" ShowInComObjectTree="true">
-                                <ParameterSeparator Id="%AID%_PS-%TT%00002" Text="Sensorwerte (real) verwenden" UIHint="Headline" />
-                                <ParameterRefRef RefId="%AID%_UP-%TT%00005_R-%TT%0000501" HelpContext="SIR-Weather-SensorEnable" />
-                                <choose ParamRefId="%AID%_UP-%TT%00005_R-%TT%0000501">
-                                    <when test="1">
-                                        <ParameterRefRef RefId="%AID%_UP-%TT%00006_R-%TT%0000601" HelpContext="SIR-Weather-SensorTemp" IndentLevel="1" />
-                                        <ParameterRefRef RefId="%AID%_UP-%TT%00007_R-%TT%0000701" HelpContext="SIR-Weather-SensorRain" IndentLevel="1" />
-                                        <ParameterRefRef RefId="%AID%_UP-%TT%00008_R-%TT%0000801" HelpContext="SIR-Weather-SensorRainAmount" IndentLevel="1" />
-                                        <ParameterRefRef RefId="%AID%_UP-%TT%00009_R-%TT%0000901" HelpContext="SIR-Weather-SensorHumidity" IndentLevel="1" />
-                                        <ParameterRefRef RefId="%AID%_UP-%TT%00010_R-%TT%0001001" HelpContext="SIR-Weather-SensorWind" IndentLevel="1" />
-                                        <ParameterRefRef RefId="%AID%_UP-%TT%00011_R-%TT%0001101" HelpContext="SIR-Weather-SensorWindDir" IndentLevel="1" />
-                                        <ParameterRefRef RefId="%AID%_UP-%TT%00012_R-%TT%0001201" HelpContext="SIR-Weather-SensorSoil" IndentLevel="1" />
+
+                                <ParameterSeparator Id="%AID%_PS-%TT%00012" Text="Bewässerungs-Strategie" UIHint="Headline" />
+                                <ParameterRefRef RefId="%AID%_UP-%TT%00023_R-%TT%0002301" HelpContext="SIR-Strategy-Mode" />
+                                <choose ParamRefId="%AID%_UP-%TT%00023_R-%TT%0002301">
+                                    <when test="0">
+                                        <ParameterSeparator Id="%AID%_PS-%TT%00005" Text="Einfache Bedienung mit Standardparametern. Empfohlen für Einsteiger." UIHint="Information" />
+                                        <ParameterRefRef RefId="%AID%_UP-%TT%00031_R-%TT%0003101" HelpContext="SIR-System-Flow" />
                                     </when>
-                                    <when default="true">
-                                        <ParameterRefRef RefId="%AID%_UP-%TT%00006_R-%TT%0000601" HelpContext="SIR-Weather-SensorTemp" IndentLevel="1" Access="Read" />
-                                        <ParameterRefRef RefId="%AID%_UP-%TT%00007_R-%TT%0000701" HelpContext="SIR-Weather-SensorRain" IndentLevel="1" Access="Read" />
-                                        <ParameterRefRef RefId="%AID%_UP-%TT%00008_R-%TT%0000801" HelpContext="SIR-Weather-SensorRainAmount" IndentLevel="1" Access="Read" />
-                                        <ParameterRefRef RefId="%AID%_UP-%TT%00009_R-%TT%0000901" HelpContext="SIR-Weather-SensorHumidity" IndentLevel="1" Access="Read" />
-                                        <ParameterRefRef RefId="%AID%_UP-%TT%00010_R-%TT%0001001" HelpContext="SIR-Weather-SensorWind" IndentLevel="1" Access="Read" />
-                                        <ParameterRefRef RefId="%AID%_UP-%TT%00011_R-%TT%0001101" HelpContext="SIR-Weather-SensorWindDir" IndentLevel="1" Access="Read" />
-                                        <ParameterRefRef RefId="%AID%_UP-%TT%00012_R-%TT%0001201" HelpContext="SIR-Weather-SensorSoil" IndentLevel="1" Access="Read" />
+                                    <when test="1">
+                                        <ParameterSeparator Id="%AID%_PS-%TT%00006" Text="Smart Pro blendet zusätzliche Zonen-Parameter ein (z. B. Durchfluss je Zone)." UIHint="Information" />
+                                        <ParameterSeparator Id="%AID%_PS-%TT%00007" Text="Strategie-Preset (Smart Pro)" UIHint="Headline" />
+                                        <ParameterRefRef RefId="%AID%_UP-%TT%00030_R-%TT%0003001" HelpContext="SIR-Strategy-Preset" />
+                                        <ParameterSeparator Id="%AID%_PS-%TT%00013" Text="Ausgewogen: empfohlener Standard. Konservativ: zurückhaltender bewässern. Aggressiv: früher/stärker bewässern." UIHint="Information" />
                                     </when>
                                 </choose>
-                                <ParameterSeparator Id="%AID%_PS-%TT%00003" Text="Prognose verwenden" UIHint="Headline" />
-                                <ParameterRefRef RefId="%AID%_UP-%TT%00013_R-%TT%0001301" HelpContext="SIR-Weather-ForecastEnable" />
-                                <choose ParamRefId="%AID%_UP-%TT%00013_R-%TT%0001301">
+                                <ParameterRefRef RefId="%AID%_UP-%TT%00024_R-%TT%0002401" HelpContext="SIR-Strategy-Program" />
+
+                                <choose ParamRefId="%AID%_UP-%TT%00024_R-%TT%0002401">
                                     <when test="1">
-                                        <ParameterRefRef RefId="%AID%_UP-%TT%00014_R-%TT%0001401" HelpContext="SIR-Weather-ForecastTemp" IndentLevel="1" />
-                                        <ParameterRefRef RefId="%AID%_UP-%TT%00015_R-%TT%0001501" HelpContext="SIR-Weather-ForecastRain" IndentLevel="1" />
-                                        <ParameterRefRef RefId="%AID%_UP-%TT%00016_R-%TT%0001601" HelpContext="SIR-Weather-ForecastRainAmount" IndentLevel="1" />
-                                        <ParameterRefRef RefId="%AID%_UP-%TT%00017_R-%TT%0001701" HelpContext="SIR-Weather-ForecastHumidity" IndentLevel="1" />
-                                        <ParameterRefRef RefId="%AID%_UP-%TT%00018_R-%TT%0001801" HelpContext="SIR-Weather-ForecastWind" IndentLevel="1" />
-                                        <ParameterRefRef RefId="%AID%_UP-%TT%00019_R-%TT%0001901" HelpContext="SIR-Weather-ForecastWindDir" IndentLevel="1" />
-                                        <ParameterRefRef RefId="%AID%_UP-%TT%00020_R-%TT%0002001" HelpContext="SIR-Weather-ForecastUV" IndentLevel="1" />
-                                    </when>
-                                    <when default="true">
-                                        <ParameterRefRef RefId="%AID%_UP-%TT%00014_R-%TT%0001401" HelpContext="SIR-Weather-ForecastTemp" IndentLevel="1" Access="Read" />
-                                        <ParameterRefRef RefId="%AID%_UP-%TT%00015_R-%TT%0001501" HelpContext="SIR-Weather-ForecastRain" IndentLevel="1" Access="Read" />
-                                        <ParameterRefRef RefId="%AID%_UP-%TT%00016_R-%TT%0001601" HelpContext="SIR-Weather-ForecastRainAmount" IndentLevel="1" Access="Read" />
-                                        <ParameterRefRef RefId="%AID%_UP-%TT%00017_R-%TT%0001701" HelpContext="SIR-Weather-ForecastHumidity" IndentLevel="1" Access="Read" />
-                                        <ParameterRefRef RefId="%AID%_UP-%TT%00018_R-%TT%0001801" HelpContext="SIR-Weather-ForecastWind" IndentLevel="1" Access="Read" />
-                                        <ParameterRefRef RefId="%AID%_UP-%TT%00019_R-%TT%0001901" HelpContext="SIR-Weather-ForecastWindDir" IndentLevel="1" Access="Read" />
-                                        <ParameterRefRef RefId="%AID%_UP-%TT%00020_R-%TT%0002001" HelpContext="SIR-Weather-ForecastUV" IndentLevel="1" Access="Read" />
+                                        <ParameterSeparator Id="%AID%_PS-%TT%00011" Text="Wetter-Einstellungen" UIHint="Headline" />
+                                        <ParameterRefRef RefId="%AID%_UP-%TT%00005_R-%TT%0000501" HelpContext="SIR-Weather-SensorEnable" />
+                                        <choose ParamRefId="%AID%_UP-%TT%00005_R-%TT%0000501">
+                                            <when test="1">
+                                                <ParameterRefRef RefId="%AID%_UP-%TT%00006_R-%TT%0000601" HelpContext="SIR-Weather-SensorTemp" IndentLevel="1" />
+                                                <ParameterRefRef RefId="%AID%_UP-%TT%00007_R-%TT%0000701" HelpContext="SIR-Weather-SensorRain" IndentLevel="1" />
+                                                <ParameterRefRef RefId="%AID%_UP-%TT%00008_R-%TT%0000801" HelpContext="SIR-Weather-SensorRainAmount" IndentLevel="1" />
+                                                <ParameterRefRef RefId="%AID%_UP-%TT%00009_R-%TT%0000901" HelpContext="SIR-Weather-SensorHumidity" IndentLevel="1" />
+                                                <ParameterRefRef RefId="%AID%_UP-%TT%00010_R-%TT%0001001" HelpContext="SIR-Weather-SensorWind" IndentLevel="1" />
+                                                <ParameterRefRef RefId="%AID%_UP-%TT%00011_R-%TT%0001101" HelpContext="SIR-Weather-SensorWindDir" IndentLevel="1" />
+                                                <ParameterRefRef RefId="%AID%_UP-%TT%00012_R-%TT%0001201" HelpContext="SIR-Weather-SensorSoil" IndentLevel="1" />
+                                            </when>
+                                        </choose>
+                                        <ParameterRefRef RefId="%AID%_UP-%TT%00013_R-%TT%0001301" HelpContext="SIR-Weather-ForecastEnable" />
+                                        <choose ParamRefId="%AID%_UP-%TT%00013_R-%TT%0001301">
+                                            <when test="1">
+                                                <ParameterRefRef RefId="%AID%_UP-%TT%00014_R-%TT%0001401" HelpContext="SIR-Weather-ForecastTemp" IndentLevel="1" />
+                                                <ParameterRefRef RefId="%AID%_UP-%TT%00015_R-%TT%0001501" HelpContext="SIR-Weather-ForecastRain" IndentLevel="1" />
+                                                <ParameterRefRef RefId="%AID%_UP-%TT%00016_R-%TT%0001601" HelpContext="SIR-Weather-ForecastRainAmount" IndentLevel="1" />
+                                                <ParameterRefRef RefId="%AID%_UP-%TT%00017_R-%TT%0001701" HelpContext="SIR-Weather-ForecastHumidity" IndentLevel="1" />
+                                                <ParameterRefRef RefId="%AID%_UP-%TT%00018_R-%TT%0001801" HelpContext="SIR-Weather-ForecastWind" IndentLevel="1" />
+                                                <ParameterRefRef RefId="%AID%_UP-%TT%00019_R-%TT%0001901" HelpContext="SIR-Weather-ForecastWindDir" IndentLevel="1" />
+                                                <ParameterRefRef RefId="%AID%_UP-%TT%00020_R-%TT%0002001" HelpContext="SIR-Weather-ForecastUV" IndentLevel="1" />
+                                            </when>
+                                        </choose>
+                                        <ComObjectRefRef RefId="%AID%_O-%TT%00008_R-%TT%0000801" />
+                                        <ComObjectRefRef RefId="%AID%_O-%TT%00009_R-%TT%0000901" />
+                                        <ComObjectRefRef RefId="%AID%_O-%TT%00010_R-%TT%0001001" />
+                                        <ComObjectRefRef RefId="%AID%_O-%TT%00027_R-%TT%0002701" />
+                                        <ComObjectRefRef RefId="%AID%_O-%TT%00053_R-%TT%0005301" />
+
+                                        <choose ParamRefId="%AID%_UP-%TT%00005_R-%TT%0000501">
+                                            <when test="1">
+                                                <choose ParamRefId="%AID%_UP-%TT%00006_R-%TT%0000601">
+                                                    <when test="1">
+                                                        <ComObjectRefRef RefId="%AID%_O-%TT%00020_R-%TT%0002001" />
+                                                    </when>
+                                                </choose>
+                                                <choose ParamRefId="%AID%_UP-%TT%00007_R-%TT%0000701">
+                                                    <when test="1">
+                                                        <ComObjectRefRef RefId="%AID%_O-%TT%00021_R-%TT%0002101" />
+                                                    </when>
+                                                </choose>
+                                                <choose ParamRefId="%AID%_UP-%TT%00008_R-%TT%0000801">
+                                                    <when test="1">
+                                                        <ComObjectRefRef RefId="%AID%_O-%TT%00022_R-%TT%0002201" />
+                                                    </when>
+                                                </choose>
+                                                <choose ParamRefId="%AID%_UP-%TT%00009_R-%TT%0000901">
+                                                    <when test="1">
+                                                        <ComObjectRefRef RefId="%AID%_O-%TT%00023_R-%TT%0002301" />
+                                                    </when>
+                                                </choose>
+                                                <choose ParamRefId="%AID%_UP-%TT%00010_R-%TT%0001001">
+                                                    <when test="1">
+                                                        <ComObjectRefRef RefId="%AID%_O-%TT%00024_R-%TT%0002401" />
+                                                    </when>
+                                                </choose>
+                                                <choose ParamRefId="%AID%_UP-%TT%00011_R-%TT%0001101">
+                                                    <when test="1">
+                                                        <ComObjectRefRef RefId="%AID%_O-%TT%00025_R-%TT%0002501" />
+                                                    </when>
+                                                </choose>
+                                                <choose ParamRefId="%AID%_UP-%TT%00012_R-%TT%0001201">
+                                                    <when test="1">
+                                                        <ComObjectRefRef RefId="%AID%_O-%TT%00026_R-%TT%0002601" />
+                                                    </when>
+                                                </choose>
+                                            </when>
+                                        </choose>
+
+                                        <choose ParamRefId="%AID%_UP-%TT%00013_R-%TT%0001301">
+                                            <when test="1">
+                                                <choose ParamRefId="%AID%_UP-%TT%00014_R-%TT%0001401">
+                                                    <when test="1">
+                                                        <ComObjectRefRef RefId="%AID%_O-%TT%00040_R-%TT%0004001" />
+                                                        <ComObjectRefRef RefId="%AID%_O-%TT%00041_R-%TT%0004101" />
+                                                        <ComObjectRefRef RefId="%AID%_O-%TT%00042_R-%TT%0004201" />
+                                                    </when>
+                                                </choose>
+                                                <choose ParamRefId="%AID%_UP-%TT%00015_R-%TT%0001501">
+                                                    <when test="1">
+                                                        <ComObjectRefRef RefId="%AID%_O-%TT%00043_R-%TT%0004301" />
+                                                        <ComObjectRefRef RefId="%AID%_O-%TT%00044_R-%TT%0004401" />
+                                                        <ComObjectRefRef RefId="%AID%_O-%TT%00045_R-%TT%0004501" />
+                                                    </when>
+                                                </choose>
+                                                <choose ParamRefId="%AID%_UP-%TT%00016_R-%TT%0001601">
+                                                    <when test="1">
+                                                        <ComObjectRefRef RefId="%AID%_O-%TT%00046_R-%TT%0004601" />
+                                                        <ComObjectRefRef RefId="%AID%_O-%TT%00047_R-%TT%0004701" />
+                                                        <ComObjectRefRef RefId="%AID%_O-%TT%00048_R-%TT%0004801" />
+                                                    </when>
+                                                </choose>
+                                                <choose ParamRefId="%AID%_UP-%TT%00017_R-%TT%0001701">
+                                                    <when test="1">
+                                                        <ComObjectRefRef RefId="%AID%_O-%TT%00049_R-%TT%0004901" />
+                                                    </when>
+                                                </choose>
+                                                <choose ParamRefId="%AID%_UP-%TT%00018_R-%TT%0001801">
+                                                    <when test="1">
+                                                        <ComObjectRefRef RefId="%AID%_O-%TT%00050_R-%TT%0005001" />
+                                                    </when>
+                                                </choose>
+                                                <choose ParamRefId="%AID%_UP-%TT%00019_R-%TT%0001901">
+                                                    <when test="1">
+                                                        <ComObjectRefRef RefId="%AID%_O-%TT%00051_R-%TT%0005101" />
+                                                    </when>
+                                                </choose>
+                                                <choose ParamRefId="%AID%_UP-%TT%00020_R-%TT%0002001">
+                                                    <when test="1">
+                                                        <ComObjectRefRef RefId="%AID%_O-%TT%00052_R-%TT%0005201" />
+                                                    </when>
+                                                </choose>
+                                            </when>
+                                        </choose>
                                     </when>
                                 </choose>
+
                                 <ParameterSeparator Id="%AID%_PS-%TT%00004" Text="Grenzwerte" UIHint="Headline" />
                                 <ParameterRefRef RefId="%AID%_UP-%TT%00021_R-%TT%0002101" HelpContext="SIR-Weather-MinTemp" />
                                 <ParameterRefRef RefId="%AID%_UP-%TT%00022_R-%TT%0002201" HelpContext="SIR-Weather-ForecastUpdate" />
                             </ParameterBlock>
-                            <ParameterBlock Id="%AID%_PB-%TT%00004" Name="SIR_Strategy" Text="1.4 Bewaesserungs-Strategie" Icon="cogs" ShowInComObjectTree="true">
-                                <ParameterRefRef RefId="%AID%_UP-%TT%00023_R-%TT%0002301" HelpContext="SIR-Strategy-Mode" />
-                                <ParameterRefRef RefId="%AID%_UP-%TT%00024_R-%TT%0002401" HelpContext="SIR-Strategy-Program" />
-                                <choose ParamRefId="%AID%_UP-%TT%00023_R-%TT%0002301">
-                                    <when test="0">
-                                        <ParameterSeparator Id="%AID%_PS-%TT%00005" Text="Einfache Bedienung mit Standardparametern. Empfohlen fuer Einsteiger." UIHint="Information" />
-                                    </when>
-                                    <when test="1">
-                                        <ParameterSeparator Id="%AID%_PS-%TT%00006" Text="Erweiterte Einstellungen fuer maximale Kontrolle. Fuer erfahrene Anwender." UIHint="Information" />
-                                        <ParameterSeparator Id="%AID%_PS-%TT%00007" Text="Gewichtungen" UIHint="Headline" />
-                                        <ParameterRefRef RefId="%AID%_UP-%TT%00025_R-%TT%0002501" HelpContext="SIR-Strategy-WeightHigh" />
-                                        <ParameterRefRef RefId="%AID%_UP-%TT%00026_R-%TT%0002601" HelpContext="SIR-Strategy-WeightMid" />
-                                        <ParameterRefRef RefId="%AID%_UP-%TT%00027_R-%TT%0002701" HelpContext="SIR-Strategy-WeightLow" />
-                                        <ParameterRefRef RefId="%AID%_UP-%TT%00028_R-%TT%0002801" HelpContext="SIR-Strategy-WeightReal" />
-                                        <ParameterRefRef RefId="%AID%_UP-%TT%00029_R-%TT%0002901" HelpContext="SIR-Strategy-WeightForecast" />
-                                        <ParameterSeparator Id="%AID%_PS-%TT%00008" Text="Summe der Gewichtungen wird automatisch auf 1 normiert." UIHint="Information" />
-                                    </when>
-                                </choose>
-                            </ParameterBlock>
-                            <op:include href="SmartIrrigation.templ.xml" xpath="//ApplicationProgram/Dynamic/Channel/*" type="template" prefix="SIR" IsInner="true" />
+                            <op:include href="SmartIrrigation.templ.xml" xpath="//ApplicationProgram/Dynamic/*" type="template" prefix="SIR" IsInner="true" />
                         </Channel>
                     </Dynamic>
                 </ApplicationProgram>
