@@ -11,7 +11,7 @@
               <Parameter Id="%AID%_P-%TT%%CC%001" Name="SIR_Z%C%Name" ParameterType="%AID%_PT-Text50Byte" Text="Bezeichnung" Value="" />
               
               <!-- EINE GROSSE UNION mit ALLEN Parametern (wie ShutterController) -->
-              <Union SizeInBit="312">
+              <Union SizeInBit="424">
                 <Memory CodeSegment="%AID%_RS-04-00000" Offset="0" BitOffset="0" />
                 
                 <!-- Byte 0: Enabled -->
@@ -86,7 +86,60 @@
                 <!-- Bytes 37-38: ManualRuntime (16-bit) -->
                 <Parameter Id="%AID%_UP-%TT%%CC%024" Name="SIR_Z%C%ManualRuntime" ParameterType="%AID%_PT-ManualRuntime" Offset="37" BitOffset="0" Text="Manuelle Laufzeit Z%C% (min)" Value="15" />
                 
-                <!-- Next Offset: 39 (312 bits = 39 bytes) -->
+                <!-- Byte 39: CheckBackEnabled (1.1) -->
+                <Parameter Id="%AID%_UP-%TT%%CC%025" Name="SIR_Z%C%CheckBack" ParameterType="%AID%_PT-OnOffYesNo" Offset="39" BitOffset="0" Text="Ventil-Rückmeldung prüfen" Value="0" />
+                
+                <!-- Byte 40: CheckBackDelaySec (1.1) -->
+                <Parameter Id="%AID%_UP-%TT%%CC%026" Name="SIR_Z%C%CheckBackDelay" ParameterType="%AID%_PT-CheckBackDelay" Offset="40" BitOffset="0" Text="Prüfverzögerung (s)" Value="30" />
+                
+                <!-- Phase 2.1: Sunrise/Sunset Time Window -->
+                <!-- Byte 41: SunOffset (int8, ±120) -->
+                <Parameter Id="%AID%_UP-%TT%%CC%027" Name="SIR_Z%C%SunOffset" ParameterType="%AID%_PT-SunOffset" Offset="41" BitOffset="0" Text="Sonnen-Offset (min)" Value="0" />
+                
+                <!-- Bytes 42-43: SunDuration (uint16, 30-480) -->
+                <Parameter Id="%AID%_UP-%TT%%CC%028" Name="SIR_Z%C%SunDuration" ParameterType="%AID%_PT-SunDuration" Offset="42" BitOffset="0" Text="Bewässerungsfenster-Dauer (min)" Value="240" />
+                
+                <!-- Phase 2.2: Soak-Time -->
+                <!-- Byte 44: SoakTime (uint8, 0-120) -->
+                <Parameter Id="%AID%_UP-%TT%%CC%029" Name="SIR_Z%C%SoakTime" ParameterType="%AID%_PT-SoakTime" Offset="44" BitOffset="0" Text="Einweichzeit zwischen Zyklen (min)" Value="0" />
+                
+                <!-- Phase 2.3: Rest Days -->
+                <!-- Byte 45: RestDays (uint8, 0-7) -->
+                <Parameter Id="%AID%_UP-%TT%%CC%030" Name="SIR_Z%C%RestDays" ParameterType="%AID%_PT-RestDays" Offset="45" BitOffset="0" Text="Ruhetage zwischen Bewässerungen" Value="0" />
+                
+                <!-- Phase 2.4: Moisture Mode + Sun Exposure -->
+                <!-- Byte 46: MoistureMode (enum 0-1) -->
+                <Parameter Id="%AID%_UP-%TT%%CC%031" Name="SIR_Z%C%MoistureMode" ParameterType="%AID%_PT-MoistureMode" Offset="46" BitOffset="0" Text="Feuchtigkeits-Modus" Value="0" />
+                
+                <!-- Byte 47: SunExposure (uint8, 10-150) -->
+                <Parameter Id="%AID%_UP-%TT%%CC%032" Name="SIR_Z%C%SunExposure" ParameterType="%AID%_PT-SunExposure" Offset="47" BitOffset="0" Text="Sonnenexposition (%)" Value="100" />
+                
+                <!-- Phase 3.2/3.5: Sprinkler Flag -->
+                <!-- Byte 48: IsSprinkler (bool) -->
+                <Parameter Id="%AID%_UP-%TT%%CC%033" Name="SIR_Z%C%IsSprinkler" ParameterType="%AID%_PT-OnOffYesNo" Offset="48" BitOffset="0" Text="Sprinkler-Zone" Value="1" />
+                
+                <!-- Phase 3.3: Weekday Filter - 7 individual bits for each day -->
+                <!-- Byte 49: AllowedWeekdays (uint8 bitmask, bit0=Mo..bit6=So) -->
+                <!-- BitOffset in KNX: 7=bit0(0x01), 6=bit1(0x02), ..., 1=bit6(0x40) -->
+                <Parameter Id="%AID%_UP-%TT%%CC%034" Name="SIR_Z%C%AllowedMo" ParameterType="%AID%_PT-OnOffYesNo" Offset="49" BitOffset="7" Text="Montag" Value="1" />
+                <Parameter Id="%AID%_UP-%TT%%CC%035" Name="SIR_Z%C%AllowedDi" ParameterType="%AID%_PT-OnOffYesNo" Offset="49" BitOffset="6" Text="Dienstag" Value="1" />
+                <Parameter Id="%AID%_UP-%TT%%CC%036" Name="SIR_Z%C%AllowedMi" ParameterType="%AID%_PT-OnOffYesNo" Offset="49" BitOffset="5" Text="Mittwoch" Value="1" />
+                <Parameter Id="%AID%_UP-%TT%%CC%037" Name="SIR_Z%C%AllowedDo" ParameterType="%AID%_PT-OnOffYesNo" Offset="49" BitOffset="4" Text="Donnerstag" Value="1" />
+                <Parameter Id="%AID%_UP-%TT%%CC%038" Name="SIR_Z%C%AllowedFr" ParameterType="%AID%_PT-OnOffYesNo" Offset="49" BitOffset="3" Text="Freitag" Value="1" />
+                <Parameter Id="%AID%_UP-%TT%%CC%039" Name="SIR_Z%C%AllowedSa" ParameterType="%AID%_PT-OnOffYesNo" Offset="49" BitOffset="2" Text="Samstag" Value="1" />
+                <Parameter Id="%AID%_UP-%TT%%CC%040" Name="SIR_Z%C%AllowedSo" ParameterType="%AID%_PT-OnOffYesNo" Offset="49" BitOffset="1" Text="Sonntag" Value="1" />
+                
+                <!-- Phase 4.3: Post-Irrigation Verify -->
+                <!-- Byte 50: VerifyEnabled (bool) -->
+                <Parameter Id="%AID%_UP-%TT%%CC%041" Name="SIR_Z%C%VerifyEnabled" ParameterType="%AID%_PT-OnOffYesNo" Offset="50" BitOffset="0" Text="Bewässerungs-Verifizierung" Value="0" />
+                
+                <!-- Byte 51: VerifyDelayMinutes (uint8, 0-120) -->
+                <Parameter Id="%AID%_UP-%TT%%CC%042" Name="SIR_Z%C%VerifyDelayMinutes" ParameterType="%AID%_PT-VerifyDelay" Offset="51" BitOffset="0" Text="Verifizierungs-Verzögerung (min)" Value="30" />
+                
+                <!-- Byte 52: VerifyMinDeltaPercent (uint8, 0-100) -->
+                <Parameter Id="%AID%_UP-%TT%%CC%043" Name="SIR_Z%C%VerifyMinDeltaPercent" ParameterType="%AID%_PT-VerifyMinDelta" Offset="52" BitOffset="0" Text="Min. Bodenfeuchte-Delta (%)" Value="5" />
+                
+                <!-- Next Offset: 53 (424 bits) -->
               </Union>
             </Parameters>
             <ParameterRefs>
@@ -115,6 +168,29 @@
               <ParameterRef Id="%AID%_UP-%TT%%CC%022_R-%TT%%CC%02201" RefId="%AID%_UP-%TT%%CC%022" />
               <ParameterRef Id="%AID%_UP-%TT%%CC%023_R-%TT%%CC%02301" RefId="%AID%_UP-%TT%%CC%023" />
               <ParameterRef Id="%AID%_UP-%TT%%CC%024_R-%TT%%CC%02401" RefId="%AID%_UP-%TT%%CC%024" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%025_R-%TT%%CC%02501" RefId="%AID%_UP-%TT%%CC%025" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%026_R-%TT%%CC%02601" RefId="%AID%_UP-%TT%%CC%026" />
+              <!-- Phase 2 ParameterRefs -->
+              <ParameterRef Id="%AID%_UP-%TT%%CC%027_R-%TT%%CC%02701" RefId="%AID%_UP-%TT%%CC%027" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%028_R-%TT%%CC%02801" RefId="%AID%_UP-%TT%%CC%028" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%029_R-%TT%%CC%02901" RefId="%AID%_UP-%TT%%CC%029" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%030_R-%TT%%CC%03001" RefId="%AID%_UP-%TT%%CC%030" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%031_R-%TT%%CC%03101" RefId="%AID%_UP-%TT%%CC%031" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%032_R-%TT%%CC%03201" RefId="%AID%_UP-%TT%%CC%032" />
+              <!-- Phase 3 ParameterRefs -->
+              <ParameterRef Id="%AID%_UP-%TT%%CC%033_R-%TT%%CC%03301" RefId="%AID%_UP-%TT%%CC%033" />
+              <!-- Phase 3.3: Weekday Filter (7 days) -->
+              <ParameterRef Id="%AID%_UP-%TT%%CC%034_R-%TT%%CC%03401" RefId="%AID%_UP-%TT%%CC%034" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%035_R-%TT%%CC%03501" RefId="%AID%_UP-%TT%%CC%035" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%036_R-%TT%%CC%03601" RefId="%AID%_UP-%TT%%CC%036" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%037_R-%TT%%CC%03701" RefId="%AID%_UP-%TT%%CC%037" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%038_R-%TT%%CC%03801" RefId="%AID%_UP-%TT%%CC%038" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%039_R-%TT%%CC%03901" RefId="%AID%_UP-%TT%%CC%039" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%040_R-%TT%%CC%04001" RefId="%AID%_UP-%TT%%CC%040" />
+              <!-- Phase 4.3: Verify ParameterRefs -->
+              <ParameterRef Id="%AID%_UP-%TT%%CC%041_R-%TT%%CC%04101" RefId="%AID%_UP-%TT%%CC%041" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%042_R-%TT%%CC%04201" RefId="%AID%_UP-%TT%%CC%042" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%043_R-%TT%%CC%04301" RefId="%AID%_UP-%TT%%CC%043" />
             </ParameterRefs>
             <ParameterCalculations>
               <ParameterCalculation Id="%AID%_PC-%TT%%CC%0001" Language="JavaScript" Name="SIR_PlantDefaults%CC%" LRTransformationFunc="SIR_SetPlantDefaults" RLTransformationFunc="SIR_NoOp">
@@ -171,6 +247,14 @@
               <ComObject Id="%AID%_O-%TT%%CC%113" Number="%K13%" Name="CH%C%ZonePause" Text="Zone %C% Pause" ObjectSize="1 Bit" DatapointType="DPST-1-1" ReadFlag="Disabled" WriteFlag="Enabled" CommunicationFlag="Enabled" TransmitFlag="Disabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" />
               <ComObject Id="%AID%_O-%TT%%CC%114" Number="%K14%" Name="CH%C%ZoneResetWeek" Text="Zone %C% Wochenzähler reset" ObjectSize="1 Bit" DatapointType="DPST-1-17" ReadFlag="Disabled" WriteFlag="Enabled" CommunicationFlag="Enabled" TransmitFlag="Disabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" />
               <ComObject Id="%AID%_O-%TT%%CC%115" Number="%K15%" Name="CH%C%ZoneCyclesWeek" Text="Zone %C% Bewässerungszyklen Woche" ObjectSize="1 Byte" DatapointType="DPST-5-10" ReadFlag="Enabled" WriteFlag="Disabled" CommunicationFlag="Enabled" TransmitFlag="Enabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" />
+              <!-- K16: Ventil-Rückmeldung (Input, 1.1) -->
+              <ComObject Id="%AID%_O-%TT%%CC%116" Number="%K16%" Name="CH%C%ValveFeedback" Text="Zone %C% Ventil-Rückmeldung" ObjectSize="1 Bit" DatapointType="DPST-1-1" ReadFlag="Disabled" WriteFlag="Enabled" CommunicationFlag="Enabled" TransmitFlag="Disabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" />
+              <!-- K17: Ventilfehler (Output, 1.1) -->
+              <ComObject Id="%AID%_O-%TT%%CC%117" Number="%K17%" Name="CH%C%ValveError" Text="Zone %C% Ventilfehler" ObjectSize="1 Bit" DatapointType="DPST-1-5" ReadFlag="Enabled" WriteFlag="Disabled" CommunicationFlag="Enabled" TransmitFlag="Enabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" />
+              <!-- K18: Reserve -->
+              <!-- K19: VerifyFailed (Output, 4.3) -->
+              <ComObject Id="%AID%_O-%TT%%CC%119" Number="%K19%" Name="CH%C%VerifyFailed" Text="Zone %C% Verifizierung fehlgeschlagen" ObjectSize="1 Bit" DatapointType="DPST-1-5" ReadFlag="Enabled" WriteFlag="Disabled" CommunicationFlag="Enabled" TransmitFlag="Enabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" />
+              <!-- K20-K23: Reserve -->
             </ComObjectTable>
             <ComObjectRefs>
               <ComObjectRef Id="%AID%_O-%TT%%CC%100_R-%TT%%CC%10001" RefId="%AID%_O-%TT%%CC%100" FunctionText="Zone %C% Ein/Aus" Text="Zone %C% Ein/Aus" Priority="Low" ObjectSize="1 Bit" DatapointType="DPST-1-1" />
@@ -189,6 +273,10 @@
               <ComObjectRef Id="%AID%_O-%TT%%CC%113_R-%TT%%CC%11301" RefId="%AID%_O-%TT%%CC%113" FunctionText="Zone %C% Pause" Text="Zone %C% Pause" Priority="Low" ObjectSize="1 Bit" DatapointType="DPST-1-1" />
               <ComObjectRef Id="%AID%_O-%TT%%CC%114_R-%TT%%CC%11401" RefId="%AID%_O-%TT%%CC%114" FunctionText="Zone %C% Wochenzähler reset" Text="Zone %C% Wochenzähler reset" Priority="Low" ObjectSize="1 Bit" DatapointType="DPST-1-17" />
               <ComObjectRef Id="%AID%_O-%TT%%CC%115_R-%TT%%CC%11501" RefId="%AID%_O-%TT%%CC%115" FunctionText="Zone %C% Bewässerungszyklen Woche" Text="Zone %C% Bewässerungszyklen Woche" Priority="Low" ObjectSize="1 Byte" DatapointType="DPST-5-10" />
+              <ComObjectRef Id="%AID%_O-%TT%%CC%116_R-%TT%%CC%11601" RefId="%AID%_O-%TT%%CC%116" FunctionText="Zone %C% Ventil-Rückmeldung" Text="Zone %C% Ventil-Rückmeldung" Priority="Low" ObjectSize="1 Bit" DatapointType="DPST-1-1" />
+              <ComObjectRef Id="%AID%_O-%TT%%CC%117_R-%TT%%CC%11701" RefId="%AID%_O-%TT%%CC%117" FunctionText="Zone %C% Ventilfehler" Text="Zone %C% Ventilfehler" Priority="Low" ObjectSize="1 Bit" DatapointType="DPST-1-5" />
+              <!-- Phase 4.3: Verify Failed -->
+              <ComObjectRef Id="%AID%_O-%TT%%CC%119_R-%TT%%CC%11901" RefId="%AID%_O-%TT%%CC%119" FunctionText="Zone %C% Verifizierung fehlgeschlagen" Text="Zone %C% Verifizierung fehlgeschlagen" Priority="Low" ObjectSize="1 Bit" DatapointType="DPST-1-5" />
             </ComObjectRefs>
           </Static>
           <Dynamic>
@@ -252,6 +340,16 @@
                       <when test="1">
                         <ParameterSeparator Id="%AID%_PS-%TT%%CC%010" Text="Bewässerung startet exakt zur Startzeit. Bei Konflikt wird Fehler ausgegeben." UIHint="Information" />
                       </when>
+                      <when test="2">
+                        <ParameterSeparator Id="%AID%_PS-%TT%%CC%014" Text="Zeitfenster beginnt relativ zum Sonnenaufgang." UIHint="Information" />
+                        <ParameterRefRef RefId="%AID%_UP-%TT%%CC%027_R-%TT%%CC%02701" HelpContext="SIR-Zone-SunOffset" IndentLevel="1" />
+                        <ParameterRefRef RefId="%AID%_UP-%TT%%CC%028_R-%TT%%CC%02801" HelpContext="SIR-Zone-SunDuration" IndentLevel="1" />
+                      </when>
+                      <when test="3">
+                        <ParameterSeparator Id="%AID%_PS-%TT%%CC%015" Text="Zeitfenster beginnt relativ zum Sonnenuntergang." UIHint="Information" />
+                        <ParameterRefRef RefId="%AID%_UP-%TT%%CC%027_R-%TT%%CC%02701" HelpContext="SIR-Zone-SunOffset" IndentLevel="1" />
+                        <ParameterRefRef RefId="%AID%_UP-%TT%%CC%028_R-%TT%%CC%02801" HelpContext="SIR-Zone-SunDuration" IndentLevel="1" />
+                      </when>
                     </choose>
 
                     <choose ParamRefId="%AID%_UP-%TT%00023_R-%TT%0002301">
@@ -259,12 +357,48 @@
                         <ParameterSeparator Id="%AID%_PS-%TT%%CC%011" Text="Erweiterte Einstellungen" UIHint="Headline" />
                         <ParameterRefRef RefId="%AID%_UP-%TT%%CC%010_R-%TT%%CC%01001" HelpContext="SIR-Zone-BaseTempHyst" />
                         <ParameterRefRef RefId="%AID%_UP-%TT%%CC%011_R-%TT%%CC%01101" HelpContext="SIR-Zone-MaxCycles" />
+                        <ParameterRefRef RefId="%AID%_UP-%TT%%CC%029_R-%TT%%CC%02901" HelpContext="SIR-Zone-SoakTime" />
                         <ParameterRefRef RefId="%AID%_UP-%TT%%CC%012_R-%TT%%CC%01201" HelpContext="SIR-Zone-MinPerCycle" />
+                        <ParameterRefRef RefId="%AID%_UP-%TT%%CC%030_R-%TT%%CC%03001" HelpContext="SIR-Zone-RestDays" />
                         <ParameterRefRef RefId="%AID%_UP-%TT%%CC%020_R-%TT%%CC%02001" HelpContext="SIR-Zone-AbsMax" />
                         <ParameterRefRef RefId="%AID%_UP-%TT%%CC%021_R-%TT%%CC%02101" HelpContext="SIR-Zone-MaxRuntime" />
-                        <ParameterRefRef RefId="%AID%_UP-%TT%%CC%022_R-%TT%%CC%02201" HelpContext="SIR-Zone-SoilThreshold" />
+                        <ParameterRefRef RefId="%AID%_UP-%TT%%CC%031_R-%TT%%CC%03101" HelpContext="SIR-Zone-MoistureMode" />
+                        <choose ParamRefId="%AID%_UP-%TT%%CC%031_R-%TT%%CC%03101">
+                          <when test="0">
+                            <ParameterRefRef RefId="%AID%_UP-%TT%%CC%022_R-%TT%%CC%02201" HelpContext="SIR-Zone-SoilThreshold" IndentLevel="1" />
+                            <!-- Phase 4.3: Verify only with SoilSensor mode -->
+                            <ParameterRefRef RefId="%AID%_UP-%TT%%CC%041_R-%TT%%CC%04101" HelpContext="SIR-Zone-VerifyEnabled" IndentLevel="1" />
+                            <choose ParamRefId="%AID%_UP-%TT%%CC%041_R-%TT%%CC%04101">
+                              <when test="1">
+                                <ParameterRefRef RefId="%AID%_UP-%TT%%CC%042_R-%TT%%CC%04201" HelpContext="SIR-Zone-VerifyDelay" IndentLevel="2" />
+                                <ParameterRefRef RefId="%AID%_UP-%TT%%CC%043_R-%TT%%CC%04301" HelpContext="SIR-Zone-VerifyMinDelta" IndentLevel="2" />
+                              </when>
+                            </choose>
+                          </when>
+                          <when test="1">
+                            <ParameterRefRef RefId="%AID%_UP-%TT%%CC%032_R-%TT%%CC%03201" HelpContext="SIR-Zone-SunExposure" IndentLevel="1" />
+                          </when>
+                        </choose>
                         <ParameterRefRef RefId="%AID%_UP-%TT%%CC%023_R-%TT%%CC%02301" HelpContext="SIR-Zone-RainDelayFactor" />
                         <ParameterRefRef RefId="%AID%_UP-%TT%%CC%024_R-%TT%%CC%02401" HelpContext="SIR-Zone-ManualRuntime" />
+                        <!-- Phase 3: Sprinkler + Weekday Filter -->
+                        <ParameterRefRef RefId="%AID%_UP-%TT%%CC%033_R-%TT%%CC%03301" HelpContext="SIR-Zone-IsSprinkler" />
+                        <ParameterSeparator Id="%AID%_PS-%TT%%CC%020" Text="Erlaubte Wochentage" UIHint="Headline" />
+                        <ParameterRefRef RefId="%AID%_UP-%TT%%CC%034_R-%TT%%CC%03401" />
+                        <ParameterRefRef RefId="%AID%_UP-%TT%%CC%035_R-%TT%%CC%03501" />
+                        <ParameterRefRef RefId="%AID%_UP-%TT%%CC%036_R-%TT%%CC%03601" />
+                        <ParameterRefRef RefId="%AID%_UP-%TT%%CC%037_R-%TT%%CC%03701" />
+                        <ParameterRefRef RefId="%AID%_UP-%TT%%CC%038_R-%TT%%CC%03801" />
+                        <ParameterRefRef RefId="%AID%_UP-%TT%%CC%039_R-%TT%%CC%03901" />
+                        <ParameterRefRef RefId="%AID%_UP-%TT%%CC%040_R-%TT%%CC%04001" />
+                      </when>
+                    </choose>
+
+                    <ParameterSeparator Id="%AID%_PS-%TT%%CC%013" Text="Sicherheit" UIHint="Headline" />
+                    <ParameterRefRef RefId="%AID%_UP-%TT%%CC%025_R-%TT%%CC%02501" HelpContext="SIR-Zone-CheckBack" />
+                    <choose ParamRefId="%AID%_UP-%TT%%CC%025_R-%TT%%CC%02501">
+                      <when test="1">
+                        <ParameterRefRef RefId="%AID%_UP-%TT%%CC%026_R-%TT%%CC%02601" HelpContext="SIR-Zone-CheckBackDelay" IndentLevel="1" />
                       </when>
                     </choose>
 
@@ -285,6 +419,18 @@
                     <ComObjectRefRef RefId="%AID%_O-%TT%%CC%113_R-%TT%%CC%11301" />
                     <ComObjectRefRef RefId="%AID%_O-%TT%%CC%114_R-%TT%%CC%11401" />
                     <ComObjectRefRef RefId="%AID%_O-%TT%%CC%115_R-%TT%%CC%11501" />
+                    <choose ParamRefId="%AID%_UP-%TT%%CC%025_R-%TT%%CC%02501">
+                      <when test="1">
+                        <ComObjectRefRef RefId="%AID%_O-%TT%%CC%116_R-%TT%%CC%11601" />
+                        <ComObjectRefRef RefId="%AID%_O-%TT%%CC%117_R-%TT%%CC%11701" />
+                      </when>
+                    </choose>
+                    <!-- Phase 4.3: VerifyFailed only when VerifyEnabled (and implicitly MoistureMode=SoilSensor) -->
+                    <choose ParamRefId="%AID%_UP-%TT%%CC%041_R-%TT%%CC%04101">
+                      <when test="1">
+                        <ComObjectRefRef RefId="%AID%_O-%TT%%CC%119_R-%TT%%CC%11901" />
+                      </when>
+                    </choose>
                   </when>
                 </choose>
                   </ParameterBlock>

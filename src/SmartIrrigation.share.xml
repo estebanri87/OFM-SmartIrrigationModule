@@ -103,6 +103,8 @@
                                 <TypeRestriction Base="Value" SizeInBit="8">
                                     <Enumeration Text="Flexibel" Value="0" Id="%ENID%" />
                                     <Enumeration Text="Fix" Value="1" Id="%ENID%" />
+                                    <Enumeration Text="Sonnenaufgang" Value="2" Id="%ENID%" />
+                                    <Enumeration Text="Sonnenuntergang" Value="3" Id="%ENID%" />
                                 </TypeRestriction>
                             </ParameterType>
                             <ParameterType Id="%AID%_PT-AbsMax" Name="AbsMax" ValidationErrorRef="%AID%_M-%TT%00114">
@@ -119,6 +121,101 @@
                             </ParameterType>
                             <ParameterType Id="%AID%_PT-ManualRuntime" Name="ManualRuntime" ValidationErrorRef="%AID%_M-%TT%00115">
                                 <TypeNumber SizeInBit="16" Type="unsignedInt" minInclusive="1" maxInclusive="180" />
+                            </ParameterType>
+                            <!-- Phase 1: Check-Back Delay -->
+                            <ParameterType Id="%AID%_PT-CheckBackDelay" Name="CheckBackDelay" ValidationErrorRef="%AID%_M-%TT%00118">
+                                <TypeNumber SizeInBit="8" Type="unsignedInt" minInclusive="5" maxInclusive="120" />
+                            </ParameterType>
+                            <!-- Phase 1: Post-Freeze Delay -->
+                            <ParameterType Id="%AID%_PT-PostFreezeDelay" Name="PostFreezeDelay" ValidationErrorRef="%AID%_M-%TT%00119">
+                                <TypeNumber SizeInBit="8" Type="unsignedInt" minInclusive="0" maxInclusive="48" />
+                            </ParameterType>
+                            <!-- Phase 2: Sun Offset (±120 minutes) -->
+                            <ParameterType Id="%AID%_PT-SunOffset" Name="SunOffset" ValidationErrorRef="%AID%_M-%TT%00120">
+                                <TypeNumber SizeInBit="8" Type="signedInt" minInclusive="-120" maxInclusive="120" />
+                            </ParameterType>
+                            <!-- Phase 2: Sun Window Duration (30-480 min) -->
+                            <ParameterType Id="%AID%_PT-SunDuration" Name="SunDuration" ValidationErrorRef="%AID%_M-%TT%00121">
+                                <TypeNumber SizeInBit="16" Type="unsignedInt" minInclusive="30" maxInclusive="480" />
+                            </ParameterType>
+                            <!-- Phase 2: Soak Time (0-120 min) -->
+                            <ParameterType Id="%AID%_PT-SoakTime" Name="SoakTime" ValidationErrorRef="%AID%_M-%TT%00122">
+                                <TypeNumber SizeInBit="8" Type="unsignedInt" minInclusive="0" maxInclusive="120" />
+                            </ParameterType>
+                            <!-- Phase 2: Rest Days (0-7) -->
+                            <ParameterType Id="%AID%_PT-RestDays" Name="RestDays" ValidationErrorRef="%AID%_M-%TT%00123">
+                                <TypeNumber SizeInBit="8" Type="unsignedInt" minInclusive="0" maxInclusive="7" />
+                            </ParameterType>
+                            <!-- Phase 2: Moisture Mode -->
+                            <ParameterType Id="%AID%_PT-MoistureMode" Name="MoistureMode">
+                                <TypeRestriction Base="Value" SizeInBit="8">
+                                    <Enumeration Text="Bodenfeuchte-Sensor" Value="0" Id="%ENID%" />
+                                    <Enumeration Text="Sonnenexposition" Value="1" Id="%ENID%" />
+                                </TypeRestriction>
+                            </ParameterType>
+                            <!-- Phase 2: Sun Exposure Factor (10-150%) -->
+                            <ParameterType Id="%AID%_PT-SunExposure" Name="SunExposure" ValidationErrorRef="%AID%_M-%TT%00124">
+                                <TypeNumber SizeInBit="8" Type="unsignedInt" minInclusive="10" maxInclusive="150" />
+                            </ParameterType>
+                            <!-- Phase 3: Weekdays Bitmask -->
+                            <ParameterType Id="%AID%_PT-Weekdays" Name="Weekdays">
+                                <TypeNumber SizeInBit="8" Type="unsignedInt" minInclusive="0" maxInclusive="127" />
+                            </ParameterType>
+                            <!-- Phase 3: Tank Min Percent (0-50%) -->
+                            <ParameterType Id="%AID%_PT-TankMinPercent" Name="TankMinPercent" ValidationErrorRef="%AID%_M-%TT%00125">
+                                <TypeNumber SizeInBit="8" Type="unsignedInt" minInclusive="0" maxInclusive="50" />
+                            </ParameterType>
+                            <!-- Phase 3: Tank Action -->
+                            <ParameterType Id="%AID%_PT-TankAction" Name="TankAction">
+                                <TypeRestriction Base="Value" SizeInBit="8">
+                                    <Enumeration Text="Pausieren" Value="0" Id="%ENID%" />
+                                    <Enumeration Text="Stoppen" Value="1" Id="%ENID%" />
+                                    <Enumeration Text="Quellenwechsel" Value="2" Id="%ENID%" />
+                                </TypeRestriction>
+                            </ParameterType>
+                            <!-- Phase 3: Activity Block Delay (0-600 seconds) -->
+                            <ParameterType Id="%AID%_PT-ActivityBlockDelay" Name="ActivityBlockDelay" ValidationErrorRef="%AID%_M-%TT%00126">
+                                <TypeNumber SizeInBit="16" Type="unsignedInt" minInclusive="0" maxInclusive="600" />
+                            </ParameterType>
+                            <!-- Phase 3: Activity Block Mode -->
+                            <ParameterType Id="%AID%_PT-ActivityBlockMode" Name="ActivityBlockMode">
+                                <TypeRestriction Base="Value" SizeInBit="8">
+                                    <Enumeration Text="Alle Zonen" Value="0" Id="%ENID%" />
+                                    <Enumeration Text="Nur Sprinkler" Value="1" Id="%ENID%" />
+                                </TypeRestriction>
+                            </ParameterType>
+                            <!-- Phase 3: Season Month -->
+                            <ParameterType Id="%AID%_PT-SeasonMonth" Name="SeasonMonth">
+                                <TypeRestriction Base="Value" SizeInBit="8">
+                                    <Enumeration Text="Januar" Value="1" Id="%ENID%" />
+                                    <Enumeration Text="Februar" Value="2" Id="%ENID%" />
+                                    <Enumeration Text="März" Value="3" Id="%ENID%" />
+                                    <Enumeration Text="April" Value="4" Id="%ENID%" />
+                                    <Enumeration Text="Mai" Value="5" Id="%ENID%" />
+                                    <Enumeration Text="Juni" Value="6" Id="%ENID%" />
+                                    <Enumeration Text="Juli" Value="7" Id="%ENID%" />
+                                    <Enumeration Text="August" Value="8" Id="%ENID%" />
+                                    <Enumeration Text="September" Value="9" Id="%ENID%" />
+                                    <Enumeration Text="Oktober" Value="10" Id="%ENID%" />
+                                    <Enumeration Text="November" Value="11" Id="%ENID%" />
+                                    <Enumeration Text="Dezember" Value="12" Id="%ENID%" />
+                                </TypeRestriction>
+                            </ParameterType>
+                            <!-- Phase 3: Wind Pause Threshold (0-50 km/h, 0=disabled) -->
+                            <ParameterType Id="%AID%_PT-WindPauseThreshold" Name="WindPauseThreshold" ValidationErrorRef="%AID%_M-%TT%00127">
+                                <TypeNumber SizeInBit="8" Type="unsignedInt" minInclusive="0" maxInclusive="50" />
+                            </ParameterType>
+                            <!-- Phase 4: Zone Switch Delay (0-60 sec, 0=disabled) -->
+                            <ParameterType Id="%AID%_PT-ZoneSwitchDelay" Name="ZoneSwitchDelay" ValidationErrorRef="%AID%_M-%TT%00128">
+                                <TypeNumber SizeInBit="8" Type="unsignedInt" minInclusive="0" maxInclusive="60" />
+                            </ParameterType>
+                            <!-- Phase 4.3: Verify Delay Minutes (0-120 min) -->
+                            <ParameterType Id="%AID%_PT-VerifyDelay" Name="VerifyDelay" ValidationErrorRef="%AID%_M-%TT%00129">
+                                <TypeNumber SizeInBit="8" Type="unsignedInt" minInclusive="0" maxInclusive="120" />
+                            </ParameterType>
+                            <!-- Phase 4.3: Verify Min Delta Percent (0-100%) -->
+                            <ParameterType Id="%AID%_PT-VerifyMinDelta" Name="VerifyMinDelta" ValidationErrorRef="%AID%_M-%TT%00130">
+                                <TypeNumber SizeInBit="8" Type="unsignedInt" minInclusive="0" maxInclusive="100" />
                             </ParameterType>
                         </ParameterTypes>
                         <Parameters>
@@ -211,6 +308,60 @@
                                 <Memory CodeSegment="%MID%" Offset="35" BitOffset="0" />
                                 <Parameter Id="%AID%_UP-%TT%00031" Name="SIR_SystemFlow" ParameterType="%AID%_PT-FlowRate" Offset="0" BitOffset="0" Text="Systemdurchfluss (l/min)" Value="10" />
                             </Union>
+                            <!-- Phase 1: Post-Freeze Delay -->
+                            <Union Id="%AID%_U-%TT%00033" SizeInBit="8">
+                                <Memory CodeSegment="%MID%" Offset="39" BitOffset="0" />
+                                <Parameter Id="%AID%_UP-%TT%00033" Name="SIR_PostFreezeDelay" ParameterType="%AID%_PT-PostFreezeDelay" Offset="0" BitOffset="0" Text="Frost-Verzögerung (h)" Value="0" />
+                            </Union>
+                            <!-- Phase 3: Tank parameters -->
+                            <Union Id="%AID%_U-%TT%00034" SizeInBit="8">
+                                <Memory CodeSegment="%MID%" Offset="40" BitOffset="0" />
+                                <Parameter Id="%AID%_UP-%TT%00034" Name="SIR_TankEnabled" ParameterType="%AID%_PT-OnOffYesNo" Offset="0" BitOffset="0" Text="Tank-Überwachung" Value="0" />
+                            </Union>
+                            <Union Id="%AID%_U-%TT%00035" SizeInBit="8">
+                                <Memory CodeSegment="%MID%" Offset="41" BitOffset="0" />
+                                <Parameter Id="%AID%_UP-%TT%00035" Name="SIR_TankMinPercent" ParameterType="%AID%_PT-TankMinPercent" Offset="0" BitOffset="0" Text="Tank Min-Füllstand (%)" Value="10" />
+                            </Union>
+                            <Union Id="%AID%_U-%TT%00036" SizeInBit="8">
+                                <Memory CodeSegment="%MID%" Offset="42" BitOffset="0" />
+                                <Parameter Id="%AID%_UP-%TT%00036" Name="SIR_TankAction" ParameterType="%AID%_PT-TankAction" Offset="0" BitOffset="0" Text="Aktion bei Tank leer" Value="0" />
+                            </Union>
+                            <!-- Phase 3: Activity Block parameters -->
+                            <Union Id="%AID%_U-%TT%00037" SizeInBit="8">
+                                <Memory CodeSegment="%MID%" Offset="43" BitOffset="0" />
+                                <Parameter Id="%AID%_UP-%TT%00037" Name="SIR_ActivityBlockEnabled" ParameterType="%AID%_PT-OnOffYesNo" Offset="0" BitOffset="0" Text="Aktivitätserkennung" Value="0" />
+                            </Union>
+                            <Union Id="%AID%_U-%TT%00038" SizeInBit="16">
+                                <Memory CodeSegment="%MID%" Offset="44" BitOffset="0" />
+                                <Parameter Id="%AID%_UP-%TT%00038" Name="SIR_ActivityBlockDelay" ParameterType="%AID%_PT-ActivityBlockDelay" Offset="0" BitOffset="0" Text="Aktivitäts-Verzögerung (s)" Value="120" />
+                            </Union>
+                            <Union Id="%AID%_U-%TT%00039" SizeInBit="8">
+                                <Memory CodeSegment="%MID%" Offset="46" BitOffset="0" />
+                                <Parameter Id="%AID%_UP-%TT%00039" Name="SIR_ActivityBlockMode" ParameterType="%AID%_PT-ActivityBlockMode" Offset="0" BitOffset="0" Text="Aktivitätsmodus" Value="0" />
+                            </Union>
+                            <!-- Phase 3: Season parameters -->
+                            <Union Id="%AID%_U-%TT%00040" SizeInBit="8">
+                                <Memory CodeSegment="%MID%" Offset="47" BitOffset="0" />
+                                <Parameter Id="%AID%_UP-%TT%00040" Name="SIR_SeasonEnabled" ParameterType="%AID%_PT-OnOffYesNo" Offset="0" BitOffset="0" Text="Saison-Begrenzung" Value="0" />
+                            </Union>
+                            <Union Id="%AID%_U-%TT%00041" SizeInBit="8">
+                                <Memory CodeSegment="%MID%" Offset="48" BitOffset="0" />
+                                <Parameter Id="%AID%_UP-%TT%00041" Name="SIR_SeasonStartMonth" ParameterType="%AID%_PT-SeasonMonth" Offset="0" BitOffset="0" Text="Saison-Start" Value="3" />
+                            </Union>
+                            <Union Id="%AID%_U-%TT%00042" SizeInBit="8">
+                                <Memory CodeSegment="%MID%" Offset="49" BitOffset="0" />
+                                <Parameter Id="%AID%_UP-%TT%00042" Name="SIR_SeasonEndMonth" ParameterType="%AID%_PT-SeasonMonth" Offset="0" BitOffset="0" Text="Saison-Ende" Value="10" />
+                            </Union>
+                            <!-- Phase 3: Wind Pause parameters -->
+                            <Union Id="%AID%_U-%TT%00043" SizeInBit="8">
+                                <Memory CodeSegment="%MID%" Offset="50" BitOffset="0" />
+                                <Parameter Id="%AID%_UP-%TT%00043" Name="SIR_WindPauseThreshold" ParameterType="%AID%_PT-WindPauseThreshold" Offset="0" BitOffset="0" Text="Wind-Pausenschwelle (km/h)" Value="0" />
+                            </Union>
+                            <!-- Phase 4: Inter-Zone Delay -->
+                            <Union Id="%AID%_U-%TT%00044" SizeInBit="8">
+                                <Memory CodeSegment="%MID%" Offset="51" BitOffset="0" />
+                                <Parameter Id="%AID%_UP-%TT%00044" Name="SIR_ZoneSwitchDelay" ParameterType="%AID%_PT-ZoneSwitchDelay" Offset="0" BitOffset="0" Text="Zonen-Wechsel-Verzögerung (Sek.)" Value="0" />
+                            </Union>
                         </Parameters>
                         <ParameterRefs>
                             <ParameterRef Id="%AID%_UP-%TT%00001_R-%TT%0000101" RefId="%AID%_UP-%TT%00001" />
@@ -245,6 +396,19 @@
                             <ParameterRef Id="%AID%_UP-%TT%00032_R-%TT%0003201" RefId="%AID%_UP-%TT%00032" />
                             <ParameterRef Id="%AID%_UP-%TT%00030_R-%TT%0003001" RefId="%AID%_UP-%TT%00030" />
                             <ParameterRef Id="%AID%_UP-%TT%00031_R-%TT%0003101" RefId="%AID%_UP-%TT%00031" />
+                            <ParameterRef Id="%AID%_UP-%TT%00033_R-%TT%0003301" RefId="%AID%_UP-%TT%00033" />
+                            <!-- Phase 3 ParameterRefs -->
+                            <ParameterRef Id="%AID%_UP-%TT%00034_R-%TT%0003401" RefId="%AID%_UP-%TT%00034" />
+                            <ParameterRef Id="%AID%_UP-%TT%00035_R-%TT%0003501" RefId="%AID%_UP-%TT%00035" />
+                            <ParameterRef Id="%AID%_UP-%TT%00036_R-%TT%0003601" RefId="%AID%_UP-%TT%00036" />
+                            <ParameterRef Id="%AID%_UP-%TT%00037_R-%TT%0003701" RefId="%AID%_UP-%TT%00037" />
+                            <ParameterRef Id="%AID%_UP-%TT%00038_R-%TT%0003801" RefId="%AID%_UP-%TT%00038" />
+                            <ParameterRef Id="%AID%_UP-%TT%00039_R-%TT%0003901" RefId="%AID%_UP-%TT%00039" />
+                            <ParameterRef Id="%AID%_UP-%TT%00040_R-%TT%0004001" RefId="%AID%_UP-%TT%00040" />
+                            <ParameterRef Id="%AID%_UP-%TT%00041_R-%TT%0004101" RefId="%AID%_UP-%TT%00041" />
+                            <ParameterRef Id="%AID%_UP-%TT%00042_R-%TT%0004201" RefId="%AID%_UP-%TT%00042" />
+                            <ParameterRef Id="%AID%_UP-%TT%00043_R-%TT%0004301" RefId="%AID%_UP-%TT%00043" />
+                            <ParameterRef Id="%AID%_UP-%TT%00044_R-%TT%0004401" RefId="%AID%_UP-%TT%00044" />
                         </ParameterRefs>
                         <!-- temporary workaround for ETS signer collision -->
                         <Messages>
@@ -266,6 +430,22 @@
                             <Message Id="%AID%_M-%TT%00115" Name="RuntimeRange" Text="Laufzeit muss zwischen 1 und 180 Minuten liegen." />
                             <Message Id="%AID%_M-%TT%00116" Name="SoilRange" Text="Bodenfeuchte-Schwellwert muss zwischen 0 und 100 liegen." />
                             <Message Id="%AID%_M-%TT%00117" Name="RainDelayRange" Text="Regen-Verzögerungs-Faktor muss zwischen 0 und 10 liegen." />
+                            <Message Id="%AID%_M-%TT%00118" Name="CheckBackDelayRange" Text="Prüfverzögerung muss zwischen 5 und 120 Sekunden liegen." />
+                            <Message Id="%AID%_M-%TT%00119" Name="PostFreezeDelayRange" Text="Frostverzögerung muss zwischen 0 und 48 Stunden liegen." />
+                            <!-- Phase 2 Messages -->
+                            <Message Id="%AID%_M-%TT%00120" Name="SunOffsetRange" Text="Sonnen-Offset muss zwischen -120 und +120 Minuten liegen." />
+                            <Message Id="%AID%_M-%TT%00121" Name="SunDurationRange" Text="Bewässerungsfenster-Dauer muss zwischen 30 und 480 Minuten liegen." />
+                            <Message Id="%AID%_M-%TT%00122" Name="SoakTimeRange" Text="Einweichzeit muss zwischen 0 und 120 Minuten liegen." />
+                            <Message Id="%AID%_M-%TT%00123" Name="RestDaysRange" Text="Ruhetage muss zwischen 0 und 7 liegen." />
+                            <Message Id="%AID%_M-%TT%00124" Name="SunExposureRange" Text="Sonnenexposition muss zwischen 10 und 150% liegen." />
+                            <!-- Phase 3 Messages -->
+                            <Message Id="%AID%_M-%TT%00125" Name="TankMinPercentRange" Text="Mindestfüllstand muss zwischen 0 und 50% liegen." />
+                            <Message Id="%AID%_M-%TT%00126" Name="ActivityBlockDelayRange" Text="Aktivitätsverzögerung muss zwischen 0 und 600 Sekunden liegen." />
+                            <Message Id="%AID%_M-%TT%00127" Name="WindPauseThresholdRange" Text="Wind-Schwelle muss zwischen 0 und 50 km/h liegen." />
+                            <!-- Phase 4 Messages -->
+                            <Message Id="%AID%_M-%TT%00128" Name="ZoneSwitchDelayRange" Text="Zonen-Wechsel-Verzögerung muss zwischen 0 und 60 Sekunden liegen." />
+                            <Message Id="%AID%_M-%TT%00129" Name="VerifyDelayRange" Text="Verifizierungs-Verzögerung muss zwischen 0 und 120 Minuten liegen." />
+                            <Message Id="%AID%_M-%TT%00130" Name="VerifyMinDeltaRange" Text="Min. Bodenfeuchte-Delta muss zwischen 0 und 100% liegen." />
                         </Messages>
                         <Script>
                             <op:include href="SmartIrrigation.script.js" type="script" />
@@ -284,6 +464,25 @@
                             <ComObject Id="%AID%_O-%TT%00010" Number="10" Name="WeatherUpdateLast" Text="Letzte Aktualisierung" ObjectSize="8 Bytes" DatapointType="DPST-19-1" ReadFlag="Enabled" WriteFlag="Disabled" CommunicationFlag="Enabled" TransmitFlag="Enabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" />
                             <ComObject Id="%AID%_O-%TT%00011" Number="11" Name="RainLockActive" Text="Regen-Sperrzeit aktiv" ObjectSize="1 Bit" DatapointType="DPST-1-1" ReadFlag="Enabled" WriteFlag="Disabled" CommunicationFlag="Enabled" TransmitFlag="Enabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" />
                             <ComObject Id="%AID%_O-%TT%00012" Number="12" Name="RainLockRemaining" Text="Regen-Sperrzeit verbleibend" ObjectSize="2 Bytes" DatapointType="DPST-7-7" ReadFlag="Enabled" WriteFlag="Disabled" CommunicationFlag="Enabled" TransmitFlag="Enabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" />
+                            <!-- Phase 1: Flow Sensor Input (1.2) -->
+                            <ComObject Id="%AID%_O-%TT%00013" Number="13" Name="FlowSensor" Text="Durchflusssensor" ObjectSize="2 Bytes" DatapointType="DPST-9-25" ReadFlag="Disabled" WriteFlag="Enabled" CommunicationFlag="Enabled" TransmitFlag="Disabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" />
+                            <!-- Phase 3: Tank + Activity Inputs (3.1, 3.2) -->
+                            <ComObject Id="%AID%_O-%TT%00014" Number="14" Name="TankLevel" Text="Tankfüllstand" ObjectSize="1 Byte" DatapointType="DPST-5-1" ReadFlag="Disabled" WriteFlag="Enabled" CommunicationFlag="Enabled" TransmitFlag="Disabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" />
+                            <ComObject Id="%AID%_O-%TT%00015" Number="15" Name="PresenceDetected" Text="Anwesenheit erkannt" ObjectSize="1 Bit" DatapointType="DPST-1-1" ReadFlag="Disabled" WriteFlag="Enabled" CommunicationFlag="Enabled" TransmitFlag="Disabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" />
+                            <ComObject Id="%AID%_O-%TT%00016" Number="16" Name="DoorOpen" Text="Tür offen" ObjectSize="1 Bit" DatapointType="DPST-1-1" ReadFlag="Disabled" WriteFlag="Enabled" CommunicationFlag="Enabled" TransmitFlag="Disabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" />
+                            <!-- Phase 4: Suspend (4.2) -->
+                            <ComObject Id="%AID%_O-%TT%00017" Number="17" Name="SuspendHours" Text="Pausieren (Stunden)" ObjectSize="1 Byte" DatapointType="DPST-5-10" ReadFlag="Disabled" WriteFlag="Enabled" CommunicationFlag="Enabled" TransmitFlag="Disabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" />
+                            <!-- Phase 1: Master Valve Output (1.3) -->
+                            <ComObject Id="%AID%_O-%TT%00018" Number="18" Name="MasterValve" Text="Hauptventil" ObjectSize="1 Bit" DatapointType="DPST-1-1" ReadFlag="Enabled" WriteFlag="Disabled" CommunicationFlag="Enabled" TransmitFlag="Enabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" />
+                            <!-- Phase 2: Adjustment Factor (2.5) -->
+                            <ComObject Id="%AID%_O-%TT%00019" Number="19" Name="AdjustmentFactor" Text="Korrekturfaktor" ObjectSize="1 Byte" DatapointType="DPST-5-1" ReadFlag="Disabled" WriteFlag="Enabled" CommunicationFlag="Enabled" TransmitFlag="Disabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" />
+                            <!-- Phase 1: Safety KOs (1.2, 1.5) -->
+                            <ComObject Id="%AID%_O-%TT%00032" Number="32" Name="FlowAlarm" Text="Durchfluss-Alarm" ObjectSize="1 Bit" DatapointType="DPST-1-5" ReadFlag="Enabled" WriteFlag="Disabled" CommunicationFlag="Enabled" TransmitFlag="Enabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" />
+                            <ComObject Id="%AID%_O-%TT%00033" Number="33" Name="TotalWeekAmount" Text="Gesamtverbrauch Woche" ObjectSize="2 Bytes" DatapointType="DPST-9-26" ReadFlag="Enabled" WriteFlag="Disabled" CommunicationFlag="Enabled" TransmitFlag="Enabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" />
+                            <ComObject Id="%AID%_O-%TT%00034" Number="34" Name="TotalWeekAmountPrev" Text="Gesamtverbrauch Vorwoche" ObjectSize="2 Bytes" DatapointType="DPST-9-26" ReadFlag="Enabled" WriteFlag="Disabled" CommunicationFlag="Enabled" TransmitFlag="Enabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" />
+                            <!-- Phase 3: Wind Pause + Tank Alarm Outputs (3.5, 3.1) -->
+                            <ComObject Id="%AID%_O-%TT%00035" Number="35" Name="WindPauseActive" Text="Wind-Pause aktiv" ObjectSize="1 Bit" DatapointType="DPST-1-1" ReadFlag="Enabled" WriteFlag="Disabled" CommunicationFlag="Enabled" TransmitFlag="Enabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" />
+                            <ComObject Id="%AID%_O-%TT%00036" Number="36" Name="TankAlarm" Text="Tank-Alarm" ObjectSize="1 Bit" DatapointType="DPST-1-5" ReadFlag="Enabled" WriteFlag="Disabled" CommunicationFlag="Enabled" TransmitFlag="Enabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" />
 
                             
                             <ComObject Id="%AID%_O-%TT%00020" Number="20" Name="SensorTemperature" Text="Sensor Temperatur" ObjectSize="2 Bytes" DatapointType="DPST-9-1" ReadFlag="Disabled" WriteFlag="Enabled" CommunicationFlag="Enabled" TransmitFlag="Disabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" />
@@ -295,6 +494,11 @@
                             <ComObject Id="%AID%_O-%TT%00026" Number="26" Name="SensorSoilMoisture" Text="Sensor Bodenfeuchte" ObjectSize="2 Bytes" DatapointType="DPST-9-7" ReadFlag="Disabled" WriteFlag="Enabled" CommunicationFlag="Enabled" TransmitFlag="Disabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" />
                             <ComObject Id="%AID%_O-%TT%00027" Number="27" Name="SensorStatus" Text="Sensor Status" ObjectSize="1 Bit" DatapointType="DPST-1-1" ReadFlag="Enabled" WriteFlag="Disabled" CommunicationFlag="Enabled" TransmitFlag="Enabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" />
                             <ComObject Id="%AID%_O-%TT%00028" Number="28" Name="SensorUvIndex" Text="Sensor UV-Index" ObjectSize="1 Byte" DatapointType="DPST-5-10" ReadFlag="Disabled" WriteFlag="Enabled" CommunicationFlag="Enabled" TransmitFlag="Disabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" />
+                            <!-- Phase 3: Activity + Water Source Outputs (3.2, 3.1) -->
+                            <ComObject Id="%AID%_O-%TT%00029" Number="29" Name="WaterSourceSwitch" Text="Quellenwechsel" ObjectSize="1 Bit" DatapointType="DPST-1-1" ReadFlag="Enabled" WriteFlag="Disabled" CommunicationFlag="Enabled" TransmitFlag="Enabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" />
+                            <ComObject Id="%AID%_O-%TT%00030" Number="30" Name="ActivityBlock" Text="Aktivitätssperre" ObjectSize="1 Bit" DatapointType="DPST-1-1" ReadFlag="Enabled" WriteFlag="Disabled" CommunicationFlag="Enabled" TransmitFlag="Enabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" />
+                            <!-- Phase 4: Suspend Active Output (4.2) -->
+                            <ComObject Id="%AID%_O-%TT%00031" Number="31" Name="SuspendActive" Text="Pausierung aktiv" ObjectSize="1 Bit" DatapointType="DPST-1-1" ReadFlag="Enabled" WriteFlag="Disabled" CommunicationFlag="Enabled" TransmitFlag="Enabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" />
 
                             
                             <ComObject Id="%AID%_O-%TT%00040" Number="40" Name="ForecastTempCurrent" Text="Prognose Temperatur aktuell" ObjectSize="2 Bytes" DatapointType="DPST-9-1" ReadFlag="Disabled" WriteFlag="Enabled" CommunicationFlag="Enabled" TransmitFlag="Disabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" />
@@ -313,13 +517,13 @@
                             <ComObject Id="%AID%_O-%TT%00053" Number="53" Name="ForecastStatus" Text="Prognose Status" ObjectSize="1 Bit" DatapointType="DPST-1-1" ReadFlag="Enabled" WriteFlag="Disabled" CommunicationFlag="Enabled" TransmitFlag="Enabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" />
 
                             
-                            <ComObject Id="%AID%_O-%TT%00300" Number="300" Name="DiagMode" Text="Diagnose Modus" ObjectSize="1 Bit" DatapointType="DPST-1-1" ReadFlag="Disabled" WriteFlag="Enabled" CommunicationFlag="Enabled" TransmitFlag="Disabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" />
-                            <ComObject Id="%AID%_O-%TT%00301" Number="301" Name="DiagET0" Text="Berechnete ET0" ObjectSize="2 Bytes" DatapointType="DPST-9-26" ReadFlag="Enabled" WriteFlag="Disabled" CommunicationFlag="Enabled" TransmitFlag="Enabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" />
-                            <ComObject Id="%AID%_O-%TT%00302" Number="302" Name="DiagEffectiveRain" Text="Effektiver Niederschlag" ObjectSize="2 Bytes" DatapointType="DPST-9-26" ReadFlag="Enabled" WriteFlag="Disabled" CommunicationFlag="Enabled" TransmitFlag="Enabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" />
-                            <ComObject Id="%AID%_O-%TT%00303" Number="303" Name="DiagWaterDemand" Text="Bewässerungsbedarf" ObjectSize="2 Bytes" DatapointType="DPST-9-26" ReadFlag="Enabled" WriteFlag="Disabled" CommunicationFlag="Enabled" TransmitFlag="Enabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" />
-                            <ComObject Id="%AID%_O-%TT%00304" Number="304" Name="DiagDecisionMode" Text="Entscheidungs-Modus" ObjectSize="1 Byte" DatapointType="DPST-5-10" ReadFlag="Enabled" WriteFlag="Disabled" CommunicationFlag="Enabled" TransmitFlag="Enabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" />
-                            <ComObject Id="%AID%_O-%TT%00305" Number="305" Name="DiagSequenceStatus" Text="Sequenz-Status" ObjectSize="1 Byte" DatapointType="DPST-5-10" ReadFlag="Enabled" WriteFlag="Disabled" CommunicationFlag="Enabled" TransmitFlag="Enabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" />
-                            <ComObject Id="%AID%_O-%TT%00306" Number="306" Name="DiagFallback" Text="Fallback-Modus aktiv" ObjectSize="1 Bit" DatapointType="DPST-1-1" ReadFlag="Enabled" WriteFlag="Disabled" CommunicationFlag="Enabled" TransmitFlag="Enabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" />
+                            <ComObject Id="%AID%_O-%TT%00400" Number="400" Name="DiagMode" Text="Diagnose Modus" ObjectSize="1 Bit" DatapointType="DPST-1-1" ReadFlag="Disabled" WriteFlag="Enabled" CommunicationFlag="Enabled" TransmitFlag="Disabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" />
+                            <ComObject Id="%AID%_O-%TT%00401" Number="401" Name="DiagET0" Text="Berechnete ET0" ObjectSize="2 Bytes" DatapointType="DPST-9-26" ReadFlag="Enabled" WriteFlag="Disabled" CommunicationFlag="Enabled" TransmitFlag="Enabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" />
+                            <ComObject Id="%AID%_O-%TT%00402" Number="402" Name="DiagEffectiveRain" Text="Effektiver Niederschlag" ObjectSize="2 Bytes" DatapointType="DPST-9-26" ReadFlag="Enabled" WriteFlag="Disabled" CommunicationFlag="Enabled" TransmitFlag="Enabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" />
+                            <ComObject Id="%AID%_O-%TT%00403" Number="403" Name="DiagWaterDemand" Text="Bewässerungsbedarf" ObjectSize="2 Bytes" DatapointType="DPST-9-26" ReadFlag="Enabled" WriteFlag="Disabled" CommunicationFlag="Enabled" TransmitFlag="Enabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" />
+                            <ComObject Id="%AID%_O-%TT%00404" Number="404" Name="DiagDecisionMode" Text="Entscheidungs-Modus" ObjectSize="1 Byte" DatapointType="DPST-5-10" ReadFlag="Enabled" WriteFlag="Disabled" CommunicationFlag="Enabled" TransmitFlag="Enabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" />
+                            <ComObject Id="%AID%_O-%TT%00405" Number="405" Name="DiagSequenceStatus" Text="Sequenz-Status" ObjectSize="1 Byte" DatapointType="DPST-5-10" ReadFlag="Enabled" WriteFlag="Disabled" CommunicationFlag="Enabled" TransmitFlag="Enabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" />
+                            <ComObject Id="%AID%_O-%TT%00406" Number="406" Name="DiagFallback" Text="Fallback-Modus aktiv" ObjectSize="1 Bit" DatapointType="DPST-1-1" ReadFlag="Enabled" WriteFlag="Disabled" CommunicationFlag="Enabled" TransmitFlag="Enabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" />
                         </ComObjectTable>
 
                         <ComObjectRefs>
@@ -335,6 +539,23 @@
                             <ComObjectRef Id="%AID%_O-%TT%00010_R-%TT%0001001" RefId="%AID%_O-%TT%00010" FunctionText="Letzte Aktualisierung" Text="Letzte Aktualisierung" Priority="Low" ObjectSize="8 Bytes" DatapointType="DPST-19-1" />
                             <ComObjectRef Id="%AID%_O-%TT%00011_R-%TT%0001101" RefId="%AID%_O-%TT%00011" FunctionText="Regen-Sperrzeit aktiv" Text="Regen-Sperrzeit aktiv" Priority="Low" ObjectSize="1 Bit" DatapointType="DPST-1-1" />
                             <ComObjectRef Id="%AID%_O-%TT%00012_R-%TT%0001201" RefId="%AID%_O-%TT%00012" FunctionText="Regen-Sperrzeit verbleibend" Text="Regen-Sperrzeit verbleibend" Priority="Low" ObjectSize="2 Bytes" DatapointType="DPST-7-7" />
+                            <!-- Phase 1: Safety KO Refs (1.2, 1.3, 1.5) -->
+                            <ComObjectRef Id="%AID%_O-%TT%00013_R-%TT%0001301" RefId="%AID%_O-%TT%00013" FunctionText="Durchflusssensor" Text="Durchflusssensor" Priority="Low" ObjectSize="2 Bytes" DatapointType="DPST-9-25" />
+                            <!-- Phase 3: Tank + Activity KO Refs (3.1, 3.2) -->
+                            <ComObjectRef Id="%AID%_O-%TT%00014_R-%TT%0001401" RefId="%AID%_O-%TT%00014" FunctionText="Tankfüllstand" Text="Tankfüllstand" Priority="Low" ObjectSize="1 Byte" DatapointType="DPST-5-1" />
+                            <ComObjectRef Id="%AID%_O-%TT%00015_R-%TT%0001501" RefId="%AID%_O-%TT%00015" FunctionText="Anwesenheit erkannt" Text="Anwesenheit erkannt" Priority="Low" ObjectSize="1 Bit" DatapointType="DPST-1-1" />
+                            <ComObjectRef Id="%AID%_O-%TT%00016_R-%TT%0001601" RefId="%AID%_O-%TT%00016" FunctionText="Tür offen" Text="Tür offen" Priority="Low" ObjectSize="1 Bit" DatapointType="DPST-1-1" />
+                            <!-- Phase 4: Suspend KO Ref (4.2) -->
+                            <ComObjectRef Id="%AID%_O-%TT%00017_R-%TT%0001701" RefId="%AID%_O-%TT%00017" FunctionText="Pausieren (Stunden)" Text="Pausieren (Stunden)" Priority="Low" ObjectSize="1 Byte" DatapointType="DPST-5-10" />
+                            <ComObjectRef Id="%AID%_O-%TT%00018_R-%TT%0001801" RefId="%AID%_O-%TT%00018" FunctionText="Hauptventil" Text="Hauptventil" Priority="Low" ObjectSize="1 Bit" DatapointType="DPST-1-1" />
+                            <!-- Phase 2: Adjustment Factor KO Ref (2.5) -->
+                            <ComObjectRef Id="%AID%_O-%TT%00019_R-%TT%0001901" RefId="%AID%_O-%TT%00019" FunctionText="Korrekturfaktor" Text="Korrekturfaktor" Priority="Low" ObjectSize="1 Byte" DatapointType="DPST-5-1" />
+                            <ComObjectRef Id="%AID%_O-%TT%00032_R-%TT%0003201" RefId="%AID%_O-%TT%00032" FunctionText="Durchfluss-Alarm" Text="Durchfluss-Alarm" Priority="Low" ObjectSize="1 Bit" DatapointType="DPST-1-5" />
+                            <ComObjectRef Id="%AID%_O-%TT%00033_R-%TT%0003301" RefId="%AID%_O-%TT%00033" FunctionText="Gesamtverbrauch Woche" Text="Gesamtverbrauch Woche" Priority="Low" ObjectSize="2 Bytes" DatapointType="DPST-9-26" />
+                            <ComObjectRef Id="%AID%_O-%TT%00034_R-%TT%0003401" RefId="%AID%_O-%TT%00034" FunctionText="Gesamtverbrauch Vorwoche" Text="Gesamtverbrauch Vorwoche" Priority="Low" ObjectSize="2 Bytes" DatapointType="DPST-9-26" />
+                            <!-- Phase 3: Wind Pause + Tank Alarm KO Refs (3.5, 3.1) -->
+                            <ComObjectRef Id="%AID%_O-%TT%00035_R-%TT%0003501" RefId="%AID%_O-%TT%00035" FunctionText="Wind-Pause aktiv" Text="Wind-Pause aktiv" Priority="Low" ObjectSize="1 Bit" DatapointType="DPST-1-1" />
+                            <ComObjectRef Id="%AID%_O-%TT%00036_R-%TT%0003601" RefId="%AID%_O-%TT%00036" FunctionText="Tank-Alarm" Text="Tank-Alarm" Priority="Low" ObjectSize="1 Bit" DatapointType="DPST-1-5" />
 
                             <ComObjectRef Id="%AID%_O-%TT%00020_R-%TT%0002001" RefId="%AID%_O-%TT%00020" FunctionText="Sensor Temperatur" Text="Sensor Temperatur" Priority="Low" ObjectSize="2 Bytes" DatapointType="DPST-9-1" />
                             <ComObjectRef Id="%AID%_O-%TT%00021_R-%TT%0002101" RefId="%AID%_O-%TT%00021" FunctionText="Sensor Regen" Text="Sensor Regen" Priority="Low" ObjectSize="1 Bit" DatapointType="DPST-1-1" />
@@ -345,6 +566,11 @@
                             <ComObjectRef Id="%AID%_O-%TT%00026_R-%TT%0002601" RefId="%AID%_O-%TT%00026" FunctionText="Sensor Bodenfeuchte" Text="Sensor Bodenfeuchte" Priority="Low" ObjectSize="2 Bytes" DatapointType="DPST-9-7" />
                             <ComObjectRef Id="%AID%_O-%TT%00027_R-%TT%0002701" RefId="%AID%_O-%TT%00027" FunctionText="Sensor Status" Text="Sensor Status" Priority="Low" ObjectSize="1 Bit" DatapointType="DPST-1-1" />
                             <ComObjectRef Id="%AID%_O-%TT%00028_R-%TT%0002801" RefId="%AID%_O-%TT%00028" FunctionText="Sensor UV-Index" Text="Sensor UV-Index" Priority="Low" ObjectSize="1 Byte" DatapointType="DPST-5-10" />
+                            <!-- Phase 3: Activity + Water Source KO Refs (3.2, 3.1) -->
+                            <ComObjectRef Id="%AID%_O-%TT%00029_R-%TT%0002901" RefId="%AID%_O-%TT%00029" FunctionText="Quellenwechsel" Text="Quellenwechsel" Priority="Low" ObjectSize="1 Bit" DatapointType="DPST-1-1" />
+                            <ComObjectRef Id="%AID%_O-%TT%00030_R-%TT%0003001" RefId="%AID%_O-%TT%00030" FunctionText="Aktivitätssperre" Text="Aktivitätssperre" Priority="Low" ObjectSize="1 Bit" DatapointType="DPST-1-1" />
+                            <!-- Phase 4: Suspend Active KO Ref (4.2) -->
+                            <ComObjectRef Id="%AID%_O-%TT%00031_R-%TT%0003101" RefId="%AID%_O-%TT%00031" FunctionText="Pausierung aktiv" Text="Pausierung aktiv" Priority="Low" ObjectSize="1 Bit" DatapointType="DPST-1-1" />
 
                             <ComObjectRef Id="%AID%_O-%TT%00040_R-%TT%0004001" RefId="%AID%_O-%TT%00040" FunctionText="Prognose Temperatur aktuell" Text="Prognose Temperatur aktuell" Priority="Low" ObjectSize="2 Bytes" DatapointType="DPST-9-1" />
                             <ComObjectRef Id="%AID%_O-%TT%00041_R-%TT%0004101" RefId="%AID%_O-%TT%00041" FunctionText="Prognose Temperatur +48h" Text="Prognose Temperatur +48h" Priority="Low" ObjectSize="2 Bytes" DatapointType="DPST-9-1" />
@@ -361,13 +587,13 @@
                             <ComObjectRef Id="%AID%_O-%TT%00052_R-%TT%0005201" RefId="%AID%_O-%TT%00052" FunctionText="Prognose UV-Index" Text="Prognose UV-Index" Priority="Low" ObjectSize="1 Byte" DatapointType="DPST-5-10" />
                             <ComObjectRef Id="%AID%_O-%TT%00053_R-%TT%0005301" RefId="%AID%_O-%TT%00053" FunctionText="Prognose Status" Text="Prognose Status" Priority="Low" ObjectSize="1 Bit" DatapointType="DPST-1-1" />
 
-                            <ComObjectRef Id="%AID%_O-%TT%00300_R-%TT%0030001" RefId="%AID%_O-%TT%00300" FunctionText="Diagnose Modus" Text="Diagnose Modus" Priority="Low" ObjectSize="1 Bit" DatapointType="DPST-1-1" />
-                            <ComObjectRef Id="%AID%_O-%TT%00301_R-%TT%0030101" RefId="%AID%_O-%TT%00301" FunctionText="Berechnete ET0" Text="Berechnete ET0" Priority="Low" ObjectSize="2 Bytes" DatapointType="DPST-9-26" />
-                            <ComObjectRef Id="%AID%_O-%TT%00302_R-%TT%0030201" RefId="%AID%_O-%TT%00302" FunctionText="Effektiver Niederschlag" Text="Effektiver Niederschlag" Priority="Low" ObjectSize="2 Bytes" DatapointType="DPST-9-26" />
-                            <ComObjectRef Id="%AID%_O-%TT%00303_R-%TT%0030301" RefId="%AID%_O-%TT%00303" FunctionText="Bewässerungsbedarf" Text="Bewässerungsbedarf" Priority="Low" ObjectSize="2 Bytes" DatapointType="DPST-9-26" />
-                            <ComObjectRef Id="%AID%_O-%TT%00304_R-%TT%0030401" RefId="%AID%_O-%TT%00304" FunctionText="Entscheidungs-Modus" Text="Entscheidungs-Modus" Priority="Low" ObjectSize="1 Byte" DatapointType="DPST-5-10" />
-                            <ComObjectRef Id="%AID%_O-%TT%00305_R-%TT%0030501" RefId="%AID%_O-%TT%00305" FunctionText="Sequenz-Status" Text="Sequenz-Status" Priority="Low" ObjectSize="1 Byte" DatapointType="DPST-5-10" />
-                            <ComObjectRef Id="%AID%_O-%TT%00306_R-%TT%0030601" RefId="%AID%_O-%TT%00306" FunctionText="Fallback-Modus aktiv" Text="Fallback-Modus aktiv" Priority="Low" ObjectSize="1 Bit" DatapointType="DPST-1-1" />
+                            <ComObjectRef Id="%AID%_O-%TT%00400_R-%TT%0040001" RefId="%AID%_O-%TT%00400" FunctionText="Diagnose Modus" Text="Diagnose Modus" Priority="Low" ObjectSize="1 Bit" DatapointType="DPST-1-1" />
+                            <ComObjectRef Id="%AID%_O-%TT%00401_R-%TT%0040101" RefId="%AID%_O-%TT%00401" FunctionText="Berechnete ET0" Text="Berechnete ET0" Priority="Low" ObjectSize="2 Bytes" DatapointType="DPST-9-26" />
+                            <ComObjectRef Id="%AID%_O-%TT%00402_R-%TT%0040201" RefId="%AID%_O-%TT%00402" FunctionText="Effektiver Niederschlag" Text="Effektiver Niederschlag" Priority="Low" ObjectSize="2 Bytes" DatapointType="DPST-9-26" />
+                            <ComObjectRef Id="%AID%_O-%TT%00403_R-%TT%0040301" RefId="%AID%_O-%TT%00403" FunctionText="Bewässerungsbedarf" Text="Bewässerungsbedarf" Priority="Low" ObjectSize="2 Bytes" DatapointType="DPST-9-26" />
+                            <ComObjectRef Id="%AID%_O-%TT%00404_R-%TT%0040401" RefId="%AID%_O-%TT%00404" FunctionText="Entscheidungs-Modus" Text="Entscheidungs-Modus" Priority="Low" ObjectSize="1 Byte" DatapointType="DPST-5-10" />
+                            <ComObjectRef Id="%AID%_O-%TT%00405_R-%TT%0040501" RefId="%AID%_O-%TT%00405" FunctionText="Sequenz-Status" Text="Sequenz-Status" Priority="Low" ObjectSize="1 Byte" DatapointType="DPST-5-10" />
+                            <ComObjectRef Id="%AID%_O-%TT%00406_R-%TT%0040601" RefId="%AID%_O-%TT%00406" FunctionText="Fallback-Modus aktiv" Text="Fallback-Modus aktiv" Priority="Low" ObjectSize="1 Bit" DatapointType="DPST-1-1" />
                         </ComObjectRefs>
                     </Static>
                     <Dynamic>
@@ -376,6 +602,8 @@
                                 <ParameterSeparator Id="%AID%_PS-%TT%00009" Text="System-Konfiguration" UIHint="Headline" />
                                 <ParameterRefRef RefId="%AID%_UP-%TT%00001_R-%TT%0000101" HelpContext="SIR-System-ZoneCount" />
                                 <ParameterRefRef RefId="%AID%_UP-%TT%00002_R-%TT%0000201" HelpContext="SIR-System-MaxConcurrent" />
+                                <!-- Phase 4: Inter-Zone Switch Delay -->
+                                <ParameterRefRef RefId="%AID%_UP-%TT%00044_R-%TT%0004401" HelpContext="SIR-System-ZoneSwitchDelay" />
                                 <ParameterSeparator Id="%AID%_PS-%TT%00001" Text="Max. gleichzeitige Zonen darf nicht größer sein als Anzahl Zonen." UIHint="Information" />
 
                                 <ParameterSeparator Id="%AID%_PS-%TT%00010" Text="Wochenverwaltung" UIHint="Headline" />
@@ -409,6 +637,12 @@
                                                 <ParameterRefRef RefId="%AID%_UP-%TT%00008_R-%TT%0000801" HelpContext="SIR-Weather-SensorRainAmount" IndentLevel="1" />
                                                 <ParameterRefRef RefId="%AID%_UP-%TT%00009_R-%TT%0000901" HelpContext="SIR-Weather-SensorHumidity" IndentLevel="1" />
                                                 <ParameterRefRef RefId="%AID%_UP-%TT%00010_R-%TT%0001001" HelpContext="SIR-Weather-SensorWind" IndentLevel="1" />
+                                                <!-- Phase 3: Wind-Pause unter Wind-Sensor -->
+                                                <choose ParamRefId="%AID%_UP-%TT%00010_R-%TT%0001001">
+                                                    <when test="1">
+                                                        <ParameterRefRef RefId="%AID%_UP-%TT%00043_R-%TT%0004301" HelpContext="SIR-WindPauseThreshold" IndentLevel="2" />
+                                                    </when>
+                                                </choose>
                                                 <ParameterRefRef RefId="%AID%_UP-%TT%00011_R-%TT%0001101" HelpContext="SIR-Weather-SensorWindDir" IndentLevel="1" />
                                                 <ParameterRefRef RefId="%AID%_UP-%TT%00012_R-%TT%0001201" HelpContext="SIR-Weather-SensorSoil" IndentLevel="1" />
                                 <ParameterRefRef RefId="%AID%_UP-%TT%00032_R-%TT%0003201" HelpContext="SIR-Weather-SensorUV" IndentLevel="1" />
@@ -527,7 +761,62 @@
 
                                 <ParameterSeparator Id="%AID%_PS-%TT%00004" Text="Grenzwerte" UIHint="Headline" />
                                 <ParameterRefRef RefId="%AID%_UP-%TT%00021_R-%TT%0002101" HelpContext="SIR-Weather-MinTemp" />
+                                <!-- Phase 1.4: Post-Freeze Delay -->
+                                <ParameterRefRef RefId="%AID%_UP-%TT%00033_R-%TT%0003301" HelpContext="SIR-PostFreezeDelay" />
                                 <ParameterRefRef RefId="%AID%_UP-%TT%00022_R-%TT%0002201" HelpContext="SIR-Weather-ForecastUpdate" />
+                            </ParameterBlock>
+
+                            <!-- Phase 3: Hardware Block (Tank) -->
+                            <ParameterBlock Id="%AID%_PB-%TT%00002" Name="SIR_Hardware" Text="Hardware" Icon="cog" ShowInComObjectTree="true">
+                                <ParameterSeparator Id="%AID%_PS-%TT%00020" Text="Tank-Überwachung" UIHint="Headline" />
+                                <ParameterRefRef RefId="%AID%_UP-%TT%00034_R-%TT%0003401" HelpContext="SIR-TankEnabled" />
+                                <choose ParamRefId="%AID%_UP-%TT%00034_R-%TT%0003401">
+                                    <when test="1">
+                                        <ParameterRefRef RefId="%AID%_UP-%TT%00035_R-%TT%0003501" HelpContext="SIR-TankMinPercent" IndentLevel="1" />
+                                        <ParameterRefRef RefId="%AID%_UP-%TT%00036_R-%TT%0003601" HelpContext="SIR-TankAction" IndentLevel="1" />
+                                        <ParameterSeparator Id="%AID%_PS-%TT%00021" Text="Bei Aktion 'Quellenwechsel' wird das Stadtleitungs-Ventil angesteuert." UIHint="Information" />
+                                        <!-- Tank KOs -->
+                                        <ComObjectRefRef RefId="%AID%_O-%TT%00014_R-%TT%0001401" />
+                                        <ComObjectRefRef RefId="%AID%_O-%TT%00036_R-%TT%0003601" />
+                                        <choose ParamRefId="%AID%_UP-%TT%00036_R-%TT%0003601">
+                                            <when test="2">
+                                                <ComObjectRefRef RefId="%AID%_O-%TT%00029_R-%TT%0002901" />
+                                            </when>
+                                        </choose>
+                                    </when>
+                                </choose>
+                            </ParameterBlock>
+
+                            <!-- Phase 3: Komfort Block (Activity + Season) -->
+                            <ParameterBlock Id="%AID%_PB-%TT%00003" Name="SIR_Komfort" Text="Komfort" Icon="cogs" ShowInComObjectTree="true">
+                                <ParameterSeparator Id="%AID%_PS-%TT%00030" Text="Aktivitätserkennung" UIHint="Headline" />
+                                <ParameterSeparator Id="%AID%_PS-%TT%00031" Text="Pausiert Bewässerung bei Anwesenheit oder offener Tür." UIHint="Information" />
+                                <ParameterRefRef RefId="%AID%_UP-%TT%00037_R-%TT%0003701" HelpContext="SIR-ActivityBlockEnabled" />
+                                <choose ParamRefId="%AID%_UP-%TT%00037_R-%TT%0003701">
+                                    <when test="1">
+                                        <ParameterRefRef RefId="%AID%_UP-%TT%00038_R-%TT%0003801" HelpContext="SIR-ActivityBlockDelay" IndentLevel="1" />
+                                        <ParameterRefRef RefId="%AID%_UP-%TT%00039_R-%TT%0003901" HelpContext="SIR-ActivityBlockMode" IndentLevel="1" />
+                                        <ParameterSeparator Id="%AID%_PS-%TT%00032" Text="Bei 'Nur Sprinkler' laufen Tropfbewässerungszonen weiter." UIHint="Information" />
+                                        <!-- Activity KOs -->
+                                        <ComObjectRefRef RefId="%AID%_O-%TT%00015_R-%TT%0001501" />
+                                        <ComObjectRefRef RefId="%AID%_O-%TT%00016_R-%TT%0001601" />
+                                        <ComObjectRefRef RefId="%AID%_O-%TT%00030_R-%TT%0003001" />
+                                    </when>
+                                </choose>
+
+                                <ParameterSeparator Id="%AID%_PS-%TT%00040" Text="Bewässerungssaison" UIHint="Headline" />
+                                <ParameterSeparator Id="%AID%_PS-%TT%00041" Text="Automatische Bewässerung nur innerhalb der Saison." UIHint="Information" />
+                                <ParameterRefRef RefId="%AID%_UP-%TT%00040_R-%TT%0004001" HelpContext="SIR-SeasonEnabled" />
+                                <choose ParamRefId="%AID%_UP-%TT%00040_R-%TT%0004001">
+                                    <when test="1">
+                                        <ParameterRefRef RefId="%AID%_UP-%TT%00041_R-%TT%0004101" HelpContext="SIR-SeasonStartMonth" IndentLevel="1" />
+                                        <ParameterRefRef RefId="%AID%_UP-%TT%00042_R-%TT%0004201" HelpContext="SIR-SeasonEndMonth" IndentLevel="1" />
+                                        <ParameterSeparator Id="%AID%_PS-%TT%00042" Text="Manuelle Bewässerung bleibt auch außerhalb der Saison möglich." UIHint="Information" />
+                                    </when>
+                                </choose>
+
+                                <!-- Wind-Pause KO (wird unter Wetter-Sensoren konfiguriert) -->
+                                <ComObjectRefRef RefId="%AID%_O-%TT%00035_R-%TT%0003501" />
                             </ParameterBlock>
                             <op:include href="SmartIrrigation.templ.xml" xpath="//ApplicationProgram/Dynamic/*" type="template" prefix="SIR" IsInner="true" />
                         </Channel>
