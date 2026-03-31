@@ -389,7 +389,7 @@ namespace SmartIrrigation
         float rainAmount = 0.0f;
         if (mode == DecisionMode::Real)
         {
-            if (weather.real.hasRainAmount && weather.real.rainActive)
+            if (weather.real.hasRainAmount)
             {
                 rainAmount = weather.real.rainAmountMm;
             }
@@ -404,7 +404,7 @@ namespace SmartIrrigation
         else if (mode == DecisionMode::Mixed)
         {
             float realRain = 0.0f;
-            if (weather.real.hasRainAmount && weather.real.rainActive)
+            if (weather.real.hasRainAmount)
             {
                 realRain = weather.real.rainAmountMm;
             }
@@ -435,9 +435,9 @@ namespace SmartIrrigation
         {
             waterDemand = clampFloat(waterDemand, 0.0f, static_cast<float>(zone.maxWeek));
         }
-        else
+        else if (waterDemand < 0.0f)
         {
-            waterDemand = clampFloat(waterDemand, 0.0f, waterDemand);
+            waterDemand = 0.0f;
         }
 
         result.mode = mode;
@@ -508,7 +508,7 @@ namespace SmartIrrigation
             result.action = DecisionAction::Start;
             result.mode = mode;
             result.fallbackActive = fallbackActive;
-            result.waterDemand = zone.minPerCycle > 0 ? zone.minPerCycle : 0.0f;
+            result.waterDemand = zone.minPerCycle > 0 ? static_cast<float>(zone.minPerCycle) : waterDemand;
             return result;
         }
 
