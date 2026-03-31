@@ -65,6 +65,31 @@ namespace SmartIrrigation
             return a * weights.high + b * weights.mid + c * weights.low;
         }
 
+        // BUG-FIX: Validated weighted average that ignores invalid (missing) values
+        float weightedAverageValidated3(float a, bool hasA, float b, bool hasB, float c, bool hasC, const ForecastWeights &weights)
+        {
+            float totalWeight = 0.0f;
+            float weightedSum = 0.0f;
+
+            if (hasA)
+            {
+                weightedSum += a * weights.high;
+                totalWeight += weights.high;
+            }
+            if (hasB)
+            {
+                weightedSum += b * weights.mid;
+                totalWeight += weights.mid;
+            }
+            if (hasC)
+            {
+                weightedSum += c * weights.low;
+                totalWeight += weights.low;
+            }
+
+            return totalWeight > 0.0f ? (weightedSum / totalWeight) : 0.0f;
+        }
+
         float windMsToKmh(float valueMs)
         {
             return valueMs * 3.6f;
@@ -231,7 +256,12 @@ namespace SmartIrrigation
             return 0.0f;
         }
 
-        const float tempC = weightedAverage3(inputs.tempCurrentC, inputs.temp48hC, inputs.temp7dC, weights);
+        // BUG-FIX: Use validated weighted average to handle missing temp values correctly
+        const float tempC = weightedAverageValidated3(
+            inputs.tempCurrentC, inputs.hasTempCurrent,
+            inputs.temp48hC, inputs.hasTemp48h,
+            inputs.temp7dC, inputs.hasTemp7d,
+            weights);
         const float humidity = inputs.hasHumidity ? inputs.humidityPercent : 50.0f;
         const float windKmh = inputs.hasWind ? inputs.windSpeedKmh : 5.0f;
         const float uv = inputs.hasUvIndex ? inputs.uvIndex : 5.0f;
@@ -260,13 +290,16 @@ namespace SmartIrrigation
             return result;
         }
 
-        if (context.rainLockActive)
+        // BUG-FIX EC-6: Check soilOverride BEFORE rainLock to allow critical soil moisture to override
+        const bool soilOverride = weather.real.hasSoilMoisture &&
+                                  weather.real.soilMoisturePercent < zone.soilThresholdPercent;
+
+        // Rain-Lock blocks automatic starts UNLESS soil moisture is critically low
+        if (context.rainLockActive && !soilOverride)
         {
             return result;
         }
 
-        const bool soilOverride = weather.real.hasSoilMoisture &&
-                                  weather.real.soilMoisturePercent < zone.soilThresholdPercent;
         if (soilOverride)
         {
             result.soilOverride = true;
@@ -396,10 +429,19 @@ namespace SmartIrrigation
         }
         else if (mode == DecisionMode::Forecast)
         {
-            rainAmount = weightedAverage3(weather.forecast.rainAmountCurrentMm,
-                                         weather.forecast.rainAmount48hMm,
-                                         weather.forecast.rainAmount7dMm,
-                                         forecastWeights);
+            // Rain-bool fallback: estimate 5mm when rain expected but no amount available
+            constexpr float kRainBoolFallbackMm = 5.0f;
+            const float currentMm = weather.forecast.hasRainAmountCurrent ? weather.forecast.rainAmountCurrentMm
+                                  : (weather.forecast.hasRainCurrent && weather.forecast.rainCurrent ? kRainBoolFallbackMm : 0.0f);
+            const float h48Mm = weather.forecast.hasRainAmount48h ? weather.forecast.rainAmount48hMm
+                              : (weather.forecast.hasRain48h && weather.forecast.rain48h ? kRainBoolFallbackMm : 0.0f);
+            const float d7Mm = weather.forecast.hasRainAmount7d ? weather.forecast.rainAmount7dMm
+                             : (weather.forecast.hasRain7d && weather.forecast.rain7d ? kRainBoolFallbackMm : 0.0f);
+            // Use validated weighted average with fallback values
+            const bool hasCurrent = weather.forecast.hasRainAmountCurrent || (weather.forecast.hasRainCurrent && weather.forecast.rainCurrent);
+            const bool has48h = weather.forecast.hasRainAmount48h || (weather.forecast.hasRain48h && weather.forecast.rain48h);
+            const bool has7d = weather.forecast.hasRainAmount7d || (weather.forecast.hasRain7d && weather.forecast.rain7d);
+            rainAmount = weightedAverageValidated3(currentMm, hasCurrent, h48Mm, has48h, d7Mm, has7d, forecastWeights);
         }
         else if (mode == DecisionMode::Mixed)
         {
@@ -408,10 +450,18 @@ namespace SmartIrrigation
             {
                 realRain = weather.real.rainAmountMm;
             }
-            const float forecastRain = weightedAverage3(weather.forecast.rainAmountCurrentMm,
-                                                       weather.forecast.rainAmount48hMm,
-                                                       weather.forecast.rainAmount7dMm,
-                                                       forecastWeights);
+            // Rain-bool fallback for forecast portion in mixed mode
+            constexpr float kRainBoolFallbackMm = 5.0f;
+            const float currentMm = weather.forecast.hasRainAmountCurrent ? weather.forecast.rainAmountCurrentMm
+                                  : (weather.forecast.hasRainCurrent && weather.forecast.rainCurrent ? kRainBoolFallbackMm : 0.0f);
+            const float h48Mm = weather.forecast.hasRainAmount48h ? weather.forecast.rainAmount48hMm
+                              : (weather.forecast.hasRain48h && weather.forecast.rain48h ? kRainBoolFallbackMm : 0.0f);
+            const float d7Mm = weather.forecast.hasRainAmount7d ? weather.forecast.rainAmount7dMm
+                             : (weather.forecast.hasRain7d && weather.forecast.rain7d ? kRainBoolFallbackMm : 0.0f);
+            const bool hasCurrent = weather.forecast.hasRainAmountCurrent || (weather.forecast.hasRainCurrent && weather.forecast.rainCurrent);
+            const bool has48h = weather.forecast.hasRainAmount48h || (weather.forecast.hasRain48h && weather.forecast.rain48h);
+            const bool has7d = weather.forecast.hasRainAmount7d || (weather.forecast.hasRain7d && weather.forecast.rain7d);
+            const float forecastRain = weightedAverageValidated3(currentMm, hasCurrent, h48Mm, has48h, d7Mm, has7d, forecastWeights);
             rainAmount = realRain * mixWeights.real + forecastRain * mixWeights.forecast;
         }
 
@@ -493,12 +543,9 @@ namespace SmartIrrigation
                                                          zone.windowType,
                                                          context.allowWhenNoWindow);
         result.timeWindowConflict = windowCheck.conflict;
-        if (!windowCheck.allowed)
+        // BUG-FIX EC-1: Allow soilOverride to bypass time window restrictions
+        if (!windowCheck.allowed && !soilOverride)
         {
-            if (soilOverride)
-            {
-                result.errorCode = 10;
-            }
             result.action = DecisionAction::WaitTimeWindow;
             return result;
         }
