@@ -30,8 +30,7 @@ namespace SmartIrrigation
         float humidityPercent = 0.0f;
         bool hasWind = false;
         float windSpeedMs = 0.0f;
-        bool hasWindDirection = false;
-        float windDirectionDeg = 0.0f;
+        // WindDirection removed - not used in calculations
         bool hasUvIndex = false;
         float uvIndex = 0.0f;
         bool hasSoilMoisture = false;
@@ -65,8 +64,7 @@ namespace SmartIrrigation
         float humidityPercent = 0.0f;
         bool hasWind = false;
         float windSpeedKmh = 0.0f;
-        bool hasWindDirection = false;
-        float windDirectionDeg = 0.0f;
+        // WindDirection removed - not used in calculations
         bool hasUvIndex = false;
         float uvIndex = 0.0f;
     };
@@ -87,7 +85,15 @@ namespace SmartIrrigation
     enum class TimeWindowType : uint8_t
     {
         Flexible = 0,
-        Fixed = 1
+        Fixed = 1,
+        SunriseBased = 2,
+        SunsetBased = 3
+    };
+
+    enum class MoistureMode : uint8_t
+    {
+        SoilSensor = 0,
+        SunExposure = 1
     };
 
     struct TimeWindowCheck
@@ -118,6 +124,27 @@ namespace SmartIrrigation
         TimeWindow window1{};
         TimeWindow window2{};
         TimeWindowType windowType = TimeWindowType::Flexible;
+        // Phase 1: Check-Back
+        bool checkBackEnabled = false;
+        uint8_t checkBackDelaySec = 30;
+        // Phase 2: Sunrise/Sunset (2.1)
+        int8_t sunOffsetMinutes = 0;
+        uint16_t sunWindowDurationMinutes = 240;
+        // Phase 2: Soak-Time (2.2)
+        uint8_t soakTimeMinutes = 0;
+        // Phase 2: Rest Days (2.3)
+        uint8_t restDaysBetweenWatering = 0;
+        // Phase 2: Sun Exposure Factor (2.4)
+        MoistureMode moistureMode = MoistureMode::SoilSensor;
+        uint8_t sunExposureFactorPercent = 100;
+        // Phase 3: Activity/Wind (3.2, 3.5)
+        bool isSprinkler = true;
+        // Phase 3: Weekday Filter (3.3)
+        uint8_t allowedWeekdays = 0x7F;  // Bit 0=Mo..6=So, default all days
+        // Phase 4.3: Post-Irrigation Verify
+        bool verifyEnabled = false;
+        uint8_t verifyDelayMinutes = 30;
+        uint8_t verifyMinDeltaPercent = 5;
     };
 
     struct ZoneRuntimeState
@@ -174,7 +201,7 @@ namespace SmartIrrigation
         RainAmount,
         Humidity,
         Wind,
-        WindDirection,
+        // WindDirection removed - not used
         SoilMoisture,
         Count
     };
