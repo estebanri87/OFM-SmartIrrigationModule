@@ -151,6 +151,7 @@
                                 <Parameter Id="%AID%_UP-%TT%00010" Name="SIR_SensorWind" ParameterType="%AID%_PT-CheckBox" Offset="0" BitOffset="4" Text="Wind" Value="0" />
                                 <Parameter Id="%AID%_UP-%TT%00011" Name="SIR_SensorWindDir" ParameterType="%AID%_PT-CheckBox" Offset="0" BitOffset="5" Text="Windrichtung" Value="0" />
                                 <Parameter Id="%AID%_UP-%TT%00012" Name="SIR_SensorSoil" ParameterType="%AID%_PT-CheckBox" Offset="0" BitOffset="6" Text="Bodenfeuchte" Value="0" />
+                                <Parameter Id="%AID%_UP-%TT%00032" Name="SIR_SensorUV" ParameterType="%AID%_PT-CheckBox" Offset="0" BitOffset="7" Text="UV-Index" Value="0" />
                             </Union>
                             <Union Id="%AID%_U-%TT%00013" SizeInBit="8">
                                 <Memory CodeSegment="%MID%" Offset="7" BitOffset="0" />
@@ -241,6 +242,7 @@
                             <ParameterRef Id="%AID%_UP-%TT%00027_R-%TT%0002701" RefId="%AID%_UP-%TT%00027" />
                             <ParameterRef Id="%AID%_UP-%TT%00028_R-%TT%0002801" RefId="%AID%_UP-%TT%00028" />
                             <ParameterRef Id="%AID%_UP-%TT%00029_R-%TT%0002901" RefId="%AID%_UP-%TT%00029" />
+                            <ParameterRef Id="%AID%_UP-%TT%00032_R-%TT%0003201" RefId="%AID%_UP-%TT%00032" />
                             <ParameterRef Id="%AID%_UP-%TT%00030_R-%TT%0003001" RefId="%AID%_UP-%TT%00030" />
                             <ParameterRef Id="%AID%_UP-%TT%00031_R-%TT%0003101" RefId="%AID%_UP-%TT%00031" />
                         </ParameterRefs>
@@ -292,6 +294,7 @@
                             <ComObject Id="%AID%_O-%TT%00025" Number="25" Name="SensorWindDirection" Text="Sensor Windrichtung" ObjectSize="1 Byte" DatapointType="DPST-5-3" ReadFlag="Disabled" WriteFlag="Enabled" CommunicationFlag="Enabled" TransmitFlag="Disabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" />
                             <ComObject Id="%AID%_O-%TT%00026" Number="26" Name="SensorSoilMoisture" Text="Sensor Bodenfeuchte" ObjectSize="2 Bytes" DatapointType="DPST-9-7" ReadFlag="Disabled" WriteFlag="Enabled" CommunicationFlag="Enabled" TransmitFlag="Disabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" />
                             <ComObject Id="%AID%_O-%TT%00027" Number="27" Name="SensorStatus" Text="Sensor Status" ObjectSize="1 Bit" DatapointType="DPST-1-1" ReadFlag="Enabled" WriteFlag="Disabled" CommunicationFlag="Enabled" TransmitFlag="Enabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" />
+                            <ComObject Id="%AID%_O-%TT%00028" Number="28" Name="SensorUvIndex" Text="Sensor UV-Index" ObjectSize="1 Byte" DatapointType="DPST-5-10" ReadFlag="Disabled" WriteFlag="Enabled" CommunicationFlag="Enabled" TransmitFlag="Disabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" />
 
                             
                             <ComObject Id="%AID%_O-%TT%00040" Number="40" Name="ForecastTempCurrent" Text="Prognose Temperatur aktuell" ObjectSize="2 Bytes" DatapointType="DPST-9-1" ReadFlag="Disabled" WriteFlag="Enabled" CommunicationFlag="Enabled" TransmitFlag="Disabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" />
@@ -341,6 +344,7 @@
                             <ComObjectRef Id="%AID%_O-%TT%00025_R-%TT%0002501" RefId="%AID%_O-%TT%00025" FunctionText="Sensor Windrichtung" Text="Sensor Windrichtung" Priority="Low" ObjectSize="1 Byte" DatapointType="DPST-5-3" />
                             <ComObjectRef Id="%AID%_O-%TT%00026_R-%TT%0002601" RefId="%AID%_O-%TT%00026" FunctionText="Sensor Bodenfeuchte" Text="Sensor Bodenfeuchte" Priority="Low" ObjectSize="2 Bytes" DatapointType="DPST-9-7" />
                             <ComObjectRef Id="%AID%_O-%TT%00027_R-%TT%0002701" RefId="%AID%_O-%TT%00027" FunctionText="Sensor Status" Text="Sensor Status" Priority="Low" ObjectSize="1 Bit" DatapointType="DPST-1-1" />
+                            <ComObjectRef Id="%AID%_O-%TT%00028_R-%TT%0002801" RefId="%AID%_O-%TT%00028" FunctionText="Sensor UV-Index" Text="Sensor UV-Index" Priority="Low" ObjectSize="1 Byte" DatapointType="DPST-5-10" />
 
                             <ComObjectRef Id="%AID%_O-%TT%00040_R-%TT%0004001" RefId="%AID%_O-%TT%00040" FunctionText="Prognose Temperatur aktuell" Text="Prognose Temperatur aktuell" Priority="Low" ObjectSize="2 Bytes" DatapointType="DPST-9-1" />
                             <ComObjectRef Id="%AID%_O-%TT%00041_R-%TT%0004101" RefId="%AID%_O-%TT%00041" FunctionText="Prognose Temperatur +48h" Text="Prognose Temperatur +48h" Priority="Low" ObjectSize="2 Bytes" DatapointType="DPST-9-1" />
@@ -407,6 +411,7 @@
                                                 <ParameterRefRef RefId="%AID%_UP-%TT%00010_R-%TT%0001001" HelpContext="SIR-Weather-SensorWind" IndentLevel="1" />
                                                 <ParameterRefRef RefId="%AID%_UP-%TT%00011_R-%TT%0001101" HelpContext="SIR-Weather-SensorWindDir" IndentLevel="1" />
                                                 <ParameterRefRef RefId="%AID%_UP-%TT%00012_R-%TT%0001201" HelpContext="SIR-Weather-SensorSoil" IndentLevel="1" />
+                                <ParameterRefRef RefId="%AID%_UP-%TT%00032_R-%TT%0003201" HelpContext="SIR-Weather-SensorUV" IndentLevel="1" />
                                             </when>
                                         </choose>
                                         <ParameterRefRef RefId="%AID%_UP-%TT%00013_R-%TT%0001301" HelpContext="SIR-Weather-ForecastEnable" />
@@ -462,6 +467,11 @@
                                                 <choose ParamRefId="%AID%_UP-%TT%00012_R-%TT%0001201">
                                                     <when test="1">
                                                         <ComObjectRefRef RefId="%AID%_O-%TT%00026_R-%TT%0002601" />
+                                                    </when>
+                                                </choose>
+                                                <choose ParamRefId="%AID%_UP-%TT%00032_R-%TT%0003201">
+                                                    <when test="1">
+                                                        <ComObjectRefRef RefId="%AID%_O-%TT%00028_R-%TT%0002801" />
                                                     </when>
                                                 </choose>
                                             </when>
@@ -526,6 +536,9 @@
             </ApplicationPrograms>
         <Baggages>
             <Baggage TargetPath="" Name="Help_de.zip" Id="%FILE-HELP-de%">
+                <FileInfo TimeInfo="%DATETIME%" />
+            </Baggage>
+            <Baggage TargetPath="" Name="Icons.zip" Id="%FILE-ICONS%">
                 <FileInfo TimeInfo="%DATETIME%" />
             </Baggage>
         </Baggages>

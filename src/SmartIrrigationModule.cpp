@@ -17,6 +17,18 @@ namespace
     constexpr uint32_t kSensorTimeoutWindowMs = 300000;
     constexpr uint8_t kSensorTimeoutMaxWindows = 3;
 
+    // Priority calculation weights
+    constexpr float kPriorityFixedWindowBonus = 500.0f;
+    constexpr float kPriorityManualBonus = 20000.0f;
+    constexpr float kPrioritySoilOverrideBonus = 10000.0f;
+    constexpr float kPriorityMaxDemandPoints = 100.0f;
+    constexpr float kPriorityMaxTimePoints = 100.0f;
+    constexpr float kPriorityMaxUrgencyPoints = 50.0f;
+    constexpr float kPriorityMaxCyclesPoints = 50.0f;
+    constexpr float kPriorityWeekOveruseThreshold = 0.8f;
+    constexpr float kPriorityWeekOverusePenalty = 100.0f;
+    constexpr float kHoursPerWeek = 168.0f;
+
     enum SingleKoNumber : uint16_t
     {
         kKoSystemOnOff = 1,
@@ -38,6 +50,7 @@ namespace
         kKoSensorWind = 24,
         kKoSensorWindDirection = 25,
         kKoSensorSoilMoisture = 26,
+        kKoSensorUvIndex = 28,
         kKoSensorStatus = 27,
         kKoForecastTempCurrent = 40,
         kKoForecastTemp48h = 41,
@@ -184,8 +197,8 @@ namespace
 
         if (settings.maxWeek > 0 && result.waterDemand > 0.0f)
         {
-            const float demandPercent = (result.waterDemand / settings.maxWeek) * 100.0f;
-            priority += clampFloat(demandPercent, 0.0f, 100.0f);
+            const float demandPercent = (result.waterDemand / settings.maxWeek) * kPriorityMaxDemandPoints;
+            priority += clampFloat(demandPercent, 0.0f, kPriorityMaxDemandPoints);
         }
 
         if (timeValid)
@@ -197,10 +210,10 @@ namespace
             }
             else if (lastTimeSec == 0)
             {
-                hoursSince = 168.0f;
+                hoursSince = kHoursPerWeek;
             }
 
-            const float timePercent = clampFloat((hoursSince / 168.0f) * 100.0f, 0.0f, 100.0f);
+            const float timePercent = clampFloat((hoursSince / kHoursPerWeek) * kPriorityMaxTimePoints, 0.0f, kPriorityMaxTimePoints);
             priority += timePercent;
         }
 
@@ -222,35 +235,38 @@ namespace
 
             if (inWindow && minutesToEnd <= 60)
             {
-                priority += static_cast<float>(60 - minutesToEnd) * (50.0f / 60.0f);
+                priority += static_cast<float>(60 - minutesToEnd) * (kPriorityMaxUrgencyPoints / 60.0f);
             }
         }
         else
         {
+            // Fixed-window zones only have priority at their exact start time;
+            // outside the start window they return 0 so they won't compete for slots
+            // (decideWatering already prevents starts outside fixed windows).
             const bool fixMatch = (settings.window1.active && isFixStartTime(nowMinutes, settings.window1.startMinutes)) ||
                                   (settings.window2.active && isFixStartTime(nowMinutes, settings.window2.startMinutes));
             if (fixMatch)
             {
-                priority += 500.0f;
+                priority += kPriorityFixedWindowBonus;
                 return priority;
             }
             return 0.0f;
         }
 
-        float cyclesPoints = 50.0f;
+        float cyclesPoints = kPriorityMaxCyclesPoints;
         if (settings.maxCycles > 0)
         {
             const float cyclesPercent = clampFloat(static_cast<float>(cycles) / settings.maxCycles, 0.0f, 1.0f);
-            cyclesPoints = (1.0f - cyclesPercent) * 50.0f;
+            cyclesPoints = (1.0f - cyclesPercent) * kPriorityMaxCyclesPoints;
         }
         priority += cyclesPoints;
 
         if (settings.maxWeek > 0)
         {
             const float weekPercent = weekAmount / settings.maxWeek;
-            if (weekPercent > 0.8f)
+            if (weekPercent > kPriorityWeekOveruseThreshold)
             {
-                priority -= (weekPercent - 0.8f) * 100.0f;
+                priority -= (weekPercent - kPriorityWeekOveruseThreshold) * kPriorityWeekOverusePenalty;
             }
         }
 
@@ -334,11 +350,11 @@ void SmartIrrigationModule::loop(bool configured)
         auto sensorTimedOut = [&](SmartIrrigation::SensorId id) {
             const size_t sensorIndex = static_cast<size_t>(id);
             const uint32_t lastValidMs = sensorLastValidMs_[sensorIndex];
-            if (lastValidMs == 0 || nowMs < lastValidMs)
+            if (lastValidMs == 0)
             {
                 return false;
             }
-            const uint32_t elapsedMs = nowMs - lastValidMs;
+            const uint32_t elapsedMs = nowMs - lastValidMs; // unsigned subtraction handles wraparound
             const uint32_t timeoutWindows = elapsedMs / kSensorTimeoutWindowMs;
             return timeoutWindows >= kSensorTimeoutMaxWindows;
         };
@@ -362,7 +378,7 @@ void SmartIrrigationModule::loop(bool configured)
                                           : weatherCache_.forecast.tempCurrentC;
     const bool minTempStartBlocked = hasAmbientTemperature && ambientTemperatureC < minTempLimitC;
 
-    if (emergencyStop)
+    if (!systemOn || emergencyStop)
     {
         stopAllZones(zoneCount, nowSec, timeValid);
         knx.getGroupObject(singleKoNumber(kKoActiveZones)).value(static_cast<uint8_t>(0), DPT_Value_1_Ucount);
@@ -427,7 +443,7 @@ void SmartIrrigationModule::loop(bool configured)
             stopZone(zoneIndex, settings, nowSec, timeValid);
         }
 
-        if (runtimeState.state == kZoneStateActive && zonePause && (manualActive || runtimeState.manualRun))
+        if (runtimeState.state == kZoneStateActive && zonePause)
         {
             runtimeState.pauseRemainingMinutes = runtimeState.remainingMinutes;
             runtimeState.pauseStartSec = nowSec;
@@ -550,7 +566,7 @@ void SmartIrrigationModule::loop(bool configured)
                         manualMinutes = settings.maxRuntimeMinutes;
                     }
                     manualRuntime[zoneIndex] = manualMinutes;
-                    queue[queueCount++] = {zoneIndex, 20000.0f, true};
+                    queue[queueCount++] = {zoneIndex, kPriorityManualBonus, true};
                 }
             }
             else if (!manualRequested[zoneIndex] && runtimeState.state != kZoneStateActive)
@@ -584,7 +600,7 @@ void SmartIrrigationModule::loop(bool configured)
                 runtimeState.nextAmount = round2(result.waterDemand);
 
                 const float priority = result.soilOverride
-                                           ? 10000.0f
+                                           ? kPrioritySoilOverrideBonus
                                            : calculatePriority(settings,
                                                                runtimeState.weekAmount,
                                                                runtimeState.cycles,
@@ -794,6 +810,9 @@ void SmartIrrigationModule::readFlash(const uint8_t *data, const uint16_t size)
     if (version != kFlashVersion)
     {
         logDebugP("SmartIrrigation flash version mismatch (%u)", version);
+        // Skip remaining bytes so the flash reader stays in a consistent state
+        for (uint16_t i = 1; i < size; ++i)
+            openknx.flash.readByte();
         return;
     }
 
@@ -978,6 +997,13 @@ void SmartIrrigationModule::processInputKo(GroupObject &ko)
                 weatherCache_.real.soilMoisturePercent = value;
             }
             sensorHealth_[static_cast<size_t>(SmartIrrigation::SensorId::SoilMoisture)].update(valid);
+            break;
+        }
+        case kKoSensorUvIndex:
+        {
+            const uint8_t value = ko.value(DPT_Value_1_Ucount);
+            weatherCache_.real.hasUvIndex = true;
+            weatherCache_.real.uvIndex = static_cast<float>(value);
             break;
         }
         case kKoForecastTempCurrent:
@@ -1499,7 +1525,11 @@ void SmartIrrigationModule::updateRainLockCountdown()
 
     if (rainLock_.remainingHours > 0.0f)
     {
-        const uint32_t elapsedMs = nowMs - rainLock_.lastUpdateMs;
+        uint32_t elapsedMs = nowMs - rainLock_.lastUpdateMs; // unsigned subtraction handles wraparound
+        if (elapsedMs > 60000)
+        {
+            elapsedMs = 60000; // cap at 60s to prevent jumps after millis() wraparound
+        }
         if (elapsedMs > 0)
         {
             rainLock_.remainingHours -= static_cast<float>(elapsedMs) / 3600000.0f;
