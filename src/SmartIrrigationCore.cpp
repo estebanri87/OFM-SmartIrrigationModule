@@ -47,18 +47,7 @@ namespace SmartIrrigation
             return value >= minValue && value <= maxValue;
         }
 
-        float clampFloat(float value, float minValue, float maxValue)
-        {
-            if (value < minValue)
-            {
-                return minValue;
-            }
-            if (value > maxValue)
-            {
-                return maxValue;
-            }
-            return value;
-        }
+        // M-4: clampFloat moved to SmartIrrigationCore.h
 
         float weightedAverage3(float a, float b, float c, const ForecastWeights &weights)
         {

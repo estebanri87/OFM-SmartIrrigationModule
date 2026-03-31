@@ -156,6 +156,10 @@ namespace
 
     bool isValidRange(float value, float minValue, float maxValue)
     {
+        if (std::isnan(value) || std::isinf(value))
+        {
+            return false;
+        }
         return value >= minValue && value <= maxValue;
     }
 
@@ -178,10 +182,8 @@ namespace
         return static_cast<uint16_t>((minutes + 59) / 60);
     }
 
-    float clampFloat(float value, float minValue, float maxValue)
-    {
-        return std::max(minValue, std::min(value, maxValue));
-    }
+    // M-4: clampFloat moved to SmartIrrigationCore.h
+    using SmartIrrigation::clampFloat;
 
     bool isInWindow(uint16_t nowMinutes, const SmartIrrigation::TimeWindow &window)
     {
@@ -2178,6 +2180,9 @@ uint8_t SmartIrrigationModule::stopAllZones(uint8_t zoneCount, uint32_t nowSec, 
             runtimeState.soakEndSec = 0;
             runtimeState.state = kZoneStateInactive;
             runtimeState.manualRun = false;
+            // M-3: Konsistenz - auch Waiting/Soaking erhält errorCode
+            runtimeState.errorActive = true;
+            runtimeState.errorCode = 12;  // Emergency-Stop
         }
     }
 

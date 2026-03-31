@@ -5,6 +5,13 @@
 
 namespace SmartIrrigation
 {
+    // M-4: Common utility - moved from anonymous namespaces in .cpp files
+    inline float clampFloat(float value, float minValue, float maxValue)
+    {
+        if (value < minValue) return minValue;
+        if (value > maxValue) return maxValue;
+        return value;
+    }
     struct ForecastWeights
     {
         float high = 0.6f;
