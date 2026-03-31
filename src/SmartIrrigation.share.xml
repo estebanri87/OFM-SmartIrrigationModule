@@ -85,7 +85,7 @@
                                 <TypeNumber SizeInBit="8" Type="unsignedInt" minInclusive="0" maxInclusive="100" />
                             </ParameterType>
                             <ParameterType Id="%AID%_PT-MaxWeek" Name="MaxWeek" ValidationErrorRef="%AID%_M-%TT%00109">
-                                <TypeNumber SizeInBit="8" Type="unsignedInt" minInclusive="0" maxInclusive="100" />
+                                <TypeNumber SizeInBit="8" Type="unsignedInt" minInclusive="1" maxInclusive="100" />
                             </ParameterType>
                             <ParameterType Id="%AID%_PT-BaseTemp" Name="BaseTemp" ValidationErrorRef="%AID%_M-%TT%00110">
                                 <TypeNumber SizeInBit="8" Type="unsignedInt" minInclusive="0" maxInclusive="40" />
