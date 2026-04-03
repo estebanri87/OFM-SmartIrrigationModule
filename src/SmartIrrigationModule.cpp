@@ -1211,7 +1211,8 @@ void SmartIrrigationModule::loop(bool configured)
                           decisions[zoneIndex],
                           settingsCache[zoneIndex],
                           zoneRuntime_[zoneIndex],
-                          timeValid);
+                          timeValid,
+                          nowMs);
     }
 
     knx.getGroupObject(singleKoNumber(kKoActiveZones)).value(activeZones, DPT_Value_1_Ucount);
@@ -1790,9 +1791,18 @@ void SmartIrrigationModule::updateZoneOutputs(uint8_t zoneIndex,
                                               const SmartIrrigation::DecisionResult &result,
                                               const SmartIrrigation::ZoneSettings &settings,
                                               const ZoneRuntime &runtime,
-                                              bool timeValid)
+                                              bool timeValid,
+                                              uint32_t nowMs)
 {
     (void)settings;
+
+    // M-3: 60s-Heartbeat — only send KOs every 60s.
+    // On-change writes (startZone, stopZone, valve pause/resume) are handled directly elsewhere.
+    const bool heartbeatDue = zoneRuntime_[zoneIndex].lastKoUpdateMs == 0 ||
+                              static_cast<int32_t>(nowMs - zoneRuntime_[zoneIndex].lastKoUpdateMs) >= 60000;
+    if (!heartbeatDue)
+        return;
+    zoneRuntime_[zoneIndex].lastKoUpdateMs = nowMs;
 
     const uint16_t koState = zoneKoNumber(zoneIndex, kZoneKoState);
     const uint16_t koValve = zoneKoNumber(zoneIndex, kZoneKoValve);
@@ -1807,8 +1817,10 @@ void SmartIrrigationModule::updateZoneOutputs(uint8_t zoneIndex,
     const uint16_t koCycles = zoneKoNumber(zoneIndex, kZoneKoCycles);
 
     const bool isActive = runtime.state == kZoneStateActive;
+    // K-1: Ventil nur öffnen wenn aktiv UND keine laufende Pause (Activity/Wind/Tank)
+    const bool valveOpen = isActive && !runtime.activityPaused && !runtime.windPaused && !runtime.tankPaused;
     knx.getGroupObject(koState).value(runtime.state, DPT_Value_1_Ucount);
-    knx.getGroupObject(koValve).value(isActive, DPT_Switch);
+    knx.getGroupObject(koValve).value(valveOpen, DPT_Switch);
 
     knx.getGroupObject(koRemaining).value(minutesToHoursCeil(runtime.remainingMinutes), DPT_TimePeriodHrs);
 
