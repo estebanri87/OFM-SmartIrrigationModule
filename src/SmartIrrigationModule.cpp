@@ -88,10 +88,6 @@ namespace
         kKoTankLevel = 14,
         kKoTankAlarm = 36,
         kKoWaterSourceSwitch = 29,
-        // Phase 3: Activity Block (3.2)
-        kKoPresenceDetected = 15,
-        kKoDoorOpen = 16,
-        kKoActivityBlock = 30,
         // Phase 3: Wind Pause (3.5)
         kKoWindPauseActive = 35,
         // Phase 4: Suspend (4.2)
@@ -127,7 +123,8 @@ namespace
         kZoneKoCycles = 13,          // Bewässerungszyklen Woche
         kZoneKoValveFeedback = 14,   // Ventil-Rückmeldung
         kZoneKoVerifyFailed = 15,    // Verifizierung fehlgeschlagen
-        kZoneKoSoilMoisture = 16     // Bodenfeuchte % (Eingang, per Zone)
+        kZoneKoSoilMoisture = 16,    // Bodenfeuchte % (Eingang, per Zone)
+        kZoneKoActivityInput = 17    // Aktivitätsblock-Eingang (Eingang, per Zone)
     };
 
     enum ZoneState : uint8_t
@@ -587,33 +584,7 @@ void SmartIrrigationModule::loop(bool configured)
         knx.getGroupObject(singleKoNumber(kKoWindPauseActive)).value(false, DPT_Switch);
     }
 
-    // 3.2 Activity Block: evaluate presence/door with delay timer
-    const bool activityBlockEnabled = ParamSIR_SIR_ActivityBlockEnabled;
-    const uint16_t activityBlockDelaySec = ParamSIR_SIR_ActivityBlockDelay;
-    const bool activityDetected = presenceDetected_ || doorOpen_;
-    if (activityBlockEnabled)
-    {
-        if (activityDetected)
-        {
-            // Timer logic: block after delay
-            if (!activityBlocking_ && activityChangeMs_ > 0 &&
-                (nowMs - activityChangeMs_) >= static_cast<uint32_t>(activityBlockDelaySec) * 1000u)
-            {
-                activityBlocking_ = true;
-                knx.getGroupObject(singleKoNumber(kKoActivityBlock)).value(true, DPT_Switch);
-            }
-        }
-        else
-        {
-            // Activity ended: resume after same delay
-            if (activityBlocking_ && activityChangeMs_ > 0 &&
-                (nowMs - activityChangeMs_) >= static_cast<uint32_t>(activityBlockDelaySec) * 1000u)
-            {
-                activityBlocking_ = false;
-                knx.getGroupObject(singleKoNumber(kKoActivityBlock)).value(false, DPT_Switch);
-            }
-        }
-    }
+    // 3.2 Activity Block: now per-zone — handled in zone loop below
 
     // 3.1 Tank low: check level and handle pause/stop/switch
     const bool tankEnabled = ParamSIR_SIR_TankEnabled;
@@ -797,14 +768,12 @@ void SmartIrrigationModule::loop(bool configured)
             }
         }
 
-        // 3.2 Activity Block per zone (AD-1: own flag, AD-5: Soil Override wins)
-        // Note: For active zones, we check current soil moisture to detect override situation
-        const bool activityBlockMode = ParamSIR_SIR_ActivityBlockMode; // 0=AlleZonen, 1=NurSprinkler
-        const bool zoneAffectedByActivity = activityBlockEnabled &&
-                                            (activityBlockMode == 0 || settings.isSprinkler);
-        if (runtimeState.state == kZoneStateActive && zoneAffectedByActivity && activityBlocking_)
+        // 3.2 Activity Block per zone: read zone-specific KO (link to any door/presence GA)
+        const bool zoneActivityInput = settings.activityEnabled &&
+                                       knx.getGroupObject(zoneKoNumber(zoneIndex, kZoneKoActivityInput)).value(DPT_Switch);
+        if (runtimeState.state == kZoneStateActive && zoneActivityInput)
         {
-            // AD-5: Check if soil override is active (low soil moisture below threshold)
+            // AD-5: Soil override wins over activity block
             const bool currentSoilOverride = hasZoneSoilMoisture_[zoneIndex] &&
                                              settings.soilThresholdPercent > 0 &&
                                              zoneSoilMoisturePercent_[zoneIndex] < static_cast<float>(settings.soilThresholdPercent);
@@ -814,7 +783,7 @@ void SmartIrrigationModule::loop(bool configured)
                 knx.getGroupObject(zoneKoNumber(zoneIndex, kZoneKoValve)).value(false, DPT_Switch);
             }
         }
-        else if (runtimeState.activityPaused && !activityBlocking_)
+        else if (runtimeState.activityPaused && !zoneActivityInput)
         {
             // Activity block ended, resume valve
             runtimeState.activityPaused = false;
@@ -1649,35 +1618,17 @@ void SmartIrrigationModule::processInputKo(GroupObject &ko)
             tankLevelPercent_ = value;
             break;
         }
-        // Phase 3: Presence/Door (3.2)
-        case kKoPresenceDetected:
-        {
-            const bool value = ko.value(DPT_Switch);
-            if (value != presenceDetected_)
-            {
-                presenceDetected_ = value;
-                activityChangeMs_ = millis();
-            }
-            break;
-        }
-        case kKoDoorOpen:
-        {
-            const bool value = ko.value(DPT_Switch);
-            if (value != doorOpen_)
-            {
-                doorOpen_ = value;
-                activityChangeMs_ = millis();
-            }
-            break;
-        }
         // Phase 4.2: Suspend
         case kKoSuspendHours:
         {
             const uint16_t hours = ko.value(DPT_Value_2_Count);
             if (hours > 0)
             {
-                // Set suspend end time
-                suspendEndTime_ = time(nullptr) + (hours * 3600UL);
+                // Set suspend end time (use OpenKNX local time — same source as loop())
+                {
+                    auto suspendNow = openknx.time.getLocalTime();
+                    suspendEndTime_ = static_cast<uint32_t>(suspendNow.toTime_t()) + static_cast<uint32_t>(hours) * 3600UL;
+                }
                 if (!suspendActive_)
                 {
                     suspendActive_ = true;
@@ -1817,6 +1768,7 @@ SmartIrrigation::ZoneSettings SmartIrrigationModule::loadZoneSettings(uint8_t zo
     settings.drainageRateRaw = ParamSIR_SIR_ZDrainageRate;
     settings.leadTimeSeconds = ParamSIR_SIR_ZLeadTime;
     settings.zonePriority = ParamSIR_SIR_ZZonePriority;
+    settings.activityEnabled = (ParamSIR_SIR_ZActivityEnabled != 0);
 
     return settings;
 }
