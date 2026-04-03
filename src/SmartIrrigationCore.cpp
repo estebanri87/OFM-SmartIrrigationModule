@@ -6,93 +6,7 @@ namespace SmartIrrigation
 {
     namespace
     {
-        constexpr float kFallbackEt0Table[12] = {
-            0.5f, 1.0f, 2.0f, 3.5f, 4.5f, 5.5f, 6.0f, 5.5f, 4.0f, 2.5f, 1.0f, 0.5f
-        };
-
-        bool normalizeWeights(float &a, float &b, float &c, float defA, float defB, float defC)
-        {
-            const float sum = a + b + c;
-            if (sum <= 0.0f)
-            {
-                a = defA;
-                b = defB;
-                c = defC;
-                return false;
-            }
-
-            a /= sum;
-            b /= sum;
-            c /= sum;
-            return true;
-        }
-
-        bool normalizeWeights(float &a, float &b, float defA, float defB)
-        {
-            const float sum = a + b;
-            if (sum <= 0.0f)
-            {
-                a = defA;
-                b = defB;
-                return false;
-            }
-
-            a /= sum;
-            b /= sum;
-            return true;
-        }
-
-        bool isWithinRange(float value, float minValue, float maxValue)
-        {
-            return value >= minValue && value <= maxValue;
-        }
-
-        // M-4: clampFloat moved to SmartIrrigationCore.h
-
-        float weightedAverage3(float a, float b, float c, const ForecastWeights &weights)
-        {
-            return a * weights.high + b * weights.mid + c * weights.low;
-        }
-
-        // BUG-FIX: Validated weighted average that ignores invalid (missing) values
-        float weightedAverageValidated3(float a, bool hasA, float b, bool hasB, float c, bool hasC, const ForecastWeights &weights)
-        {
-            float totalWeight = 0.0f;
-            float weightedSum = 0.0f;
-
-            if (hasA)
-            {
-                weightedSum += a * weights.high;
-                totalWeight += weights.high;
-            }
-            if (hasB)
-            {
-                weightedSum += b * weights.mid;
-                totalWeight += weights.mid;
-            }
-            if (hasC)
-            {
-                weightedSum += c * weights.low;
-                totalWeight += weights.low;
-            }
-
-            return totalWeight > 0.0f ? (weightedSum / totalWeight) : 0.0f;
-        }
-
-        float windMsToKmh(float valueMs)
-        {
-            return valueMs * 3.6f;
-        }
-
-        bool hasRealMustSensors(const RealWeatherInputs &inputs)
-        {
-            return inputs.hasTemperature && inputs.hasRain;
-        }
-
-        bool hasForecastMustSensors(const ForecastWeatherInputs &inputs)
-        {
-            return inputs.hasTempCurrent && inputs.hasRainCurrent;
-        }
+        // M-4: clampFloat defined in SmartIrrigationCore.h
     }
 
     SensorTimeoutTracker::SensorTimeoutTracker(uint8_t maxInvalid)
@@ -137,49 +51,6 @@ namespace SmartIrrigation
         return invalidCount_;
     }
 
-    float fallbackEt0ForMonth(uint8_t month)
-    {
-        if (month < 1 || month > 12)
-        {
-            return kFallbackEt0Table[0];
-        }
-
-        return kFallbackEt0Table[month - 1];
-    }
-
-    bool normalizeForecastWeights(ForecastWeights &weights)
-    {
-        return normalizeWeights(weights.high, weights.mid, weights.low, 0.6f, 0.3f, 0.1f);
-    }
-
-    bool normalizeMixWeights(MixWeights &weights)
-    {
-        return normalizeWeights(weights.real, weights.forecast, 0.7f, 0.3f);
-    }
-
-    bool validateForecastWeights(const ForecastWeights &weights, float epsilon)
-    {
-        if (!isWithinRange(weights.high, 0.0f, 1.0f) || !isWithinRange(weights.mid, 0.0f, 1.0f) ||
-            !isWithinRange(weights.low, 0.0f, 1.0f))
-        {
-            return false;
-        }
-
-        const float sum = weights.high + weights.mid + weights.low;
-        return std::fabs(sum - 1.0f) <= epsilon;
-    }
-
-    bool validateMixWeights(const MixWeights &weights, float epsilon)
-    {
-        if (!isWithinRange(weights.real, 0.0f, 1.0f) || !isWithinRange(weights.forecast, 0.0f, 1.0f))
-        {
-            return false;
-        }
-
-        const float sum = weights.real + weights.forecast;
-        return std::fabs(sum - 1.0f) <= epsilon;
-    }
-
     float calculateRainLockHours(float rainAmountMm, float factor, float remainingHours)
     {
         if (rainAmountMm <= 0.0f || factor <= 0.0f)
@@ -201,15 +72,88 @@ namespace SmartIrrigation
         return lockHours;
     }
 
-    float calculateRuntimeMinutes(float areaM2, float flowLpm, float waterDemand, uint16_t maxRuntimeMinutes)
+    float SprinklerConfig::calcPrecipRateMmh(float areaM2) const
     {
-        if (areaM2 <= 0.0f || flowLpm <= 0.0f || waterDemand <= 0.0f)
+        if (count == 0) return 0.0f;
+
+        switch (unit)
+        {
+            case FlowInputUnit::MmPerHour:
+            {
+                // Values are already in mm/h - average them
+                float sum = 0.0f;
+                for (uint8_t i = 0; i < count; i++)
+                    sum += values[i];
+                return sum / count;
+            }
+            case FlowInputUnit::LitersPerMinute:
+            {
+                if (areaM2 <= 0.0f) return 0.0f;
+                // Sum l/min → convert to l/h → divide by area → mm/h
+                float totalLpm = 0.0f;
+                for (uint8_t i = 0; i < count; i++)
+                    totalLpm += values[i];
+                return (totalLpm * 60.0f) / areaM2;
+            }
+            case FlowInputUnit::CubicMetersPerHour:
+            {
+                if (areaM2 <= 0.0f) return 0.0f;
+                // Sum m³/h → convert to l/h (*1000) → divide by area → mm/h
+                float totalM3h = 0.0f;
+                for (uint8_t i = 0; i < count; i++)
+                    totalM3h += values[i];
+                return (totalM3h * 1000.0f) / areaM2;
+            }
+            default:
+                return 0.0f;
+        }
+    }
+
+    float SprinklerConfig::calcTotalFlowLpm() const
+    {
+        float total = 0.0f;
+        for (uint8_t i = 0; i < count; i++)
+            total += values[i];
+
+        switch (unit)
+        {
+            case FlowInputUnit::LitersPerMinute:
+                return total;
+            case FlowInputUnit::CubicMetersPerHour:
+                return total * 1000.0f / 60.0f; // m³/h → l/min
+            case FlowInputUnit::MmPerHour:
+            default:
+                return 0.0f; // Cannot convert mm/h to l/min without area
+        }
+    }
+
+    float getEffectivePrecipRate(const ZoneSettings &zone)
+    {
+        if (zone.isDrip)
+        {
+            // Drip: l/h ÷ area = mm/h
+            if (zone.areaM2 <= 0.0f || zone.dripFlowLph <= 0.0f) return 0.0f;
+            return zone.dripFlowLph / zone.areaM2;
+        }
+
+        if (zone.isSmartPro)
+        {
+            // Smart Pro: compute from sprinkler config
+            return zone.sprinklerConfig.calcPrecipRateMmh(zone.areaM2);
+        }
+
+        // Smart Core: direct mm/h value
+        return zone.precipRateMmh;
+    }
+
+    float calculateRuntimeMinutes(float precipRateMmh, float waterDemandMm, uint16_t maxRuntimeMinutes)
+    {
+        if (precipRateMmh <= 0.0f || waterDemandMm <= 0.0f)
         {
             return 0.0f;
         }
 
-        const float totalLiters = waterDemand * areaM2;
-        float runtime = totalLiters / flowLpm;
+        float runtime = (waterDemandMm / precipRateMmh) * 60.0f;
         if (maxRuntimeMinutes > 0 && runtime > maxRuntimeMinutes)
         {
             runtime = static_cast<float>(maxRuntimeMinutes);
@@ -218,57 +162,37 @@ namespace SmartIrrigation
         return runtime;
     }
 
-    float calculateEt0Real(const RealWeatherInputs &inputs)
+    uint16_t resolveMaxBucketMm(const ZoneSettings &zone)
     {
-        if (!inputs.hasTemperature)
+        // SoilType presets (mm): 0=disabled, 1=Sand/12, 2=SandigerLehm/18, 3=Lehm/25, 4=TonigerLehm/30, 5=Ton/35, 6=custom
+        switch (zone.soilType)
         {
-            return 0.0f;
+            case 1: return 12;
+            case 2: return 18;
+            case 3: return 25;
+            case 4: return 30;
+            case 5: return 35;
+            case 6: return zone.maxBucketMm;
+            default: return 0; // disabled
         }
-
-        const float tempC = inputs.temperatureC;
-        const float humidity = inputs.hasHumidity ? inputs.humidityPercent : 50.0f;
-        const float windKmh = inputs.hasWind ? windMsToKmh(inputs.windSpeedMs) : 5.0f;
-        const float uv = inputs.hasUvIndex ? inputs.uvIndex : 5.0f;
-
-        const float tempFactor = clampFloat((tempC + 5.0f) * 0.15f, 0.0f, 10.0f);
-        const float humidityFactor = clampFloat((100.0f - humidity) * 0.02f, 0.0f, 2.0f);
-        const float windFactor = clampFloat(windKmh * 0.02f, 0.0f, 2.5f);
-        const float uvFactor = clampFloat(uv * 0.1f, 0.0f, 2.0f);
-
-        return tempFactor + humidityFactor + windFactor + uvFactor;
     }
 
-    float calculateEt0Forecast(const ForecastWeatherInputs &inputs, const ForecastWeights &weights)
+    float applyMaxBucket(float waterDemandMm, uint16_t maxBucketMm)
     {
-        if (!inputs.hasTempCurrent && !inputs.hasTemp48h && !inputs.hasTemp7d)
-        {
-            return 0.0f;
-        }
+        if (maxBucketMm == 0 || waterDemandMm <= 0.0f) return waterDemandMm;
+        const float cap = static_cast<float>(maxBucketMm);
+        return waterDemandMm > cap ? cap : waterDemandMm;
+    }
 
-        // BUG-FIX: Use validated weighted average to handle missing temp values correctly
-        const float tempC = weightedAverageValidated3(
-            inputs.tempCurrentC, inputs.hasTempCurrent,
-            inputs.temp48hC, inputs.hasTemp48h,
-            inputs.temp7dC, inputs.hasTemp7d,
-            weights);
-        const float humidity = inputs.hasHumidity ? inputs.humidityPercent : 50.0f;
-        const float windKmh = inputs.hasWind ? inputs.windSpeedKmh : 5.0f;
-        const float uv = inputs.hasUvIndex ? inputs.uvIndex : 5.0f;
-
-        const float tempFactor = clampFloat((tempC + 5.0f) * 0.15f, 0.0f, 10.0f);
-        const float humidityFactor = clampFloat((100.0f - humidity) * 0.02f, 0.0f, 2.0f);
-        const float windFactor = clampFloat(windKmh * 0.02f, 0.0f, 2.5f);
-        const float uvFactor = clampFloat(uv * 0.1f, 0.0f, 2.0f);
-
-        return tempFactor + humidityFactor + windFactor + uvFactor;
+    float drainageRateMmh(uint16_t drainageRateRaw)
+    {
+        return static_cast<float>(drainageRateRaw) * 0.1f;
     }
 
     DecisionResult decideWatering(const ZoneSettings &zone,
                                  const ZoneRuntimeState &runtime,
                                  const DecisionContext &context,
-                                 const WeatherInputs &weather,
-                                 const ForecastWeights &forecastWeights,
-                                 const MixWeights &mixWeights)
+                                 const WeatherInputs &weather)
     {
         DecisionResult result;
         result.action = DecisionAction::None;
@@ -279,9 +203,9 @@ namespace SmartIrrigation
             return result;
         }
 
-        // BUG-FIX EC-6: Check soilOverride BEFORE rainLock to allow critical soil moisture to override
-        const bool soilOverride = weather.real.hasSoilMoisture &&
-                                  weather.real.soilMoisturePercent < zone.soilThresholdPercent;
+        // Soil override: critically dry soil bypasses rain-lock and time windows (now per-zone via context)
+        const bool soilOverride = context.hasSoilMoisture &&
+                                  context.soilMoisturePercent < zone.soilThresholdPercent;
 
         // Rain-Lock blocks automatic starts UNLESS soil moisture is critically low
         if (context.rainLockActive && !soilOverride)
@@ -294,213 +218,166 @@ namespace SmartIrrigation
             result.soilOverride = true;
         }
 
-        DecisionMode mode = DecisionMode::Fallback;
-        if (context.realSensorsEnabled && context.forecastEnabled)
+        // Temperature gate: freeze protection and base-temp check
+        if (weather.real.hasTemperature)
         {
-            mode = DecisionMode::Mixed;
-        }
-        else if (context.realSensorsEnabled)
-        {
-            mode = DecisionMode::Real;
-        }
-        else if (context.forecastEnabled)
-        {
-            mode = DecisionMode::Forecast;
-        }
-
-        bool fallbackActive = false;
-        if (mode == DecisionMode::Real)
-        {
-            if (!hasRealMustSensors(weather.real))
-            {
-                mode = DecisionMode::Fallback;
-                fallbackActive = true;
-            }
-        }
-        else if (mode == DecisionMode::Forecast)
-        {
-            if (!hasForecastMustSensors(weather.forecast))
-            {
-                mode = DecisionMode::Fallback;
-                fallbackActive = true;
-            }
-        }
-        else if (mode == DecisionMode::Mixed)
-        {
-            const bool realOk = hasRealMustSensors(weather.real);
-            const bool forecastOk = hasForecastMustSensors(weather.forecast);
-            if (!realOk && !forecastOk)
-            {
-                mode = DecisionMode::Fallback;
-                fallbackActive = true;
-            }
-            else if (!realOk)
-            {
-                mode = DecisionMode::Forecast;
-            }
-            else if (!forecastOk)
-            {
-                mode = DecisionMode::Real;
-            }
-        }
-
-        float temperatureC = 0.0f;
-        bool hasTemperature = false;
-        if (mode == DecisionMode::Real)
-        {
-            temperatureC = weather.real.temperatureC;
-            hasTemperature = weather.real.hasTemperature;
-        }
-        else if (mode == DecisionMode::Forecast)
-        {
-            temperatureC = weather.forecast.tempCurrentC;
-            hasTemperature = weather.forecast.hasTempCurrent;
-        }
-        else if (mode == DecisionMode::Mixed)
-        {
-            const float tempForecast = weather.forecast.tempCurrentC;
-            temperatureC = weather.real.temperatureC * mixWeights.real + tempForecast * mixWeights.forecast;
-            hasTemperature = weather.real.hasTemperature || weather.forecast.hasTempCurrent;
-        }
-
-        if (hasTemperature)
-        {
-            if (temperatureC < static_cast<float>(context.minTempC))
+            if (weather.real.temperatureC < static_cast<float>(context.minTempC))
             {
                 return result;
             }
 
             const float baseLimit = static_cast<float>(zone.baseTempC) - zone.baseTempHyst;
-            if (temperatureC <= baseLimit)
+            if (weather.real.temperatureC <= baseLimit)
             {
                 return result;
             }
-        }
-        else if (mode != DecisionMode::Fallback)
-        {
-            return result;
-        }
-        else if (context.realSensorsEnabled || context.forecastEnabled)
-        {
-            return result;
         }
 
         float et0 = 0.0f;
         float effectiveRain = 0.0f;
         float waterDemand = 0.0f;
 
-        if (mode == DecisionMode::Fallback)
+        const float etFactor = zone.etFactorPercent / 100.0f;
+        const float interception = zone.interceptionPercent / 100.0f;
+
+        // Irrigation interval: 0 = 7 days default (Bug #1/#11: scale limits + ET0 sum to actual interval)
+        const uint8_t interval = zone.irrigationIntervalDays > 0 ? zone.irrigationIntervalDays : 7u;
+        const float intervalScale = static_cast<float>(interval) / 7.0f;
+        // Scale weekly water limits proportionally to the configured interval
+        const float effectiveMinWeek    = static_cast<float>(zone.minWeek) * intervalScale;
+        const float effectiveMaxWeek    = zone.maxWeek    > 0 ? static_cast<float>(zone.maxWeek)    * intervalScale : 0.0f;
+        const float effectiveAbsMaxWeek = zone.absMaxWeek > 0 ? static_cast<float>(zone.absMaxWeek) * intervalScale : 0.0f;
+
+        // Count available ET0 days
+        uint8_t et0Days = 0;
+        for (uint8_t d = 0; d < ForecastWeatherInputs::kForecastDays; ++d)
+            if (weather.forecast.hasEt0Day[d]) ++et0Days;
+
+        // Only plan for the interval length (capped at available forecast days)
+        const uint8_t planDays = interval < ForecastWeatherInputs::kForecastDays
+                                     ? interval
+                                     : ForecastWeatherInputs::kForecastDays;
+
+        if (et0Days == ForecastWeatherInputs::kForecastDays)
         {
-            et0 = fallbackEt0ForMonth(context.month);
+            // ── Weekly Planning Path: all 7 ET0 days available ──
+            result.mode = DecisionMode::Forecast;
+            float et0WeekSum = 0.0f;
+            float rainWeekSum = 0.0f;
+            const float drainPerDay = drainageRateMmh(zone.drainageRateRaw) * 24.0f;
+            for (uint8_t d = 0; d < planDays; ++d)
+            {
+                et0WeekSum += weather.forecast.et0DayMm[d];
+                if (weather.forecast.hasRainDay[d])
+                {
+                    const float dayRain = weather.forecast.rainDayMm[d] * (1.0f - interception);
+                    rainWeekSum += clampFloat(dayRain - drainPerDay, 0.0f, dayRain);
+                }
+            }
+
+            // Heat bonus applied to ETc BEFORE subtracting rain (Bug #7)
+            float weeklyETc = et0WeekSum * etFactor;
+            if (weather.real.hasTemperature)
+            {
+                const float heatDelta = weather.real.temperatureC - zone.baseTempC;
+                if (heatDelta > 0.0f)
+                {
+                    const float heatFactor = 1.0f + clampFloat(heatDelta / 20.0f, 0.0f, 0.3f);
+                    weeklyETc *= heatFactor;
+                }
+            }
+            const float weeklyRain = rainWeekSum;
+            float weeklyNeed = weeklyETc - weeklyRain;
+
+            if (weeklyNeed < 0.0f) weeklyNeed = 0.0f;
+            if (effectiveMinWeek > 0.0f && weeklyNeed < effectiveMinWeek)
+                weeklyNeed = effectiveMinWeek;
+
+            float remainingNeed = weeklyNeed - runtime.weekAmount;
+            if (remainingNeed <= 0.0f)
+            {
+                et0 = weather.forecast.et0DayMm[0];
+                effectiveRain = rainWeekSum / static_cast<float>(planDays);
+                result.et0 = et0;
+                result.effectiveRain = effectiveRain;
+                return result;
+            }
+
+            const uint8_t remainingCycles = (zone.maxCycles > 0 && runtime.cycles < zone.maxCycles)
+                ? static_cast<uint8_t>(zone.maxCycles - runtime.cycles)
+                : 1;
+            waterDemand = remainingNeed / static_cast<float>(remainingCycles);
+
+            const uint16_t maxBucketW = resolveMaxBucketMm(zone);
+            waterDemand = applyMaxBucket(waterDemand, maxBucketW);
+            if (waterDemand < 0.0f) waterDemand = 0.0f;
+
+            et0 = weather.forecast.et0DayMm[0];
+            effectiveRain = rainWeekSum / static_cast<float>(planDays);
         }
-        else if (mode == DecisionMode::Real)
+        else if (et0Days > 0)
         {
-            et0 = calculateEt0Real(weather.real);
-        }
-        else if (mode == DecisionMode::Forecast)
-        {
-            et0 = calculateEt0Forecast(weather.forecast, forecastWeights);
+            // ── Daily Path: ET0 Heute (day 0) available ──
+            result.mode = DecisionMode::Forecast;
+            et0 = weather.forecast.et0DayMm[0];
+            const float rainAmount = weather.forecast.hasRainDay[0] ? weather.forecast.rainDayMm[0] : 0.0f;
+            // Heat bonus applied to ETc BEFORE subtracting rain (Bug #7)
+            float etc = et0 * etFactor;
+            if (weather.real.hasTemperature)
+            {
+                const float heatDelta = weather.real.temperatureC - zone.baseTempC;
+                if (heatDelta > 0.0f)
+                {
+                    const float heatFactor = 1.0f + clampFloat(heatDelta / 20.0f, 0.0f, 0.3f);
+                    etc *= heatFactor;
+                }
+            }
+            {
+                const float drainPerDayD = drainageRateMmh(zone.drainageRateRaw) * 24.0f;
+                const float rainPostInterception = rainAmount * (1.0f - interception);
+                effectiveRain = clampFloat(rainPostInterception - drainPerDayD, 0.0f, rainPostInterception);
+            }
+            waterDemand = etc - effectiveRain;
+
+            const uint16_t maxBucketD = resolveMaxBucketMm(zone);
+            waterDemand = applyMaxBucket(waterDemand, maxBucketD);
+
+            if (waterDemand < 0.0f) waterDemand = 0.0f;
         }
         else
         {
-            const float et0Real = calculateEt0Real(weather.real);
-            const float et0Forecast = calculateEt0Forecast(weather.forecast, forecastWeights);
-            et0 = et0Real * mixWeights.real + et0Forecast * mixWeights.forecast;
+            // ── Fallback: no ET0 → time-based, use minPerCycle as demand ──
+            result.mode = DecisionMode::Fallback;
+            result.fallbackActive = true;
+            waterDemand = zone.minPerCycle > 0 ? static_cast<float>(zone.minPerCycle) : 5.0f;
         }
 
-        float rainAmount = 0.0f;
-        if (mode == DecisionMode::Real)
-        {
-            if (weather.real.hasRainAmount)
-            {
-                rainAmount = weather.real.rainAmountMm;
-            }
-        }
-        else if (mode == DecisionMode::Forecast)
-        {
-            // Rain-bool fallback: estimate 5mm when rain expected but no amount available
-            constexpr float kRainBoolFallbackMm = 5.0f;
-            const float currentMm = weather.forecast.hasRainAmountCurrent ? weather.forecast.rainAmountCurrentMm
-                                  : (weather.forecast.hasRainCurrent && weather.forecast.rainCurrent ? kRainBoolFallbackMm : 0.0f);
-            const float h48Mm = weather.forecast.hasRainAmount48h ? weather.forecast.rainAmount48hMm
-                              : (weather.forecast.hasRain48h && weather.forecast.rain48h ? kRainBoolFallbackMm : 0.0f);
-            const float d7Mm = weather.forecast.hasRainAmount7d ? weather.forecast.rainAmount7dMm
-                             : (weather.forecast.hasRain7d && weather.forecast.rain7d ? kRainBoolFallbackMm : 0.0f);
-            // Use validated weighted average with fallback values
-            const bool hasCurrent = weather.forecast.hasRainAmountCurrent || (weather.forecast.hasRainCurrent && weather.forecast.rainCurrent);
-            const bool has48h = weather.forecast.hasRainAmount48h || (weather.forecast.hasRain48h && weather.forecast.rain48h);
-            const bool has7d = weather.forecast.hasRainAmount7d || (weather.forecast.hasRain7d && weather.forecast.rain7d);
-            rainAmount = weightedAverageValidated3(currentMm, hasCurrent, h48Mm, has48h, d7Mm, has7d, forecastWeights);
-        }
-        else if (mode == DecisionMode::Mixed)
-        {
-            float realRain = 0.0f;
-            if (weather.real.hasRainAmount)
-            {
-                realRain = weather.real.rainAmountMm;
-            }
-            // Rain-bool fallback for forecast portion in mixed mode
-            constexpr float kRainBoolFallbackMm = 5.0f;
-            const float currentMm = weather.forecast.hasRainAmountCurrent ? weather.forecast.rainAmountCurrentMm
-                                  : (weather.forecast.hasRainCurrent && weather.forecast.rainCurrent ? kRainBoolFallbackMm : 0.0f);
-            const float h48Mm = weather.forecast.hasRainAmount48h ? weather.forecast.rainAmount48hMm
-                              : (weather.forecast.hasRain48h && weather.forecast.rain48h ? kRainBoolFallbackMm : 0.0f);
-            const float d7Mm = weather.forecast.hasRainAmount7d ? weather.forecast.rainAmount7dMm
-                             : (weather.forecast.hasRain7d && weather.forecast.rain7d ? kRainBoolFallbackMm : 0.0f);
-            const bool hasCurrent = weather.forecast.hasRainAmountCurrent || (weather.forecast.hasRainCurrent && weather.forecast.rainCurrent);
-            const bool has48h = weather.forecast.hasRainAmount48h || (weather.forecast.hasRain48h && weather.forecast.rain48h);
-            const bool has7d = weather.forecast.hasRainAmount7d || (weather.forecast.hasRain7d && weather.forecast.rain7d);
-            const float forecastRain = weightedAverageValidated3(currentMm, hasCurrent, h48Mm, has48h, d7Mm, has7d, forecastWeights);
-            rainAmount = realRain * mixWeights.real + forecastRain * mixWeights.forecast;
-        }
-
-        const float etFactor = zone.etFactorPercent / 100.0f;
-        const float interception = zone.interceptionPercent / 100.0f;
-        const float etc = et0 * etFactor;
-        effectiveRain = rainAmount * (1.0f - interception);
-        waterDemand = etc - effectiveRain;
-
-        if (hasTemperature)
-        {
-            const float heatDelta = temperatureC - zone.baseTempC;
-            if (heatDelta > 0.0f)
-            {
-                const float heatFactor = 1.0f + clampFloat(heatDelta / 20.0f, 0.0f, 0.3f);
-                waterDemand *= heatFactor;
-            }
-        }
-
-        if (zone.maxWeek > 0)
-        {
-            waterDemand = clampFloat(waterDemand, 0.0f, static_cast<float>(zone.maxWeek));
-        }
-        else if (waterDemand < 0.0f)
-        {
-            waterDemand = 0.0f;
-        }
-
-        result.mode = mode;
-        result.fallbackActive = fallbackActive;
         result.et0 = et0;
         result.effectiveRain = effectiveRain;
+
+        // SoilOverride: ensure minimum demand even if weather indicates no watering needed (Bug #2)
+        if (soilOverride && waterDemand <= 0.0f)
+        {
+            waterDemand = zone.minPerCycle > 0 ? static_cast<float>(zone.minPerCycle) : 5.0f;
+        }
 
         if (waterDemand <= 0.0f)
         {
             return result;
         }
 
-        if (zone.absMaxWeek > 0)
+        if (effectiveAbsMaxWeek > 0.0f)
         {
-            const float weekRemaining = static_cast<float>(zone.absMaxWeek) - runtime.weekAmount;
+            const float weekRemaining = effectiveAbsMaxWeek - runtime.weekAmount;
             if (weekRemaining <= 0.0f)
             {
                 return result;
             }
         }
 
-        if (zone.maxWeek > 0 && runtime.weekAmount + waterDemand > zone.maxWeek)
+        if (effectiveMaxWeek > 0.0f && runtime.weekAmount + waterDemand > effectiveMaxWeek)
         {
-            waterDemand = zone.maxWeek - runtime.weekAmount;
+            waterDemand = effectiveMaxWeek - runtime.weekAmount;
         }
 
         if (soilOverride)
@@ -542,8 +419,6 @@ namespace SmartIrrigation
         if (soilOverride)
         {
             result.action = DecisionAction::Start;
-            result.mode = mode;
-            result.fallbackActive = fallbackActive;
             result.waterDemand = zone.minPerCycle > 0 ? static_cast<float>(zone.minPerCycle) : waterDemand;
             return result;
         }

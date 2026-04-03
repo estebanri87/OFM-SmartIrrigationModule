@@ -12,19 +12,6 @@ namespace SmartIrrigation
         if (value > maxValue) return maxValue;
         return value;
     }
-    struct ForecastWeights
-    {
-        float high = 0.6f;
-        float mid = 0.3f;
-        float low = 0.1f;
-    };
-
-    struct MixWeights
-    {
-        float real = 0.7f;
-        float forecast = 0.3f;
-    };
-
     struct RealWeatherInputs
     {
         bool hasTemperature = false;
@@ -33,47 +20,21 @@ namespace SmartIrrigation
         bool rainActive = false;
         bool hasRainAmount = false;
         float rainAmountMm = 0.0f;
-        bool hasHumidity = false;
-        float humidityPercent = 0.0f;
+        // Wind speed kept for wind-pause safety feature
         bool hasWind = false;
         float windSpeedMs = 0.0f;
-        // WindDirection removed - not used in calculations
-        bool hasUvIndex = false;
-        float uvIndex = 0.0f;
-        bool hasSoilMoisture = false;
-        float soilMoisturePercent = 0.0f;
     };
 
     struct ForecastWeatherInputs
     {
-        bool hasTempCurrent = false;
-        bool hasTemp48h = false;
-        bool hasTemp7d = false;
-        float tempCurrentC = 0.0f;
-        float temp48hC = 0.0f;
-        float temp7dC = 0.0f;
-
-        bool hasRainCurrent = false;
-        bool hasRain48h = false;
-        bool hasRain7d = false;
-        bool rainCurrent = false;
-        bool rain48h = false;
-        bool rain7d = false;
-
-        bool hasRainAmountCurrent = false;
-        bool hasRainAmount48h = false;
-        bool hasRainAmount7d = false;
-        float rainAmountCurrentMm = 0.0f;
-        float rainAmount48hMm = 0.0f;
-        float rainAmount7dMm = 0.0f;
-
-        bool hasHumidity = false;
-        float humidityPercent = 0.0f;
-        bool hasWind = false;
-        float windSpeedKmh = 0.0f;
-        // WindDirection removed - not used in calculations
-        bool hasUvIndex = false;
-        float uvIndex = 0.0f;
+        // ET0 per day, day 0 = today, day 6 = 6 days ahead
+        // Provided via KOs from InternetWeatherModule or any KNX source
+        static constexpr uint8_t kForecastDays = 7;
+        bool hasEt0Day[kForecastDays] = {};
+        float et0DayMm[kForecastDays] = {};
+        // Rain amounts per day (mm/day), day 0 = today
+        bool hasRainDay[kForecastDays] = {};
+        float rainDayMm[kForecastDays] = {};
     };
 
     struct WeatherInputs
@@ -97,10 +58,28 @@ namespace SmartIrrigation
         SunsetBased = 3
     };
 
-    enum class MoistureMode : uint8_t
+    enum class FlowInputUnit : uint8_t
     {
-        SoilSensor = 0,
-        SunExposure = 1
+        MmPerHour = 0,
+        LitersPerMinute = 1,
+        CubicMetersPerHour = 2
+    };
+
+    static constexpr uint8_t MAX_SPRINKLERS = 6;
+
+    struct SprinklerConfig
+    {
+        FlowInputUnit unit = FlowInputUnit::MmPerHour;
+        uint8_t count = 1;
+        float values[MAX_SPRINKLERS] = {0.0f};
+
+        // Calculate effective precipitation rate in mm/h for the zone
+        // For mm/h: average of all sprinkler values
+        // For l/min or m³/h: sum flow, convert to l/h, divide by area → mm/h
+        float calcPrecipRateMmh(float areaM2) const;
+
+        // Calculate total flow in l/min (for statistics/tank)
+        float calcTotalFlowLpm() const;
     };
 
     struct TimeWindowCheck
@@ -114,7 +93,12 @@ namespace SmartIrrigation
     {
         bool enabled = false;
         float areaM2 = 0.0f;
-        float flowLpm = 0.0f;
+        // Sprinkler config (Smart Pro) or simple precip rate (Smart Core)
+        bool isSmartPro = false;
+        bool isDrip = false;
+        float precipRateMmh = 0.0f;       // Smart Core: direct mm/h input; or computed result
+        SprinklerConfig sprinklerConfig{}; // Smart Pro: detailed sprinkler setup
+        float dripFlowLph = 0.0f;          // Drip: total flow in l/h
         uint8_t etFactorPercent = 100;
         uint8_t interceptionPercent = 0;
         uint8_t minWeek = 0;
@@ -126,6 +110,7 @@ namespace SmartIrrigation
         uint8_t baseTempC = 0;
         uint8_t baseTempHyst = 0;
         uint8_t soilThresholdPercent = 0;
+        bool soilMoistureEnabled = false;
         float rainDelayFactor = 0.0f;
         uint16_t maxRuntimeMinutes = 0;
         TimeWindow window1{};
@@ -140,10 +125,7 @@ namespace SmartIrrigation
         // Phase 2: Soak-Time (2.2)
         uint8_t soakTimeMinutes = 0;
         // Phase 2: Rest Days (2.3)
-        uint8_t restDaysBetweenWatering = 0;
-        // Phase 2: Sun Exposure Factor (2.4)
-        MoistureMode moistureMode = MoistureMode::SoilSensor;
-        uint8_t sunExposureFactorPercent = 100;
+        uint8_t irrigationIntervalDays = 0;  // 0 = 7 days (default), otherwise custom interval
         // Phase 3: Activity/Wind (3.2, 3.5)
         bool isSprinkler = true;
         // Phase 3: Weekday Filter (3.3)
@@ -152,6 +134,12 @@ namespace SmartIrrigation
         bool verifyEnabled = false;
         uint8_t verifyDelayMinutes = 30;
         uint8_t verifyMinDeltaPercent = 5;
+        // Bucket model & Lead Time
+        uint8_t soilType = 0;              // 0=Deaktiviert, 1-5=Presets, 6=Benutzerdefiniert
+        uint16_t maxBucketMm = 0;          // Maximum soil water capacity in mm (0=disabled)
+        uint16_t drainageRateRaw = 0;      // Raw value ×0.1 = mm/h (0=disabled)
+        uint16_t leadTimeSeconds = 0;      // Extra lead time added to runtime (seconds)
+        uint8_t zonePriority = 5;          // User-configured priority 0-10 (default 5)
     };
 
     struct ZoneRuntimeState
@@ -167,10 +155,10 @@ namespace SmartIrrigation
         bool rainLockActive = false;
         uint16_t nowMinutes = 0;
         bool allowWhenNoWindow = true;
-        bool realSensorsEnabled = false;
-        bool forecastEnabled = false;
         int8_t minTempC = 0;
-        uint8_t month = 1;
+        // Per-zone soil moisture for override (critically dry soil bypasses rain-lock)
+        bool hasSoilMoisture = false;
+        float soilMoisturePercent = 0.0f;
     };
 
     enum class DecisionMode : uint8_t
@@ -206,10 +194,7 @@ namespace SmartIrrigation
         Temperature = 0,
         Rain,
         RainAmount,
-        Humidity,
-        Wind,
-        // WindDirection removed - not used
-        SoilMoisture,
+        Wind, // kept for wind-pause safety feature
         Count
     };
 
@@ -228,24 +213,23 @@ namespace SmartIrrigation
         bool failed_ = false;
     };
 
-    float fallbackEt0ForMonth(uint8_t month);
-
-    bool normalizeForecastWeights(ForecastWeights &weights);
-    bool normalizeMixWeights(MixWeights &weights);
-
-    bool validateForecastWeights(const ForecastWeights &weights, float epsilon = 0.001f);
-    bool validateMixWeights(const MixWeights &weights, float epsilon = 0.001f);
-
     float calculateRainLockHours(float rainAmountMm, float factor, float remainingHours);
-    float calculateRuntimeMinutes(float areaM2, float flowLpm, float waterDemand, uint16_t maxRuntimeMinutes);
-    float calculateEt0Real(const RealWeatherInputs &inputs);
-    float calculateEt0Forecast(const ForecastWeatherInputs &inputs, const ForecastWeights &weights);
+    float calculateRuntimeMinutes(float precipRateMmh, float waterDemandMm, uint16_t maxRuntimeMinutes);
+
+    // Resolve effective precipitation rate for a zone (handles all modes)
+    float getEffectivePrecipRate(const ZoneSettings &zone);
+
+    // Bucket model: resolve maxBucket from soilType presets or custom value
+    uint16_t resolveMaxBucketMm(const ZoneSettings &zone);
+    // Bucket model: cap water demand at max bucket capacity
+    float applyMaxBucket(float waterDemandMm, uint16_t maxBucketMm);
+    // Bucket model: drainage rate in mm/h (raw ×0.1)
+    float drainageRateMmh(uint16_t drainageRateRaw);
+
     DecisionResult decideWatering(const ZoneSettings &zone,
                                  const ZoneRuntimeState &runtime,
                                  const DecisionContext &context,
-                                 const WeatherInputs &weather,
-                                 const ForecastWeights &forecastWeights,
-                                 const MixWeights &mixWeights);
+                                 const WeatherInputs &weather);
 
     TimeWindowCheck inTimeWindow(uint16_t nowMinutes,
                                  const TimeWindow &window1,
