@@ -10,18 +10,22 @@
 
 namespace
 {
-    // Helper function to calculate day of year (1-366)
-    inline uint16_t calculateDayOfYear(uint8_t month, uint8_t day)
+    // Helper function to calculate day of year (1-366), leap-year aware
+    inline uint16_t calculateDayOfYear(uint8_t month, uint8_t day, uint16_t year = 0)
     {
         static const uint16_t daysBeforeMonth[] = {0, 0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334};
         if (month < 1 || month > 12) return 1;
-        return daysBeforeMonth[month] + day;
+        uint16_t doy = daysBeforeMonth[month] + day;
+        // Add leap-day for months from March onwards in a leap year
+        if (year > 0 && month > 2 && (year % 4 == 0) && (year % 100 != 0 || year % 400 == 0))
+            doy += 1;
+        return doy;
     }
 
     constexpr uint16_t kKoSingleOffset = 995;
     constexpr uint8_t kKoSingleCount = 55;
     constexpr uint16_t kKoZoneBase = 1100;
-    constexpr uint8_t kKoZoneBlockSize = 17; // 16 standard + 1 per-zone soil moisture
+    constexpr uint8_t kKoZoneBlockSize = 18; // 17 standard + 1 per-zone activity input
     constexpr uint32_t kSensorTimeoutWindowMs = 300000;
     constexpr uint8_t kSensorTimeoutMaxWindows = 3;
     // Phase 1 constants
@@ -445,7 +449,8 @@ void SmartIrrigationModule::loop(bool configured)
     }
 
     // Erstinbetriebnahme: release when time-delay has elapsed (mode 1)
-    if (firstStartBlocked_ && firstStartReleaseAtMs_ > 0 && nowMs >= firstStartReleaseAtMs_)
+    // Use signed subtraction (int32_t) to be safe against millis() 32-bit overflow
+    if (firstStartBlocked_ && firstStartReleaseAtMs_ > 0 && static_cast<int32_t>(nowMs - firstStartReleaseAtMs_) >= 0)
     {
         firstStartBlocked_ = false;
         firstStartReleaseAtMs_ = 0;
@@ -525,7 +530,17 @@ void SmartIrrigationModule::loop(bool configured)
         ntpInvalidSinceMs_ = 0;  // No suspend active, no need to track
     }
 
-    const bool sensorOk = true; // All sensors optional; system degrades gracefully
+    // N-4: sensorOk based on sensorHealth_ — report failure only for sensors
+    // that have been seen at least once (had a valid reading) and are now failing.
+    bool sensorOk = true;
+    for (size_t si = 0; si < static_cast<size_t>(SmartIrrigation::SensorId::Count); ++si)
+    {
+        if (sensorLastValidMs_[si] > 0 && sensorHealth_[si].failed())
+        {
+            sensorOk = false;
+            break;
+        }
+    }
     updateSensorStatusKo(sensorOk);
 
     const uint8_t zoneCount = std::min<uint8_t>(ParamSIR_SIR_ZoneCount, kMaxZones);
@@ -682,7 +697,6 @@ void SmartIrrigationModule::loop(bool configured)
 
         settings.enabled = manualActive ? (settings.enabled && zoneManualStart && !zonePause)
                                         : (settings.enabled && !zonePause);
-        settingsCache[zoneIndex] = settings;
 
         ZoneRuntime &runtimeState = zoneRuntime_[zoneIndex];
 
@@ -869,7 +883,7 @@ void SmartIrrigationModule::loop(bool configured)
         if (timeValid && zoneRuntime_[zoneIndex].windowStartDayOfYear != 0)
         {
             const uint8_t interval = settings.irrigationIntervalDays > 0 ? settings.irrigationIntervalDays : 7;
-            const uint16_t today = calculateDayOfYear(localTime.month, localTime.day);
+            const uint16_t today = calculateDayOfYear(localTime.month, localTime.day, localTime.year);
             int16_t daysDiff = static_cast<int16_t>(today) - static_cast<int16_t>(zoneRuntime_[zoneIndex].windowStartDayOfYear);
             if (daysDiff < 0) daysDiff += 365;
             if (daysDiff >= static_cast<int16_t>(interval))
@@ -889,6 +903,8 @@ void SmartIrrigationModule::loop(bool configured)
 
         // Phase 2.1: Resolve sun-based time windows before decision
         resolveTimeWindowForSun(settings);
+        // H-3: cache after sun-resolution so queue-processing uses the resolved window
+        settingsCache[zoneIndex] = settings;
 
         SmartIrrigation::DecisionResult result = SmartIrrigation::decideWatering(settings,
                                                                                  runtime,
@@ -922,9 +938,9 @@ void SmartIrrigationModule::loop(bool configured)
         }
 
         // Erstinbetriebnahme: block automatic starts until first-start is released
-        // Exception: manual runs always pass through
+        // Exception: manual runs and soil override always pass through
         if (result.action == SmartIrrigation::DecisionAction::Start &&
-            firstStartBlocked_ && !runtimeState.manualRun)
+            firstStartBlocked_ && !runtimeState.manualRun && !result.soilOverride)
         {
             result.action = SmartIrrigation::DecisionAction::None;
         }
@@ -1504,10 +1520,8 @@ void SmartIrrigationModule::processInputKo(GroupObject &ko)
         }
         case kKoAdjustmentFactor:
         {
-            // 2.5 Externer Korrekturfaktor: 0-200% (DPT_Scaling = 0-255 → 0-100%)
-            const uint8_t rawValue = ko.value(DPT_Scaling);
-            // DPT_Scaling is 0-255 representing 0-100%. We want 0-200%.
-            // We interpret the raw value directly as percentage (0-200 clamped).
+            // 2.5 Externer Korrekturfaktor: 0-200% via DPT_Value_1_Ucount (raw byte 0-255)
+            const uint8_t rawValue = ko.value(DPT_Value_1_Ucount);
             adjustmentFactorPercent_ = (rawValue > 200) ? 200 : rawValue;
             break;
         }
@@ -1879,6 +1893,12 @@ bool SmartIrrigationModule::startZone(uint8_t zoneIndex,
         if (settings.maxRuntimeMinutes > 0 && runtimeMinutes > static_cast<float>(settings.maxRuntimeMinutes))
         {
             runtimeMinutes = static_cast<float>(settings.maxRuntimeMinutes);
+            // M-2: Recalculate actual water demand to match capped runtime → nextAmount stays accurate
+            if (precipRate > 0.0f)
+            {
+                const float cappedIrrigationMinutes = std::max(0.0f, runtimeMinutes - leadTimeMinutes);
+                waterDemandM2 = (cappedIrrigationMinutes / 60.0f) * precipRate;
+            }
         }
     }
 
@@ -2001,7 +2021,7 @@ bool SmartIrrigationModule::stopZone(uint8_t zoneIndex,
     // Phase 2.2: Check if zone should enter Soaking instead of Inactive
     // Conditions: not manual run, not last cycle, soaking enabled
     const bool shouldSoak = !runtime.manualRun &&
-                            runtime.cycles < settings.maxCycles &&
+                            (settings.maxCycles == 0 || runtime.cycles < settings.maxCycles) &&
                             settings.soakTimeMinutes > 0;
     if (shouldSoak)
     {
@@ -2017,7 +2037,7 @@ bool SmartIrrigationModule::stopZone(uint8_t zoneIndex,
     if (timeValid)
     {
         const auto localTime = openknx.time.getLocalTime();
-        runtime.lastIrrigationDayOfYear = calculateDayOfYear(localTime.month, localTime.day);
+        runtime.lastIrrigationDayOfYear = calculateDayOfYear(localTime.month, localTime.day, localTime.year);
         if (runtime.windowStartDayOfYear == 0)
         {
             runtime.windowStartDayOfYear = runtime.lastIrrigationDayOfYear;
@@ -2050,8 +2070,9 @@ bool SmartIrrigationModule::stopZone(uint8_t zoneIndex,
     lastZoneStopMs_ = millis();
 
     // Phase 4.3: Start post-irrigation verify timer if enabled
-    // verifyStartSoil was set in startZone()
-    if (runtime.verifyStartSoil > 0)
+    // verifyStartSoil was set in startZone(); use settings.verifyEnabled as guard
+    // to avoid missing the check when initial soil moisture is exactly 0%
+    if (settings.verifyEnabled)
     {
         // Timer will be checked in loop()
         runtime.verifyTimerMs = millis();
