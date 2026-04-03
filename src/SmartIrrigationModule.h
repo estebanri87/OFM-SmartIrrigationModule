@@ -46,11 +46,13 @@ class SmartIrrigationModule : public OpenKNX::Module
       uint32_t checkBackTimer = 0;
       uint8_t checkBackRetries = 0;
       bool valveFeedbackReceived = false;
-      // Phase 2: Rest Days (2.3)
+      // Phase 2: Rest Days / Rolling Window
       uint16_t lastIrrigationDayOfYear = 0;
+      uint16_t windowStartDayOfYear = 0;    // Day of first cycle in current interval window
       // Phase 3: Activity/Wind pause flags (3.2, 3.5)
       bool activityPaused = false;
       bool windPaused = false;
+      bool tankPaused = false;     // 3.1: countdown frozen during tank-low pause
       // Phase 4.3: Post-Irrigation Verify
       uint32_t verifyTimerMs = 0;
       uint8_t verifyStartSoil = 0;  // Soil moisture % before irrigation
@@ -66,11 +68,12 @@ class SmartIrrigationModule : public OpenKNX::Module
     };
 
     static constexpr uint8_t kMaxZones = 10;
-    static constexpr uint8_t kFlashVersion = 3;
+    static constexpr uint8_t kFlashVersion = 4;
 
     std::array<ZoneRuntime, kMaxZones> zoneRuntime_{};
-    SmartIrrigation::ForecastWeights forecastWeights_{};
-    SmartIrrigation::MixWeights mixWeights_{};
+    // Per-zone soil moisture (for soil override; populated from zone KO 16)
+    bool hasZoneSoilMoisture_[kMaxZones] = {};
+    float zoneSoilMoisturePercent_[kMaxZones] = {};
     std::array<SmartIrrigation::SensorTimeoutTracker,
                static_cast<size_t>(SmartIrrigation::SensorId::Count)>
         sensorHealth_{};
@@ -79,9 +82,6 @@ class SmartIrrigationModule : public OpenKNX::Module
     RainLockState rainLock_{};
     uint32_t weatherUpdateLastSec_ = 0;
     uint32_t lastDecisionMs_ = 0;
-    uint16_t lastResetYear_ = 0;
-    uint8_t lastResetMonth_ = 0;
-    uint8_t lastResetDay_ = 0;
     // 1.1 Check-Back
     // (per-zone state in ZoneRuntime)
     // 1.2 Flow Sensor
@@ -96,9 +96,6 @@ class SmartIrrigationModule : public OpenKNX::Module
     // 1.4 Post-Freeze Delay
     uint32_t freezeEndSec_ = 0;
     bool wasMinTempBlocked_ = false;
-    // 1.5 Total Week Amount
-    float totalWeekAmount_ = 0.0f;
-    float totalWeekAmountPrev_ = 0.0f;
     // 2.5 Adjustment Factor
     uint8_t adjustmentFactorPercent_ = 100;
     // 3.1 Tank
@@ -125,8 +122,11 @@ class SmartIrrigationModule : public OpenKNX::Module
     bool suspendActive_ = false;
     // AD-6: NTP robustness for Suspend
     uint32_t ntpInvalidSinceMs_ = 0;  // millis() when NTP became invalid, 0 = NTP valid
+    // Erstinbetriebnahme (First Start)
+    bool firstStartBlocked_ = false;       // true: block automatic irrigation on first commissioning
+    bool firstStartChecked_ = false;       // true: first-start detection already ran
+    uint32_t firstStartReleaseAtMs_ = 0;  // millis() when time-delay expires (mode 1), 0 = unused
 
-    void loadWeightsFromParams();
     void saveRuntimeToFlash(bool force = false);
 
     SmartIrrigation::ZoneSettings loadZoneSettings(uint8_t zoneIndex);
@@ -150,13 +150,6 @@ class SmartIrrigationModule : public OpenKNX::Module
             bool timeValid);
     uint8_t stopAllZones(uint8_t zoneCount, uint32_t nowSec, bool timeValid);
     void updateActiveZoneCountdown(uint8_t zoneCount, uint32_t nowSec, bool timeValid);
-    void applyWeeklyReset(uint8_t zoneCount,
-      uint16_t nowMinutes,
-      uint8_t dayOfWeek,
-      uint16_t year,
-      uint8_t month,
-      uint8_t day,
-      bool timeValid);
     void updateSensorStatusKo(bool sensorOk);
     void updateRainLockFromEvent(float rainAmountMm, float maxFactor);
     void updateRainLockCountdown();
