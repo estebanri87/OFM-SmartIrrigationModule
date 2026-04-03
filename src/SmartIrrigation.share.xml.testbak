@@ -138,7 +138,7 @@
                             <Union Id="%AID%_U-%TT%00006" SizeInBit="8">
                                 <Memory CodeSegment="%MID%" Offset="6" BitOffset="0" />
                                 <Parameter Id="%AID%_UP-%TT%00006" Name="SIR_SensorTemp" ParameterType="%AID%_PT-CheckBox" Offset="0" BitOffset="0" Text="Temperatur *" Value="0" op:hashHint="%AID%_UP-%TT%00006" />
-                                <Parameter Id="%AID%_UP-%TT%00007" Name="SIR_SensorRain" ParameterType="%AID%_PT-CheckBox" Offset="0" BitOffset="1" Text="Regen *" Value="0" op:hashHint="%AID%_UP-%TT%00007" />
+                                <Parameter Id="%AID%_UP-%TT%00007" Name="SIR_SensorRain" ParameterType="%AID%_PT-CheckBox" Offset="0" BitOffset="1" Text="Regen" Value="0" op:hashHint="%AID%_UP-%TT%00007" />
                                 <Parameter Id="%AID%_UP-%TT%00008" Name="SIR_SensorRainAmount" ParameterType="%AID%_PT-CheckBox" Offset="0" BitOffset="2" Text="Regenmenge *" Value="0" op:hashHint="%AID%_UP-%TT%00008" />
                                 <Parameter Id="%AID%_UP-%TT%00009" Name="SIR_SensorHumidity" ParameterType="%AID%_PT-CheckBox" Offset="0" BitOffset="3" Text="Luftfeuchte" Value="0" op:hashHint="%AID%_UP-%TT%00009" />
                                 <Parameter Id="%AID%_UP-%TT%00010" Name="SIR_SensorWind" ParameterType="%AID%_PT-CheckBox" Offset="0" BitOffset="4" Text="Wind" Value="0" op:hashHint="%AID%_UP-%TT%00010" />
@@ -152,7 +152,7 @@
                             <Union Id="%AID%_U-%TT%00014" SizeInBit="8">
                                 <Memory CodeSegment="%MID%" Offset="8" BitOffset="0" />
                                 <Parameter Id="%AID%_UP-%TT%00014" Name="SIR_ForecastTemp" ParameterType="%AID%_PT-CheckBox" Offset="0" BitOffset="0" Text="Tagestemperatur *" Value="1" op:hashHint="%AID%_UP-%TT%00014" />
-                                <Parameter Id="%AID%_UP-%TT%00015" Name="SIR_ForecastRain" ParameterType="%AID%_PT-CheckBox" Offset="0" BitOffset="1" Text="Regen *" Value="1" op:hashHint="%AID%_UP-%TT%00015" />
+                                <Parameter Id="%AID%_UP-%TT%00015" Name="SIR_ForecastRain" ParameterType="%AID%_PT-CheckBox" Offset="0" BitOffset="1" Text="Regen" Value="1" op:hashHint="%AID%_UP-%TT%00015" />
                                 <Parameter Id="%AID%_UP-%TT%00016" Name="SIR_ForecastRainAmount" ParameterType="%AID%_PT-CheckBox" Offset="0" BitOffset="2" Text="Regenmenge *" Value="1" op:hashHint="%AID%_UP-%TT%00016" />
                                 <Parameter Id="%AID%_UP-%TT%00017" Name="SIR_ForecastHumidity" ParameterType="%AID%_PT-CheckBox" Offset="0" BitOffset="3" Text="Luftfeuchte" Value="0" op:hashHint="%AID%_UP-%TT%00017" />
                                 <Parameter Id="%AID%_UP-%TT%00018" Name="SIR_ForecastWind" ParameterType="%AID%_PT-CheckBox" Offset="0" BitOffset="4" Text="Wind" Value="0" op:hashHint="%AID%_UP-%TT%00018" />
