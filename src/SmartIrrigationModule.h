@@ -49,13 +49,19 @@ class SmartIrrigationModule : public OpenKNX::Module
       // Phase 2: Rest Days / Rolling Window
       uint16_t lastIrrigationDayOfYear = 0;
       uint16_t windowStartDayOfYear = 0;    // Day of first cycle in current interval window
-      // Phase 3: Activity/Wind pause flags (3.2, 3.5)
+      // N-3: Pause design — two distinct concepts:
+      //  - kZoneStatePaused: explicit user-ETS-pause; valve closed, countdown frozen, 60-min timeout.
+      //  - activityPaused / windPaused / tankPaused: automatic environmental pauses; state stays
+      //    kZoneStateActive so resume is straightforward; valve is controlled via updateZoneOutputs.
+      //    tankPaused also freezes the countdown (startTimeSec reset each tick).
       bool activityPaused = false;
       bool windPaused = false;
-      bool tankPaused = false;     // 3.1: countdown frozen during tank-low pause
+      bool tankPaused = false;
       // Phase 4.3: Post-Irrigation Verify
       uint32_t verifyTimerMs = 0;
       uint8_t verifyStartSoil = 0;  // Soil moisture % before irrigation
+      // M-3: KO-Heartbeat timestamp
+      uint32_t lastKoUpdateMs = 0;
     };
 
     struct RainLockState
@@ -81,6 +87,8 @@ class SmartIrrigationModule : public OpenKNX::Module
     SmartIrrigation::WeatherInputs weatherCache_{};
     RainLockState rainLock_{};
     uint32_t weatherUpdateLastSec_ = 0;
+    int8_t lastWeatherUpdateStatus_ = -1; // -1 = unknown, 0 = false, 1 = true
+    uint32_t lastWeatherStatusCheckMs_ = 0;
     uint32_t lastDecisionMs_ = 0;
     // 1.1 Check-Back
     // (per-zone state in ZoneRuntime)
@@ -102,11 +110,6 @@ class SmartIrrigationModule : public OpenKNX::Module
     uint8_t tankLevelPercent_ = 100;
     bool tankAlarmActive_ = false;
     bool tankLowPaused_ = false;  // for hysteresis
-    // 3.2 Activity Block
-    bool presenceDetected_ = false;
-    bool doorOpen_ = false;
-    uint32_t activityChangeMs_ = 0;
-    bool activityBlocking_ = false;
     // 3.4 Season
     bool seasonEnabled_ = false;
     uint8_t seasonStartMonth_ = 3;
@@ -134,7 +137,8 @@ class SmartIrrigationModule : public OpenKNX::Module
            const SmartIrrigation::DecisionResult &result,
            const SmartIrrigation::ZoneSettings &settings,
            const ZoneRuntime &runtime,
-           bool timeValid);
+           bool timeValid,
+           uint32_t nowMs);
     void updateDiagOutputs(const SmartIrrigation::DecisionResult &result,
            uint8_t decisionZone);
     bool startZone(uint8_t zoneIndex,
@@ -153,6 +157,8 @@ class SmartIrrigationModule : public OpenKNX::Module
     void updateSensorStatusKo(bool sensorOk);
     void updateRainLockFromEvent(float rainAmountMm, float maxFactor);
     void updateRainLockCountdown();
+    void updateWeatherDataTimestamp();
+    void updateWeatherStatusKo();
     bool shouldProcessDecision(uint32_t nowMs) const;
     float maxRainDelayFactor();
 };
