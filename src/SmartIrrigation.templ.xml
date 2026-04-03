@@ -11,7 +11,7 @@
               <Parameter Id="%AID%_P-%TT%%CC%001" Name="SIR_Z%C%Name" ParameterType="%AID%_PT-Text50Byte" Text="Bezeichnung" Value="" />
               
               <!-- EINE GROSSE UNION mit ALLEN Parametern (wie ShutterController) -->
-              <Union SizeInBit="736">
+              <Union SizeInBit="744">
                 <Memory CodeSegment="%AID%_RS-04-00000" Offset="0" BitOffset="0" />
                 
                 <!-- Byte 0: Enabled -->
@@ -179,7 +179,10 @@
                 <!-- Byte 91: ZonePriority (0-10, Zonen-Priorisierung) -->
                 <Parameter Id="%AID%_UP-%TT%%CC%058" Name="SIR_Z%C%ZonePriority" ParameterType="%AID%_PT-ZonePriority" Offset="91" BitOffset="0" Text="Bewässerungs-Priorität" Value="5" />
                 
-                <!-- Next Offset: 92 (736 bits) -->
+                <!-- Byte 92: ActivityEnabled (bool) -->
+                <Parameter Id="%AID%_UP-%TT%%CC%059" Name="SIR_Z%C%ActivityEnabled" ParameterType="%AID%_PT-OnOffYesNo" Offset="92" BitOffset="0" Text="Aktivit\u00e4tserkennung" Value="0" />
+                
+                <!-- Next Offset: 93 (744 bits) -->
               </Union>
             </Parameters>
             <ParameterRefs>
@@ -258,6 +261,7 @@
               <ParameterRef Id="%AID%_UP-%TT%%CC%056_R-%TT%%CC%05601" RefId="%AID%_UP-%TT%%CC%056" />
               <ParameterRef Id="%AID%_UP-%TT%%CC%057_R-%TT%%CC%05701" RefId="%AID%_UP-%TT%%CC%057" />
               <ParameterRef Id="%AID%_UP-%TT%%CC%058_R-%TT%%CC%05801" RefId="%AID%_UP-%TT%%CC%058" />
+              <ParameterRef Id="%AID%_UP-%TT%%CC%059_R-%TT%%CC%05901" RefId="%AID%_UP-%TT%%CC%059" />
             </ParameterRefs>
             <ParameterCalculations>
               <ParameterCalculation Id="%AID%_PC-%TT%%CC%0001" Language="JavaScript" Name="SIR_PlantDefaults%CC%" LRTransformationFunc="SIR_SetPlantDefaults" RLTransformationFunc="SIR_NoOp">
@@ -327,6 +331,8 @@
               <ComObject Id="%AID%_O-%TT%%CC%115" Number="%K15%" Name="CH%C%VerifyFailed" Text="Zone %C% Verifizierung fehlt" FunctionText="Alarm Verifizierung" ObjectSize="1 Bit" DatapointType="DPST-1-5" ReadFlag="Enabled" WriteFlag="Disabled" CommunicationFlag="Enabled" TransmitFlag="Enabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" />
               <!-- K16: Bodenfeuchte-Sensor (Input, 9.7 %) -->
               <ComObject Id="%AID%_O-%TT%%CC%116" Number="%K16%" Name="CH%C%ZoneSoilMoisture" Text="Zone %C% Bodenfeuchte" FunctionText="Messwert Bodenfeuchte (%)" ObjectSize="2 Bytes" DatapointType="DPST-9-7" ReadFlag="Disabled" WriteFlag="Enabled" CommunicationFlag="Enabled" TransmitFlag="Disabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" />
+              <!-- K17: Aktivitätsblock-Eingang (Input, 1.1) — per-Zone Tür/Anwesenheit -->
+              <ComObject Id="%AID%_O-%TT%%CC%117" Number="%K17%" Name="CH%C%ActivityInput" Text="Zone %C% Aktivitätsblock" FunctionText="Aktivitätsblock Ein/Aus" ObjectSize="1 Bit" DatapointType="DPST-1-1" ReadFlag="Disabled" WriteFlag="Enabled" CommunicationFlag="Enabled" TransmitFlag="Disabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" />
             </ComObjectTable>
             <ComObjectRefs>
               <!-- K0: Manueller Start -->
@@ -358,6 +364,8 @@
               <ComObjectRef Id="%AID%_O-%TT%%CC%115_R-%TT%%CC%11501" RefId="%AID%_O-%TT%%CC%115" Text="Zone %C% - {{0}}: Verifizierung fehlt" TextParameterRefId="%AID%_P-%TT%%CC%001_R-%TT%%CC%00101" FunctionText="Alarm Verifizierung" Priority="Low" ObjectSize="1 Bit" DatapointType="DPST-1-5" />
               <!-- K16: Bodenfeuchte-Sensor -->
               <ComObjectRef Id="%AID%_O-%TT%%CC%116_R-%TT%%CC%11601" RefId="%AID%_O-%TT%%CC%116" Text="Zone %C% - {{0}}: Bodenfeuchte" TextParameterRefId="%AID%_P-%TT%%CC%001_R-%TT%%CC%00101" FunctionText="Messwert Bodenfeuchte (%)" Priority="Low" ObjectSize="2 Bytes" DatapointType="DPST-9-7" />
+              <!-- K17: Aktivitätsblock-Eingang -->
+              <ComObjectRef Id="%AID%_O-%TT%%CC%117_R-%TT%%CC%11701" RefId="%AID%_O-%TT%%CC%117" Text="Zone %C% - {{0}}: Aktivitätsblock" TextParameterRefId="%AID%_P-%TT%%CC%001_R-%TT%%CC%00101" FunctionText="Aktivitätsblock Ein/Aus" Priority="Low" ObjectSize="1 Bit" DatapointType="DPST-1-1" />
             </ComObjectRefs>
           </Static>
           <Dynamic>
@@ -634,6 +642,16 @@
                     <choose ParamRefId="%AID%_UP-%TT%%CC%057_R-%TT%%CC%05701">
                       <when test="1">
                         <ComObjectRefRef RefId="%AID%_O-%TT%%CC%116_R-%TT%%CC%11601" />
+                      </when>
+                    </choose>
+                    <!-- K17: Aktivit\u00e4tsblock-Eingang nur wenn ActivityEnabled -->
+                    <ParameterSeparator Id="%AID%_PS-%TT%%CC%410" Text="" UIHint="HorizontalRuler" />
+                    <ParameterSeparator Id="%AID%_PS-%TT%%CC%411" Text="Aktivit\u00e4tserkennung" UIHint="Headline" />
+                    <ParameterRefRef RefId="%AID%_UP-%TT%%CC%059_R-%TT%%CC%05901" HelpContext="SIR-Zone-ActivityEnabled" />
+                    <choose ParamRefId="%AID%_UP-%TT%%CC%059_R-%TT%%CC%05901">
+                      <when test="1">
+                        <ParameterSeparator Id="%AID%_PS-%TT%%CC%412" Text="Pausiert Bew\u00e4sserung solange dieser Eingang aktiv ist." UIHint="Information" />
+                        <ComObjectRefRef RefId="%AID%_O-%TT%%CC%117_R-%TT%%CC%11701" />
                       </when>
                     </choose>
                   </when>
