@@ -158,6 +158,7 @@ namespace SmartIrrigation
         uint16_t drainageRateRaw = 0;      // Raw value ×0.1 = mm/h (0=disabled)
         uint16_t leadTimeSeconds = 0;      // Extra lead time added to runtime (seconds)
         uint8_t zonePriority = 5;          // User-configured priority 0-10 (default 5)
+        bool activityEnabled = false;      // Per-zone activity block enabled
     };
 
     struct ZoneRuntimeState
