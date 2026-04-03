@@ -179,21 +179,9 @@ namespace
 
     // M-4: clampFloat moved to SmartIrrigationCore.h
     using SmartIrrigation::clampFloat;
-
-    bool isInWindow(uint16_t nowMinutes, const SmartIrrigation::TimeWindow &window)
-    {
-        if (!window.active)
-        {
-            return false;
-        }
-
-        if (window.endMinutes >= window.startMinutes)
-        {
-            return nowMinutes >= window.startMinutes && nowMinutes <= window.endMinutes;
-        }
-
-        return nowMinutes >= window.startMinutes || nowMinutes <= window.endMinutes;
-    }
+    // N-1/N-2: isWindowActive() and isFixedWindowMatch() defined in SmartIrrigationCore.h
+    using SmartIrrigation::isWindowActive;
+    using SmartIrrigation::isFixedWindowMatch;
 
     uint16_t minutesUntilEnd(uint16_t nowMinutes, uint16_t endMinutes)
     {
@@ -202,12 +190,6 @@ namespace
             return static_cast<uint16_t>(endMinutes - nowMinutes);
         }
         return static_cast<uint16_t>((1440 - nowMinutes) + endMinutes);
-    }
-
-    bool isFixStartTime(uint16_t nowMinutes, uint16_t startMinutes)
-    {
-        const int diff = std::abs(static_cast<int>(nowMinutes) - static_cast<int>(startMinutes));
-        return diff <= 1;
     }
 
     void writeDateTimeKo(uint16_t koNumber, uint32_t epochSec, bool timeValid)
@@ -332,12 +314,12 @@ namespace
             bool inWindow = false;
             uint16_t minutesToEnd = 0;
 
-            if (isInWindow(nowMinutes, settings.window1))
+            if (isWindowActive(nowMinutes, settings.window1))
             {
                 inWindow = true;
                 minutesToEnd = minutesUntilEnd(nowMinutes, settings.window1.endMinutes);
             }
-            else if (isInWindow(nowMinutes, settings.window2))
+            else if (isWindowActive(nowMinutes, settings.window2))
             {
                 inWindow = true;
                 minutesToEnd = minutesUntilEnd(nowMinutes, settings.window2.endMinutes);
@@ -353,8 +335,8 @@ namespace
             // Fixed-window zones only have priority at their exact start time;
             // outside the start window they return 0 so they won't compete for slots
             // (decideWatering already prevents starts outside fixed windows).
-            const bool fixMatch = (settings.window1.active && isFixStartTime(nowMinutes, settings.window1.startMinutes)) ||
-                                  (settings.window2.active && isFixStartTime(nowMinutes, settings.window2.startMinutes));
+            const bool fixMatch = (settings.window1.active && isFixedWindowMatch(nowMinutes, settings.window1.startMinutes)) ||
+                                  (settings.window2.active && isFixedWindowMatch(nowMinutes, settings.window2.startMinutes));
             if (fixMatch)
             {
                 priority += kPriorityFixedWindowBonus;
@@ -1209,8 +1191,8 @@ void SmartIrrigationModule::loop(bool configured)
 
             if (!isManual && settings.windowType == SmartIrrigation::TimeWindowType::Fixed)
             {
-                const bool fixMatch = (settings.window1.active && isFixStartTime(nowMinutes, settings.window1.startMinutes)) ||
-                                      (settings.window2.active && isFixStartTime(nowMinutes, settings.window2.startMinutes));
+                const bool fixMatch = (settings.window1.active && isFixedWindowMatch(nowMinutes, settings.window1.startMinutes)) ||
+                                      (settings.window2.active && isFixedWindowMatch(nowMinutes, settings.window2.startMinutes));
                 if (!fixMatch)
                 {
                     runtimeState.errorActive = true;

@@ -455,15 +455,11 @@ namespace SmartIrrigation
 
         auto checkWindow = [&](const TimeWindow &window) {
             if (!window.active)
-            {
                 return false;
-            }
 
             if (type == TimeWindowType::Fixed)
             {
-                const int diff = std::abs(static_cast<int>(nowMinutes) - static_cast<int>(window.startMinutes));
-                const int circularDiff = std::min(diff, 1440 - diff);
-                if (circularDiff <= 1)
+                if (isFixedWindowMatch(nowMinutes, window.startMinutes))
                 {
                     result.fixedMatch = true;
                     return true;
@@ -471,12 +467,7 @@ namespace SmartIrrigation
                 return false;
             }
 
-            if (window.endMinutes > window.startMinutes)
-            {
-                return nowMinutes >= window.startMinutes && nowMinutes <= window.endMinutes;
-            }
-
-            return nowMinutes >= window.startMinutes || nowMinutes <= window.endMinutes;
+            return isWindowActive(nowMinutes, window);
         };
 
         result.allowed = checkWindow(window1) || checkWindow(window2);

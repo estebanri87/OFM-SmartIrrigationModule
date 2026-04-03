@@ -1,7 +1,8 @@
 #pragma once
 
 #include <cstdint>
-
+#include <cstdlib>
+#include <algorithm>
 
 namespace SmartIrrigation
 {
@@ -57,6 +58,23 @@ namespace SmartIrrigation
         SunriseBased = 2,
         SunsetBased = 3
     };
+
+    // N-1: Single-window activity check — shared by Core and Module logic
+    inline bool isWindowActive(uint16_t nowMinutes, const TimeWindow &window)
+    {
+        if (!window.active) return false;
+        if (window.endMinutes >= window.startMinutes)
+            return nowMinutes >= window.startMinutes && nowMinutes <= window.endMinutes;
+        return nowMinutes >= window.startMinutes || nowMinutes <= window.endMinutes;
+    }
+
+    // N-2: Fixed-window exact-match (±1 min, midnight-wrap-aware)
+    inline bool isFixedWindowMatch(uint16_t nowMinutes, uint16_t startMinutes)
+    {
+        const int diff = std::abs(static_cast<int>(nowMinutes) - static_cast<int>(startMinutes));
+        const int circularDiff = std::min(diff, 1440 - diff);
+        return circularDiff <= 1;
+    }
 
     enum class FlowInputUnit : uint8_t
     {
