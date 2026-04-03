@@ -55,7 +55,6 @@ namespace
         kKoManualMode = 5,
         kKoManualModeStatus = 6,
         kKoActiveZones = 7,
-        kKoWeatherUpdateTrigger = 8,
         kKoWeatherUpdateStatus = 9,
         kKoWeatherUpdateLast = 10,
         kKoRainLockActive = 11,
@@ -382,6 +381,8 @@ void SmartIrrigationModule::init()
 {
     std::fill(sensorLastValidMs_.begin(), sensorLastValidMs_.end(), 0);
     weatherUpdateLastSec_ = 0;
+    lastWeatherUpdateStatus_ = -1;
+    lastWeatherStatusCheckMs_ = 0;
     lastDecisionMs_ = 0;
     rainLock_.remainingHours = 0.0f;
     rainLock_.lastUpdateMs = millis();
@@ -461,6 +462,13 @@ void SmartIrrigationModule::loop(bool configured)
     lastDecisionMs_ = nowMs;
 
     updateRainLockCountdown();
+
+    // KO 1004: check weather status every 5 minutes (only send on change)
+    if (nowMs - lastWeatherStatusCheckMs_ >= 5UL * 60UL * 1000UL)
+    {
+        lastWeatherStatusCheckMs_ = nowMs;
+        updateWeatherStatusKo();
+    }
 
     const bool systemOn = knx.getGroupObject(singleKoNumber(kKoSystemOnOff)).value(DPT_Switch);
     const bool emergencyStop = knx.getGroupObject(singleKoNumber(kKoEmergencyStop)).value(DPT_Switch);
@@ -1444,6 +1452,26 @@ void SmartIrrigationModule::saveRuntimeToFlash(bool force)
 }
 
 #if (MASK_VERSION & 0x0900) != 0x0900 // Coupler do not have GroupObjects
+void SmartIrrigationModule::updateWeatherDataTimestamp()
+{
+    if (!openknx.time.isValid()) return;
+    auto t = openknx.time.getLocalTime();
+    weatherUpdateLastSec_ = static_cast<uint32_t>(t.toTime_t());
+    writeDateTimeKo(singleKoNumber(kKoWeatherUpdateLast), weatherUpdateLastSec_, true);
+}
+
+void SmartIrrigationModule::updateWeatherStatusKo()
+{
+    const bool realAvailable = weatherCache_.real.hasTemperature && weatherCache_.real.hasRain;
+    const bool updateOk = realAvailable || weatherCache_.forecast.hasEt0Day[0];
+    const int8_t newStatus = updateOk ? 1 : 0;
+    if (newStatus != lastWeatherUpdateStatus_)
+    {
+        lastWeatherUpdateStatus_ = newStatus;
+        knx.getGroupObject(singleKoNumber(kKoWeatherUpdateStatus)).value(updateOk, DPT_Switch);
+    }
+}
+
 void SmartIrrigationModule::processInputKo(GroupObject &ko)
 {
     OpenKNX::Module::processInputKo(ko);
@@ -1493,6 +1521,7 @@ void SmartIrrigationModule::processInputKo(GroupObject &ko)
                 sensorLastValidMs_[static_cast<size_t>(SmartIrrigation::SensorId::Temperature)] = millis();
             }
             sensorHealth_[static_cast<size_t>(SmartIrrigation::SensorId::Temperature)].update(valid);
+            updateWeatherDataTimestamp();
             break;
         }
         case kKoSensorRain:
@@ -1506,6 +1535,7 @@ void SmartIrrigationModule::processInputKo(GroupObject &ko)
             {
                 updateRainLockFromEvent(weatherCache_.real.rainAmountMm, maxRainDelayFactor());
             }
+            updateWeatherDataTimestamp();
             break;
         }
         case kKoSensorRainAmount:
@@ -1523,26 +1553,7 @@ void SmartIrrigationModule::processInputKo(GroupObject &ko)
             {
                 updateRainLockFromEvent(value, maxRainDelayFactor());
             }
-            break;
-        }
-        case kKoWeatherUpdateTrigger:
-        {
-            const bool trigger = ko.value(DPT_Switch);
-            if (!trigger)
-            {
-                break;
-            }
-
-            const bool realAvailable = weatherCache_.real.hasTemperature && weatherCache_.real.hasRain;
-            const bool updateOk = realAvailable || weatherCache_.forecast.hasEt0Day[0];
-            knx.getGroupObject(singleKoNumber(kKoWeatherUpdateStatus)).value(updateOk, DPT_Switch);
-
-            if (openknx.time.isValid())
-            {
-                auto currentTime = openknx.time.getLocalTime();
-                weatherUpdateLastSec_ = static_cast<uint32_t>(currentTime.toTime_t());
-                writeDateTimeKo(singleKoNumber(kKoWeatherUpdateLast), weatherUpdateLastSec_, true);
-            }
+            updateWeatherDataTimestamp();
             break;
         }
         case kKoSensorWind:
@@ -1555,6 +1566,7 @@ void SmartIrrigationModule::processInputKo(GroupObject &ko)
                 weatherCache_.real.windSpeedMs = value;
             }
             sensorHealth_[static_cast<size_t>(SmartIrrigation::SensorId::Wind)].update(valid);
+            updateWeatherDataTimestamp();
             break;
         }
         // ET0 daily KOs (Tag 0-6): stored in array for weekly planning
@@ -1582,6 +1594,7 @@ void SmartIrrigationModule::processInputKo(GroupObject &ko)
                     break;
                 }
             }
+            updateWeatherDataTimestamp();
             break;
         }
         // Rain daily KOs (Tag 0-6): stored in array for weekly planning
