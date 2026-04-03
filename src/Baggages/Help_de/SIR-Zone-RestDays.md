@@ -1,14 +1,20 @@
-# Ruhetage
+# Bewässerungsintervall
 
-Mindestanzahl Tage zwischen automatischen Bewässerungen dieser Zone.
+Dauer des rollierenden Bewässerungsfensters in Tagen.
 
-Diese Einstellung erzwingt eine Mindestpause zwischen Bewässerungszyklen. Das fördert tiefere Wurzelbildung, da die Pflanzen "nach Wasser suchen" müssen.
+Nach dem **ersten abgeschlossenen Bewässerungszyklus** einer Periode startet ein Zeitfenster. Erst wenn dieses Fenster abgelaufen ist, beginnt eine neue Periode – `weekAmount` und Zykluszähler werden dann automatisch zurückgesetzt.
 
-**Wertebereich:** 0-7 Tage (0 = keine Einschränkung)
+Innerhalb einer Periode können mehrere Zyklen stattfinden (z.B. 3× pro Woche), der Reset erfolgt aber immer erst nach Ablauf des Intervalls.
+
+**Wertebereich:** 0–30 Tage
+- `0` = Standardverhalten (7 Tage)
+- `7` = wöchentliches Intervall (identisch mit 0)
+- `10` = alle 10 Tage (z.B. für Gehölze)
+- `14` = alle 2 Wochen
 
 **Empfehlung:**
-- Rasen: 1-2 Tage
-- Stauden: 2-3 Tage
-- Gehölze: 3-5 Tage
+- Rasen: 7 Tage
+- Stauden: 7–10 Tage
+- Gehölze: 10–14 Tage
 
-**Hinweis:** Bei hohem Wasserbedarf kann diese Einstellung übersteuert werden (z.B. bei extremer Hitze).
+**Hinweis:** Der Wochenreset-KO setzt die Periode manuell zurück und startet das Fenster neu.
