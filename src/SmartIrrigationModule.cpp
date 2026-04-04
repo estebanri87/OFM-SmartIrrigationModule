@@ -402,7 +402,7 @@ void SmartIrrigationModule::setup(bool configured)
 
 void SmartIrrigationModule::loop(bool configured)
 {
-    (void)configured;
+    if (!configured) return; // GroupObject table is null when device is not ETS-configured
 
     const uint32_t nowMs = millis();
 
@@ -1396,7 +1396,6 @@ void SmartIrrigationModule::readFlash(const uint8_t *data, const uint16_t size)
         if (suspendEndTime_ > 0)
         {
             suspendActive_ = true;
-            knx.getGroupObject(singleKoNumber(kKoSuspendActive)).value(true, DPT_Switch);
             logInfoP("Suspend restored from flash until %u", suspendEndTime_);
         }
         logDebugP("SmartIrrigation flash V3\u2192V4 migration completed");
@@ -1427,7 +1426,6 @@ void SmartIrrigationModule::readFlash(const uint8_t *data, const uint16_t size)
         if (suspendEndTime_ > 0)
         {
             suspendActive_ = true;
-            knx.getGroupObject(singleKoNumber(kKoSuspendActive)).value(true, DPT_Switch);
             logInfoP("Suspend restored from flash until %u", suspendEndTime_);
         }
     }
@@ -1458,7 +1456,6 @@ void SmartIrrigationModule::readFlash(const uint8_t *data, const uint16_t size)
         if (suspendEndTime_ > 0)
         {
             suspendActive_ = true;
-            knx.getGroupObject(singleKoNumber(kKoSuspendActive)).value(true, DPT_Switch);
         }
     }
 }
