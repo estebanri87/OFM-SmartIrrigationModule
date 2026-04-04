@@ -344,12 +344,12 @@
                             <!-- Erstinbetriebnahme: First Start Mode (Offset 53) -->
                             <Union Id="%AID%_U-%TT%00045" SizeInBit="8">
                                 <Memory CodeSegment="%MID%" Offset="53" BitOffset="0" />
-                                <Parameter Id="%AID%_UP-%TT%00045" Name="SIR_FirstStartMode" ParameterType="%AID%_PT-FirstStartMode" Offset="0" BitOffset="0" Text="Erstbew\u00e4sserung-Modus" Value="0" />
+                                <Parameter Id="%AID%_UP-%TT%00045" Name="SIR_FirstStartMode" ParameterType="%AID%_PT-FirstStartMode" Offset="0" BitOffset="0" Text="Erstbewässerung-Modus" Value="0" />
                             </Union>
                             <!-- Erstinbetriebnahme: First Start Delay (Offset 54, 2 bytes) -->
                             <Union Id="%AID%_U-%TT%00046" SizeInBit="16">
                                 <Memory CodeSegment="%MID%" Offset="54" BitOffset="0" />
-                                <Parameter Id="%AID%_UP-%TT%00046" Name="SIR_FirstStartDelay" ParameterType="%AID%_PT-FirstStartDelay" Offset="0" BitOffset="0" Text="Erstbew\u00e4sserung-Verz\u00f6gerung" SuffixText=" h" Value="0" />
+                                <Parameter Id="%AID%_UP-%TT%00046" Name="SIR_FirstStartDelay" ParameterType="%AID%_PT-FirstStartDelay" Offset="0" BitOffset="0" Text="Erstbewässerung-Verzögerung" SuffixText=" h" Value="0" />
                             </Union>
                         </Parameters>
                         <ParameterRefs>
@@ -460,8 +460,8 @@
                             <ComObject Id="%AID%_O-%TT%00022" Number="22" Name="SensorRainAmount" Text="Sensor Regenmenge" ObjectSize="2 Bytes" DatapointType="DPST-9-26" ReadFlag="Disabled" WriteFlag="Enabled" CommunicationFlag="Enabled" TransmitFlag="Disabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" />
                             <ComObject Id="%AID%_O-%TT%00024" Number="24" Name="SensorWind" Text="Sensor Wind" ObjectSize="2 Bytes" DatapointType="DPST-9-5" ReadFlag="Disabled" WriteFlag="Enabled" CommunicationFlag="Enabled" TransmitFlag="Disabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" />
                             <!-- Erstinbetriebnahme KOs -->
-                            <ComObject Id="%AID%_O-%TT%00025" Number="25" Name="FirstStartRelease" Text="Start Erstbew\u00e4sserung" ObjectSize="1 Bit" DatapointType="DPST-1-1" ReadFlag="Disabled" WriteFlag="Enabled" CommunicationFlag="Enabled" TransmitFlag="Disabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" />
-                            <ComObject Id="%AID%_O-%TT%00026" Number="26" Name="FirstStartActive" Text="Status Erstbew\u00e4sserung" ObjectSize="1 Bit" DatapointType="DPST-1-1" ReadFlag="Enabled" WriteFlag="Disabled" CommunicationFlag="Enabled" TransmitFlag="Enabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" />
+                            <ComObject Id="%AID%_O-%TT%00025" Number="25" Name="FirstStartRelease" Text="Start Erstbewässerung" ObjectSize="1 Bit" DatapointType="DPST-1-1" ReadFlag="Disabled" WriteFlag="Enabled" CommunicationFlag="Enabled" TransmitFlag="Disabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" />
+                            <ComObject Id="%AID%_O-%TT%00026" Number="26" Name="FirstStartActive" Text="Status Erstbewässerung" ObjectSize="1 Bit" DatapointType="DPST-1-1" ReadFlag="Enabled" WriteFlag="Disabled" CommunicationFlag="Enabled" TransmitFlag="Enabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" />
                             <ComObject Id="%AID%_O-%TT%00027" Number="27" Name="SensorStatus" Text="Sensor Status" ObjectSize="1 Bit" DatapointType="DPST-1-1" ReadFlag="Enabled" WriteFlag="Disabled" CommunicationFlag="Enabled" TransmitFlag="Enabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" />
                             <!-- Phase 3: Water Source Output (3.1) -->
                             <ComObject Id="%AID%_O-%TT%00029" Number="29" Name="WaterSourceSwitch" Text="Quellenwechsel" ObjectSize="1 Bit" DatapointType="DPST-1-1" ReadFlag="Enabled" WriteFlag="Disabled" CommunicationFlag="Enabled" TransmitFlag="Enabled" UpdateFlag="Disabled" ReadOnInitFlag="Disabled" />
@@ -527,8 +527,8 @@
                             <ComObjectRef Id="%AID%_O-%TT%00022_R-%TT%0002201" RefId="%AID%_O-%TT%00022" FunctionText="Messwert Regenmenge (l/m²)" Text="Sensor Regenmenge" Priority="Low" ObjectSize="2 Bytes" DatapointType="DPST-9-26" />
                             <ComObjectRef Id="%AID%_O-%TT%00024_R-%TT%0002401" RefId="%AID%_O-%TT%00024" FunctionText="Messwert Wind (m/s)" Text="Sensor Wind" Priority="Low" ObjectSize="2 Bytes" DatapointType="DPST-9-5" />
                             <!-- Erstinbetriebnahme KO Refs -->
-                            <ComObjectRef Id="%AID%_O-%TT%00025_R-%TT%0002501" RefId="%AID%_O-%TT%00025" FunctionText="Start Erstbew\u00e4sserung" Text="Start Erstbew\u00e4sserung" Priority="Low" ObjectSize="1 Bit" DatapointType="DPST-1-1" />
-                            <ComObjectRef Id="%AID%_O-%TT%00026_R-%TT%0002601" RefId="%AID%_O-%TT%00026" FunctionText="Status Erstbew\u00e4sserung" Text="Status Erstbew\u00e4sserung" Priority="Low" ObjectSize="1 Bit" DatapointType="DPST-1-1" />
+                            <ComObjectRef Id="%AID%_O-%TT%00025_R-%TT%0002501" RefId="%AID%_O-%TT%00025" FunctionText="Start Erstbewässerung" Text="Start Erstbewässerung" Priority="Low" ObjectSize="1 Bit" DatapointType="DPST-1-1" />
+                            <ComObjectRef Id="%AID%_O-%TT%00026_R-%TT%0002601" RefId="%AID%_O-%TT%00026" FunctionText="Status Erstbewässerung" Text="Status Erstbewässerung" Priority="Low" ObjectSize="1 Bit" DatapointType="DPST-1-1" />
                             <ComObjectRef Id="%AID%_O-%TT%00027_R-%TT%0002701" RefId="%AID%_O-%TT%00027" FunctionText="Status Gültigkeit" Text="Sensor Status" Priority="Low" ObjectSize="1 Bit" DatapointType="DPST-1-1" />
                             <!-- Phase 3: Water Source KO Ref (3.1) -->
                             <ComObjectRef Id="%AID%_O-%TT%00029_R-%TT%0002901" RefId="%AID%_O-%TT%00029" FunctionText="Quellenwechsel" Text="Quellenwechsel" Priority="Low" ObjectSize="1 Bit" DatapointType="DPST-1-1" />
@@ -690,9 +690,9 @@
                                     </when>
                                 </choose>
 
-                                <!-- Erstbew\u00e4sserung -->
+                                <!-- Erstbewässerung -->
                                 <ParameterSeparator Id="%AID%_PS-%TT%00107" Text="" UIHint="HorizontalRuler" />
-                                <ParameterSeparator Id="%AID%_PS-%TT%00050" Text="Erstbew\u00e4sserung" UIHint="Headline" />
+                                <ParameterSeparator Id="%AID%_PS-%TT%00050" Text="Erstbewässerung" UIHint="Headline" />
                                 <ParameterSeparator Id="%AID%_PS-%TT%00051" Text="Verzögerung der ersten Bewässerung nach Neuinbetriebnahme (leerer Flash)." UIHint="Information" />
                                 <ParameterRefRef RefId="%AID%_UP-%TT%00045_R-%TT%0004501" />
                                 <choose ParamRefId="%AID%_UP-%TT%00045_R-%TT%0004501">

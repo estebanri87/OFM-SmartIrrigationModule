@@ -180,7 +180,7 @@
                 <Parameter Id="%AID%_UP-%TT%%CC%058" Name="SIR_Z%C%ZonePriority" ParameterType="%AID%_PT-ZonePriority" Offset="91" BitOffset="0" Text="Bewässerungs-Priorität" Value="5" />
                 
                 <!-- Byte 92: ActivityEnabled (bool) -->
-                <Parameter Id="%AID%_UP-%TT%%CC%059" Name="SIR_Z%C%ActivityEnabled" ParameterType="%AID%_PT-OnOffYesNo" Offset="92" BitOffset="0" Text="Aktivit\u00e4tserkennung" Value="0" />
+                <Parameter Id="%AID%_UP-%TT%%CC%059" Name="SIR_Z%C%ActivityEnabled" ParameterType="%AID%_PT-OnOffYesNo" Offset="92" BitOffset="0" Text="Aktivitätserkennung" Value="0" />
                 
                 <!-- Next Offset: 93 (744 bits) -->
               </Union>
@@ -644,13 +644,13 @@
                         <ComObjectRefRef RefId="%AID%_O-%TT%%CC%116_R-%TT%%CC%11601" />
                       </when>
                     </choose>
-                    <!-- K17: Aktivit\u00e4tsblock-Eingang nur wenn ActivityEnabled -->
+                    <!-- K17: Aktivitätsblock-Eingang nur wenn ActivityEnabled -->
                     <ParameterSeparator Id="%AID%_PS-%TT%%CC%410" Text="" UIHint="HorizontalRuler" />
-                    <ParameterSeparator Id="%AID%_PS-%TT%%CC%411" Text="Aktivit\u00e4tserkennung" UIHint="Headline" />
+                    <ParameterSeparator Id="%AID%_PS-%TT%%CC%411" Text="Aktivitätserkennung" UIHint="Headline" />
                     <ParameterRefRef RefId="%AID%_UP-%TT%%CC%059_R-%TT%%CC%05901" HelpContext="SIR-Zone-ActivityEnabled" />
                     <choose ParamRefId="%AID%_UP-%TT%%CC%059_R-%TT%%CC%05901">
                       <when test="1">
-                        <ParameterSeparator Id="%AID%_PS-%TT%%CC%412" Text="Pausiert Bew\u00e4sserung solange dieser Eingang aktiv ist." UIHint="Information" />
+                        <ParameterSeparator Id="%AID%_PS-%TT%%CC%412" Text="Pausiert Bewässerung solange dieser Eingang aktiv ist." UIHint="Information" />
                         <ComObjectRefRef RefId="%AID%_O-%TT%%CC%117_R-%TT%%CC%11701" />
                       </when>
                     </choose>
