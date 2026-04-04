@@ -199,6 +199,9 @@ namespace SmartIrrigation
     {
         DecisionAction action = DecisionAction::None;
         DecisionMode mode = DecisionMode::Fallback;
+        // Computed water demand in mm.
+        // Set to the calculated value even when action=None, so callers can
+        // distinguish "no demand" (0.0) from "demand but blocked" (>0, action=None).
         float waterDemand = 0.0f;
         float et0 = 0.0f;
         float effectiveRain = 0.0f;

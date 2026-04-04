@@ -366,6 +366,11 @@ namespace SmartIrrigation
             return result;
         }
 
+        // Always expose the computed demand — even when a subsequent guard blocks
+        // the start. Callers can then distinguish "no demand" (waterDemand=0)
+        // from "demand present but blocked" (waterDemand>0, action=None/WaitTimeWindow).
+        result.waterDemand = waterDemand;
+
         if (effectiveAbsMaxWeek > 0.0f)
         {
             const float weekRemaining = effectiveAbsMaxWeek - runtime.weekAmount;
@@ -378,6 +383,7 @@ namespace SmartIrrigation
         if (effectiveMaxWeek > 0.0f && runtime.weekAmount + waterDemand > effectiveMaxWeek)
         {
             waterDemand = effectiveMaxWeek - runtime.weekAmount;
+            result.waterDemand = waterDemand;
         }
 
         if (soilOverride)
@@ -423,7 +429,6 @@ namespace SmartIrrigation
             return result;
         }
 
-        result.waterDemand = waterDemand;
         result.action = DecisionAction::Start;
         return result;
     }
